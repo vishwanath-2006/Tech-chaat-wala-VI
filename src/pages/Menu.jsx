@@ -1,0 +1,227 @@
+import React, { useState, useEffect, useRef } from 'react';
+import { Search, SlidersHorizontal, ShoppingBag, ChevronLeft, Sparkles } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import FoodCard from '../components/menu/FoodCard';
+import ItemDetailModal from '../components/menu/ItemDetailModal';
+import AssistantPanel from '../components/ui/AssistantPanel';
+import ProfileDropdown from '../components/ui/ProfileDropdown';
+import { useMenu } from '../context/MenuContext';
+
+const Menu = ({ cart, updateCart, triggerRobot }) => {
+    const navigate = useNavigate();
+    const { menuData, categories } = useMenu();
+    const [activeTab, setActiveTab] = useState('All');
+    const [searchQuery, setSearchQuery] = useState('');
+
+    const filteredData = menuData.filter(item => {
+        const matchesCategory = activeTab === 'All' || item.category === activeTab;
+        const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase());
+        return matchesCategory && matchesSearch;
+    });
+
+    const cartCount = Object.values(cart).reduce((a, b) => a + b, 0);
+    const cartTotal = Object.entries(cart).reduce((total, [id, qty]) => {
+        const item = menuData.find(i => i.id === id);
+        return total + (item ? item.price * qty : 0);
+    }, 0);
+
+    // AI & Micro-interaction States
+    const [assistantMsg, setAssistantMsg] = useState("Ready to build your smart snack?");
+    const [showCombo, setShowCombo] = useState(false);
+    const [cartPulse, setCartPulse] = useState(false);
+    const [selectedItem, setSelectedItem] = useState(null);
+    const prevCartCount = useRef(cartCount);
+
+    // Watch cart changes to trigger interactions
+    useEffect(() => {
+        if (cartCount > prevCartCount.current) {
+            // Item Added!
+            setAssistantMsg("Nice choice! That's a fan favorite.");
+            setCartPulse(true);
+            setShowCombo(true);
+
+            setTimeout(() => setCartPulse(false), 600);
+            setTimeout(() => setShowCombo(false), 4000); // Hide combo toast after 4s
+        } else if (cartCount === 0 && !selectedItem) {
+            setAssistantMsg("Ready to build your smart snack?");
+        }
+        prevCartCount.current = cartCount;
+    }, [cartCount, selectedItem]);
+
+    // Assistant message override for detailed view
+    useEffect(() => {
+        if (selectedItem) {
+            setAssistantMsg("Great choice! This one is popular.");
+        } else if (cartCount === 0) {
+            setAssistantMsg("Ready to build your smart snack?");
+        }
+    }, [selectedItem, cartCount]);
+
+    // Recommended items (grab top 3 popular)
+    const recommendedItems = menuData.filter(i => i.isPopular && !cart[i.id]).slice(0, 3);
+
+    return (
+        <div className="min-h-screen bg-background pb-28">
+            {/* Sticky Header */}
+            <header className="sticky top-0 z-40 bg-surface/80 backdrop-blur-xl border-b border-white/20 shadow-sm pt-safe">
+                <div className="p-4 flex items-center justify-between gap-4">
+                    <button
+                        onClick={() => navigate('/')}
+                        className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-secondary active:scale-95 transition-transform"
+                    >
+                        <ChevronLeft size={20} />
+                    </button>
+
+                    {/* Search Bar */}
+                    <div className="flex-1 relative">
+                        <input
+                            type="text"
+                            placeholder="Search database..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="w-full bg-slate-100 rounded-full py-2.5 pl-10 pr-4 text-sm font-medium text-secondary placeholder:text-slate-400:text-slate-500 focus:outline-none focus:ring-2 focus:ring-primary/20 border border-slate-200 transition-colors"
+                        />
+                        <Search className="absolute left-3.5 top-2.5 text-slate-400" size={16} />
+                    </div>
+
+                    {/* Actions Group */}
+                    <div className="flex items-center gap-2">
+                        <button className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-secondary active:scale-95 border border-slate-200">
+                            <SlidersHorizontal size={18} />
+                        </button>
+                        <ProfileDropdown />
+                    </div>
+                </div>
+
+                {/* Categories Tab Bar */}
+                <div className="flex overflow-x-auto hide-scrollbar px-4 pb-4 gap-2">
+                    {categories.filter(c => c.isVisible).map(category => (
+                        <button
+                            key={category.id}
+                            onClick={() => setActiveTab(category.name)}
+                            className={`whitespace-nowrap px-5 py-2 rounded-full text-sm font-bold transition-all ${activeTab === category.name
+                                ? 'bg-secondary text-white shadow-neon-blue border border-secondary/50 transform scale-105'
+                                : 'bg-surface text-textLight border border-slate-200 hover:border-slate-300:border-slate-600'
+                                }`}
+                        >
+                            {category.name}
+                        </button>
+                    ))}
+                </div>
+            </header>
+
+            {/* Menu Grid Content */}
+            <main className="p-4 relative">
+
+                {/* Smart Food Recommendations */}
+                {recommendedItems.length > 0 && activeTab === 'All' && (
+                    <div className="mb-8 animate-fade-in">
+                        <h2 className="text-sm font-bold flex items-center gap-2 mb-3 text-secondary">
+                            <Sparkles size={16} className="text-primary" /> Recommended for You
+                        </h2>
+                        <div className="flex overflow-x-auto gap-3 pb-4 -mx-4 px-4 snap-x hide-scrollbar">
+                            {recommendedItems.map(item => (
+                                <div key={`rec-${item.id}`} className="snap-center shrink-0 w-[240px]">
+                                    <div className="surface-card flex items-center p-3 gap-3 border-2 border-primary/20 hover:border-primary/50 cursor-pointer shadow-[0_0_15px_rgba(255,122,26,0.1)] card-lift" onClick={() => updateCart(item.id, 1)}>
+                                        <div className="w-16 h-16 rounded-full bg-slate-100 overflow-hidden shrink-0 shadow-sm flex items-center justify-center text-3xl">
+                                            {item.image ? <img src={item.image} alt={item.name} className="w-full h-full object-cover" loading="lazy" /> : item.icon}
+                                        </div>
+                                        <div className="flex-1">
+                                            <h4 className="text-xs font-bold leading-tight mb-1">{item.name}</h4>
+                                            <div className="flex justify-between items-center text-xs">
+                                                <span className="font-mono text-primary font-bold">₹{item.price}</span>
+                                                <span className="text-textLight bg-slate-100 px-1.5 rounded">{item.calories} kC</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                <div className="grid grid-cols-2 gap-4">
+                    {filteredData.map(item => (
+                        <FoodCard
+                            key={item.id}
+                            item={item}
+                            count={cart[item.id] || 0}
+                            onAdd={(id) => updateCart(id, 1)}
+                            onRemove={(id) => updateCart(id, -1)}
+                            onClick={() => setSelectedItem(item)}
+                            triggerRobot={triggerRobot}
+                        />
+                    ))}
+                </div>
+                {filteredData.length === 0 && (
+                    <div className="flex flex-col items-center justify-center py-20 text-textLight">
+                        <Search size={40} className="mb-4 opacity-20" />
+                        <p className="font-mono text-sm">NO_RESULTS_FOUND</p>
+                    </div>
+                )}
+            </main>
+
+            {/* Smart Combo Suggestions Overlay */}
+            <div className={`fixed top-24 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-sm z-50 transition-all duration-500 pointer-events-none ${showCombo ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'}`}>
+                <div className="surface-card bg-surface/95 backdrop-blur-xl p-4 border-2 border-secondary shadow-2xl pointer-events-auto">
+                    <p className="text-xs font-black uppercase text-secondary tracking-wider mb-2 flex items-center gap-2">
+                        <Sparkles size={14} className="text-primary animate-pulse" /> Perfect Pairings
+                    </p>
+                    <div className="flex items-center justify-between bg-slate-50 p-2 rounded-xl border border-slate-100 cursor-pointer hover:border-primary/50 transition-colors" onClick={() => { updateCart('lb-2', 1); setShowCombo(false); }}>
+                        <div className="flex items-center gap-2">
+                            <span className="text-2xl">☕</span>
+                            <div>
+                                <p className="text-sm font-bold text-secondary leading-tight">Nitro Coffee</p>
+                                <p className="text-[10px] text-primary font-mono font-bold">+₹149</p>
+                            </div>
+                        </div>
+                        <button className="bg-primary/10 text-primary px-3 py-1 rounded-lg text-xs font-bold active:scale-95">Add</button>
+                    </div>
+                </div>
+            </div>
+
+            {/* AI Assistant Hook */}
+            <AssistantPanel message={assistantMsg} fixed={true} position="bottom-left" />
+
+            {/* Floating Cart Intelligence */}
+            {cartCount > 0 && (
+                <div className={`fixed bottom-6 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-sm z-50 transition-transform duration-300`}>
+                    <button
+                        onClick={() => navigate('/checkout')}
+                        className={`btn-primary w-full p-4 flex flex-col items-stretch gap-1 ${cartPulse ? 'animate-cart-pulse' : ''}`}
+                    >
+                        <div className="flex items-center justify-between w-full">
+                            <div className="flex items-center gap-3">
+                                <div className="relative">
+                                    <ShoppingBag size={24} />
+                                    <span className="absolute -top-1 -right-1 bg-white text-primary text-[10px] font-black w-4 h-4 rounded-full flex items-center justify-center shadow-sm">
+                                        {cartCount}
+                                    </span>
+                                </div>
+                                <span className="font-mono font-bold text-lg">₹{cartTotal}</span>
+                            </div>
+                            <span className="flex items-center gap-1 font-bold">
+                                View Queue <ChevronLeft size={18} className="rotate-180" />
+                            </span>
+                        </div>
+                        <div className="text-[10px] text-white/80 font-mono tracking-wide text-left italic">
+                            {cartCount} items ready for checkout.
+                        </div>
+                    </button>
+                </div>
+            )}
+
+            {/* Item Detail Modal */}
+            <ItemDetailModal
+                item={selectedItem}
+                isOpen={!!selectedItem}
+                onClose={() => setSelectedItem(null)}
+                count={selectedItem ? (cart[selectedItem.id] || 0) : 0}
+                onAdd={(id) => updateCart(id, 1)}
+                onRemove={(id) => updateCart(id, -1)}
+            />
+        </div>
+    );
+};
+
+export default Menu;
