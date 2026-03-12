@@ -12,6 +12,7 @@
     --color-textDark: 30 41 59;
     --color-textLight: 100 116 139;
     --color-success: 34 197 94;
+    --fintech-gradient: linear-gradient(135deg, #e0f2f1 0%, #e1f5fe 100%);
   }
 
 
@@ -52,6 +53,85 @@
 
   .neon-text-primary {
     text-shadow: 0 0 10px rgba(255, 122, 26, 0.3);
+  }
+
+  .glass-card {
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    @apply rounded-[24px] transition-all duration-300;
+  }
+
+  .glass-card:hover {
+    background: rgba(255, 255, 255, 0.75);
+    border: 1px solid rgba(255, 122, 26, 0.4);
+    box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.1);
+  }
+
+  .fintech-bg {
+    background: var(--fintech-gradient);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .blob {
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(56, 189, 248, 0.1) 100%);
+    filter: blur(80px);
+    border-radius: 50%;
+    z-index: 0;
+    animation: blob-float 15s infinite alternate ease-in-out;
+  }
+}
+
+@keyframes blob-float {
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(50px, 30px) scale(1.1); }
+}
+
+@keyframes scanning-line {
+  0% { transform: translateY(0); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { transform: translateY(224px); opacity: 0; }
+}
+
+.glowing-border {
+  position: relative;
+}
+
+.glowing-border::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  background: linear-gradient(45deg, var(--color-primary), #38bdf8, var(--color-primary));
+  z-index: -1;
+  border-radius: inherit;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  filter: blur(5px);
+}
+
+.glowing-border.active::after {
+  opacity: 0.6;
+}
+
+.ripple {
+  position: absolute;
+  border-radius: 50%;
+  transform: scale(0);
+  animation: ripple-effect 0.6s linear;
+  background-color: rgba(255, 255, 255, 0.5);
+  pointer-events: none;
+}
+
+@keyframes ripple-effect {
+  to {
+    transform: scale(4);
+    opacity: 0;
   }
 }
 

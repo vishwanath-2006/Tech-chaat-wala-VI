@@ -42,7 +42,17 @@ export const OrderProvider = ({ children }) => {
                 }
             }
         } catch (e) { console.error(e); }
-        return INITIAL_ORDERS;
+        // For new system, we map old statuses to new ones if necessary, 
+        // but for now let's just use the clean slate or updated INITIAL_ORDERS
+        return INITIAL_ORDERS.map(o => ({
+            ...o,
+            status: o.status === 'pending' ? 'PENDING' :
+                   o.status === 'cooking' ? 'PREPARING' :
+                   o.status === 'ready' ? 'READY' :
+                   o.status === 'completed' ? 'COMPLETED' : o.status,
+            paymentStatus: 'Paid',
+            paymentMethod: 'UPI'
+        }));
     });
 
     useEffect(() => {
@@ -59,7 +69,9 @@ export const OrderProvider = ({ children }) => {
 
         const newOrder = {
             id: newOrderId,
-            status: 'pending', // pending -> cooking -> ready -> completed
+            status: orderData.paymentStatus === 'Paid' ? 'PENDING' : 'Awaiting Payment',
+            paymentStatus: orderData.paymentStatus || 'Pending',
+            paymentMethod: orderData.paymentMethod || 'Counter',
             timestamp: Date.now(),
             prepTime: basePrepTime,
             ...orderData
@@ -71,9 +83,16 @@ export const OrderProvider = ({ children }) => {
 
     // Admin updates status 
     const updateOrderStatus = (orderId, newStatus) => {
-        setOrders(prev => prev.map(order =>
-            order.id === orderId ? { ...order, status: newStatus } : order
-        ));
+        setOrders(prev => prev.map(order => {
+            if (order.id === orderId) {
+                // If payment was pending and now it's paid, move to PENDING status for kitchen
+                if (order.paymentStatus === 'Pending' && newStatus === 'Paid') {
+                    return { ...order, paymentStatus: 'Paid', status: 'PENDING' };
+                }
+                return { ...order, status: newStatus };
+            }
+            return order;
+        }));
     };
 
     // Admin updates preparation time
@@ -93,7 +112,8 @@ export const OrderProvider = ({ children }) => {
         const order = orders.find(o => o.id === orderId);
         if (!order) return { ordersAhead: 0, position: 0, waitTimeMins: 0 };
 
-        const activeOrders = orders.filter(o => o.status === 'pending' || o.status === 'cooking');
+        const activeStatuses = ['PENDING', 'ACCEPTED', 'PREPARING'];
+        const activeOrders = orders.filter(o => activeStatuses.includes(o.status));
 
         // Sort by timestamp (oldest first)
         activeOrders.sort((a, b) => a.timestamp - b.timestamp);
@@ -101,7 +121,7 @@ export const OrderProvider = ({ children }) => {
         const myIndex = activeOrders.findIndex(o => o.id === orderId);
 
         if (myIndex === -1) {
-            // Probably ready or completed
+            // Probably ready or completed or awaiting payment
             return { ordersAhead: 0, position: 1, waitTimeMins: 0 };
         }
 

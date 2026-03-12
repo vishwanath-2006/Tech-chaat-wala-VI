@@ -46,7 +46,7 @@ const AdminDashboard = () => {
     const [lastOrderCount, setLastOrderCount] = useState(allOrders.length);
     React.useEffect(() => {
         if (allOrders.length > lastOrderCount) {
-            const hasNewPending = allOrders.slice(lastOrderCount).some(o => o.status === 'pending');
+            const hasNewPending = allOrders.slice(lastOrderCount).some(o => o.status === 'PENDING');
             if (hasNewPending && user?.role === 'official') {
                 playAlertSound();
             }
@@ -171,9 +171,11 @@ const AdminDashboard = () => {
         return matchesTab && matchesSearch;
     });
 
-    const activeOrders = [...allOrders].filter(o => o.status !== 'completed' && o.status !== 'pending').sort((a, b) => a.timestamp - b.timestamp);
-    const pendingOrders = [...allOrders].filter(o => o.status === 'pending').sort((a, b) => a.timestamp - b.timestamp);
-    const completedOrders = [...allOrders].filter(o => o.status === 'completed').sort((b, a) => a.timestamp - b.timestamp);
+    // POS Workflow status mapping
+    // PENDING, ACCEPTED, PREPARING, READY, COMPLETED, 'Awaiting Payment'
+    const pendingOrders = [...allOrders].filter(o => o.status === 'PENDING' || o.status === 'Awaiting Payment').sort((a, b) => a.timestamp - b.timestamp);
+    const activeOrders = [...allOrders].filter(o => ['ACCEPTED', 'PREPARING', 'READY'].includes(o.status)).sort((a, b) => a.timestamp - b.timestamp);
+    const completedOrders = [...allOrders].filter(o => o.status === 'COMPLETED').sort((b, a) => a.timestamp - b.timestamp);
 
     const formatOrderTime = (timestamp) => {
         const d = new Date(timestamp);
@@ -403,33 +405,60 @@ const AdminDashboard = () => {
                     <div className="space-y-8">
                         {/* New Orders Alert Panel */}
                         {pendingOrders.length > 0 && (
-                            <div className="bg-red-50 border-2 border-red-200 rounded-2xl p-6 shadow-sm">
+                            <div className="bg-red-50 border-2 border-red-200 rounded-2xl p-6 shadow-sm animate-pulse-subtle">
                                 <h3 className="text-xl font-bold text-red-700 flex items-center gap-2 mb-4">
-                                    <BellRing className="animate-pulse" /> New Orders Received
+                                    <BellRing className="animate-bounce" /> New Orders Received
                                 </h3>
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                     {pendingOrders.map(order => (
-                                        <div key={order.id} className="bg-white rounded-xl p-4 shadow-sm border border-red-100 relative overflow-hidden">
-                                            <div className="absolute top-0 left-0 w-1 h-full bg-red-500"></div>
+                                        <div key={order.id} className="bg-white rounded-xl p-4 shadow-sm border border-red-100 relative overflow-hidden transition-transform hover:scale-[1.02]">
+                                            <div className={`absolute top-0 left-0 w-1.5 h-full ${order.status === 'Awaiting Payment' ? 'bg-amber-400' : 'bg-red-500'}`}></div>
                                             <div className="flex justify-between items-start mb-2">
                                                 <div>
                                                     <span className="font-black text-secondary text-lg">#{order.id}</span>
-                                                    <div className="text-xs text-slate-500 flex items-center gap-1 mt-1">
-                                                        <Clock size={12} /> {formatOrderTime(order.timestamp)}
+                                                    <div className="text-[10px] text-slate-500 flex items-center gap-1 mt-1 font-mono">
+                                                        <Clock size={10} /> {formatOrderTime(order.timestamp)}
                                                     </div>
                                                 </div>
-                                                <div className="font-mono text-primary font-bold">₹{order.total}</div>
+                                                <div className="text-right">
+                                                    <div className="font-mono text-primary font-bold">₹{order.total}</div>
+                                                    <div className={`text-[9px] font-bold uppercase tracking-tighter px-1.5 py-0.5 rounded border inline-block mt-1 ${order.paymentStatus === 'Paid' ? 'bg-green-50 text-green-600 border-green-100' : 'bg-amber-50 text-amber-600 border-amber-100'}`}>
+                                                        {order.paymentMethod} {order.paymentStatus}
+                                                    </div>
+                                                </div>
                                             </div>
-                                            <div className="text-sm text-slate-600 mb-4 line-clamp-2">
-                                                {order.items.map(i => `${i.qty}x ${i.name}`).join(', ')}
+                                            <div className="text-sm text-slate-600 mb-4 font-medium border-t border-slate-50 pt-2">
+                                                {order.items.map(i => (
+                                                    <div key={i.name} className="flex justify-between">
+                                                        <span>{i.name}</span>
+                                                        <span className="font-bold">x{i.qty}</span>
+                                                    </div>
+                                                ))}
                                             </div>
-                                            <div className="grid grid-cols-2 gap-2">
-                                                <button onClick={() => updateOrderStatus(order.id, 'accepted')} className="bg-indigo-600 text-white font-bold py-2 rounded-lg hover:bg-indigo-700 active:scale-95 transition-all text-xs">
-                                                    Accept
-                                                </button>
-                                                <button onClick={() => updateOrderStatus(order.id, 'cooking')} className="bg-primary text-white font-bold py-2 rounded-lg shadow-sm active:scale-95 transition-all text-xs">
-                                                    Start Cooking
-                                                </button>
+                                            <div className="grid grid-cols-2 gap-2 mt-2">
+                                                {order.status === 'Awaiting Payment' ? (
+                                                    <button 
+                                                        onClick={() => updateOrderStatus(order.id, 'Paid')}
+                                                        className="col-span-2 bg-amber-500 text-white font-black py-2.5 rounded-lg hover:bg-amber-600 active:scale-95 transition-all text-xs uppercase"
+                                                    >
+                                                        Confirm Payment
+                                                    </button>
+                                                ) : (
+                                                    <>
+                                                        <button 
+                                                            onClick={() => updateOrderStatus(order.id, 'ACCEPTED')}
+                                                            className="bg-indigo-600 text-white font-black py-2.5 rounded-lg hover:bg-indigo-700 active:scale-95 transition-all text-xs uppercase"
+                                                        >
+                                                            Accept Order
+                                                        </button>
+                                                        <button 
+                                                            onClick={() => updateOrderStatus(order.id, 'PREPARING')}
+                                                            className="bg-primary text-white font-black py-2.5 rounded-lg shadow-sm hover:bg-primary/90 active:scale-95 transition-all text-xs uppercase"
+                                                        >
+                                                            Start Cooking
+                                                        </button>
+                                                    </>
+                                                )}
                                             </div>
                                         </div>
                                     ))}
@@ -449,32 +478,38 @@ const AdminDashboard = () => {
                                     </div>
                                 ) : (
                                     activeOrders.map(order => (
-                                        <div key={order.id} className="surface-card rounded-2xl p-5 border border-slate-200 shadow-sm flex flex-col h-full relative overflow-hidden">
-                                            {order.status === 'ready' && <div className="absolute top-0 left-0 w-full h-1 bg-success"></div>}
-                                            {order.status === 'cooking' && <div className="absolute top-0 left-0 w-full h-1 bg-primary"></div>}
-                                            {order.status === 'accepted' && <div className="absolute top-0 left-0 w-full h-1 bg-indigo-500"></div>}
+                                        <div key={order.id} className="surface-card rounded-2xl p-5 border border-slate-200 shadow-sm flex flex-col h-full relative overflow-hidden group">
+                                            {order.status === 'READY' && <div className="absolute top-0 left-0 w-full h-1.5 bg-green-500"></div>}
+                                            {order.status === 'PREPARING' && <div className="absolute top-0 left-0 w-full h-1.5 bg-primary animate-pulse"></div>}
+                                            {order.status === 'ACCEPTED' && <div className="absolute top-0 left-0 w-full h-1.5 bg-indigo-500"></div>}
 
                                             <div className="flex justify-between items-start mb-4 pb-4 border-b border-slate-100">
                                                 <div>
                                                     <h3 className="text-lg font-black text-secondary uppercase tracking-widest">{order.id}</h3>
-                                                    <p className="text-xs text-textLight font-mono mt-1">Recv: {formatOrderTime(order.timestamp)}</p>
+                                                    <div className="flex items-center gap-2 mt-1">
+                                                        <span className="text-[10px] text-textLight font-mono">Recv: {formatOrderTime(order.timestamp)}</span>
+                                                        <span className="text-[10px] font-black uppercase tracking-tighter text-slate-400">{order.paymentMethod}</span>
+                                                    </div>
                                                 </div>
-                                                <div className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide
-                                                    ${order.status === 'accepted' ? 'bg-indigo-100 text-indigo-800 border border-indigo-200' : ''}
-                                                    ${order.status === 'cooking' ? 'bg-primary/10 text-primary border border-primary/20 animate-pulse' : ''}
-                                                    ${order.status === 'ready' ? 'bg-success/10 text-success border border-success/20' : ''}
+                                                <div className={`px-2 py-1 rounded-lg text-[10px] font-black uppercase tracking-tighter border
+                                                    ${order.status === 'ACCEPTED' ? 'bg-indigo-50 text-indigo-700 border-indigo-100' : ''}
+                                                    ${order.status === 'PREPARING' ? 'bg-primary/5 text-primary border-primary/10' : ''}
+                                                    ${order.status === 'READY' ? 'bg-green-50 text-green-700 border-green-100' : ''}
                                                 `}>
                                                     {order.status}
                                                 </div>
                                             </div>
 
                                             <div className="flex-1 mb-6">
-                                                <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Order Specs</h4>
+                                                <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 flex items-center justify-between">
+                                                    <span>Order Assembly</span>
+                                                    <span>₹{order.total}</span>
+                                                </div>
                                                 <ul className="space-y-2">
                                                     {order.items.map((item, idx) => (
                                                         <li key={idx} className="flex justify-between text-sm items-center">
-                                                            <span className="text-secondary font-medium">
-                                                                <span className="text-slate-400 mr-2">{item.qty}x</span>
+                                                            <span className="text-secondary font-bold">
+                                                                <span className="text-primary/60 font-black mr-2">x{item.qty}</span>
                                                                 {item.name}
                                                             </span>
                                                         </li>
@@ -483,42 +518,42 @@ const AdminDashboard = () => {
                                             </div>
 
                                             {/* Prep Time Modification */}
-                                            {order.status !== 'ready' && (
-                                                <div className="mb-4 bg-slate-50 rounded-lg p-3 flex justify-between items-center border border-slate-100">
-                                                    <span className="text-xs font-bold text-slate-500 flex items-center gap-1"><Clock size={14} /> Est. Prep</span>
-                                                    <div className="flex items-center gap-2">
-                                                        <button onClick={() => handleAdjustTime(order.id, order.prepTime, -1)} className="w-6 h-6 rounded bg-slate-200 hover:bg-slate-300 flex items-center justify-center text-slate-600 font-bold">-</button>
-                                                        <span className="text-sm font-mono font-bold w-12 text-center">{order.prepTime}m</span>
-                                                        <button onClick={() => handleAdjustTime(order.id, order.prepTime, 1)} className="w-6 h-6 rounded bg-slate-200 hover:bg-slate-300 flex items-center justify-center text-slate-600 font-bold">+</button>
+                                            {order.status !== 'READY' && (
+                                                <div className="mb-4 bg-slate-50/50 rounded-xl p-3 flex justify-between items-center border border-slate-100/50 group-hover:bg-slate-50 transition-colors">
+                                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1.5"><Clock size={12} /> Cycle Time</span>
+                                                    <div className="flex items-center gap-3">
+                                                        <button onClick={() => handleAdjustTime(order.id, order.prepTime, -1)} className="w-6 h-6 rounded-lg bg-white shadow-sm hover:shadow-md border border-slate-200 flex items-center justify-center text-slate-600 font-black active:scale-90 transition-all">-</button>
+                                                        <span className="text-sm font-mono font-black w-8 text-center text-secondary">{order.prepTime}m</span>
+                                                        <button onClick={() => handleAdjustTime(order.id, order.prepTime, 1)} className="w-6 h-6 rounded-lg bg-white shadow-sm hover:shadow-md border border-slate-200 flex items-center justify-center text-slate-600 font-black active:scale-90 transition-all">+</button>
                                                     </div>
                                                 </div>
                                             )}
 
-                                            <div className="mt-auto grid grid-cols-2 gap-2 pt-4 border-t border-slate-100">
-                                                {order.status === 'accepted' && (
+                                            <div className="mt-auto grid grid-cols-2 gap-3 pt-4 border-t border-slate-100 italic font-black uppercase tracking-widest">
+                                                {order.status === 'ACCEPTED' && (
                                                     <button
-                                                        onClick={() => updateOrderStatus(order.id, 'cooking')}
-                                                        className="col-span-2 btn-primary py-3 text-sm flex justify-center gap-2 items-center"
+                                                        onClick={() => updateOrderStatus(order.id, 'PREPARING')}
+                                                        className="col-span-2 btn-primary py-3.5 text-xs flex justify-center gap-2 items-center italic"
                                                     >
-                                                        <Play size={16} fill="currentColor" /> Start Cooking
+                                                        <Play size={16} fill="currentColor" /> Initiate Cooking
                                                     </button>
                                                 )}
 
-                                                {order.status === 'cooking' && (
+                                                {order.status === 'PREPARING' && (
                                                     <button
-                                                        onClick={() => updateOrderStatus(order.id, 'ready')}
-                                                        className="col-span-2 bg-success text-white font-bold py-3 rounded-xl shadow-[0_2px_10px_rgba(34,197,94,0.3)] hover:bg-green-600 active:scale-95 transition-all text-sm flex justify-center gap-2 items-center"
+                                                        onClick={() => updateOrderStatus(order.id, 'READY')}
+                                                        className="col-span-2 bg-green-500 text-white py-3.5 rounded-xl shadow-[0_4px_12px_rgba(34,197,94,0.4)] hover:bg-green-600 active:scale-95 transition-all text-xs flex justify-center gap-2 items-center italic"
                                                     >
-                                                        <PackageCheck size={18} /> Mark Ready
+                                                        <PackageCheck size={18} /> Seal & Ready
                                                     </button>
                                                 )}
 
-                                                {order.status === 'ready' && (
+                                                {order.status === 'READY' && (
                                                     <button
-                                                        onClick={() => updateOrderStatus(order.id, 'completed')}
-                                                        className="col-span-2 bg-slate-800 text-white font-bold py-3 rounded-xl shadow-md hover:bg-slate-900 active:scale-95 transition-all text-sm flex justify-center gap-2 items-center"
+                                                        onClick={() => updateOrderStatus(order.id, 'COMPLETED')}
+                                                        className="col-span-2 bg-slate-900 text-white py-3.5 rounded-xl shadow-lg hover:bg-black active:scale-95 transition-all text-xs flex justify-center gap-2 items-center italic"
                                                     >
-                                                        <CheckCircle2 size={18} /> Collected
+                                                        <CheckCircle2 size={18} /> Confirm Handover
                                                     </button>
                                                 )}
                                             </div>
