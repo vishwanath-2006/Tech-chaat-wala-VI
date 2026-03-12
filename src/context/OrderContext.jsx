@@ -38,22 +38,43 @@ export const OrderProvider = ({ children }) => {
             if (saved) {
                 const parsed = JSON.parse(saved);
                 if (Array.isArray(parsed) && parsed.length > 0) {
-                    return parsed;
+                    // Normalize statuses on load for robustness
+                    return parsed.map(o => ({
+                        ...o,
+                        status: String(o.status).toUpperCase(),
+                        paymentStatus: o.paymentStatus || (o.status === 'COMPLETED' ? 'Paid' : 'Pending')
+                    }));
                 }
             }
         } catch (e) { console.error(e); }
-        // For new system, we map old statuses to new ones if necessary, 
-        // but for now let's just use the clean slate or updated INITIAL_ORDERS
+        
         return INITIAL_ORDERS.map(o => ({
             ...o,
-            status: o.status === 'pending' ? 'PENDING' :
-                   o.status === 'cooking' ? 'PREPARING' :
-                   o.status === 'ready' ? 'READY' :
-                   o.status === 'completed' ? 'COMPLETED' : o.status,
+            status: String(o.status).toUpperCase(),
             paymentStatus: 'Paid',
             paymentMethod: 'UPI'
         }));
     });
+
+    // Cross-tab synchronization
+    useEffect(() => {
+        const handleStorageChange = (e) => {
+            if (e.key === 'tcw_orders' && e.newValue) {
+                try {
+                    const parsed = JSON.parse(e.newValue);
+                    if (Array.isArray(parsed)) {
+                        setOrders(parsed.map(o => ({
+                            ...o,
+                            status: String(o.status).toUpperCase()
+                        })));
+                    }
+                } catch (err) { console.error("Sync error:", err); }
+            }
+        };
+
+        window.addEventListener('storage', handleStorageChange);
+        return () => window.removeEventListener('storage', handleStorageChange);
+    }, []);
 
     useEffect(() => {
         localStorage.setItem('tcw_orders', JSON.stringify(orders));

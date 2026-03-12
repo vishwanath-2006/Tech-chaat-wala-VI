@@ -17,9 +17,9 @@ const Processing = () => {
             const currentOrder = getOrder(orderId);
             if (currentOrder) {
                 setOrder(currentOrder);
-                // If completed, move to success (or just stay here with a success msg)
-                if (currentOrder.status === 'COMPLETED') {
-                    navigate('/success', { state: { orderId } });
+                // Move to success screen as soon as it's READY so user can show QR code
+                if (currentOrder.status === 'READY' || currentOrder.status === 'COMPLETED') {
+                    navigate('/success', { state: { orderId: currentOrder.id } });
                 }
             }
         };

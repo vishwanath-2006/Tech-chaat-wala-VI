@@ -63,30 +63,44 @@ const Success = ({ onReset }) => {
         // Define order ID logic
         if (passedOrderId) {
             setOrderId(passedOrderId);
-            // Get initial queue stats
-            const stats = getQueueStats(passedOrderId);
-            const myOrder = getOrder(passedOrderId);
-            if (stats) {
-                setQueueData(stats);
-            }
-            if (myOrder) {
-                const elapsedMs = Date.now() - myOrder.timestamp;
-                const totalPrepMs = (myOrder.prepTime || 3) * 60 * 1000;
-                let remainingSecs = Math.ceil((totalPrepMs - elapsedMs) / 1000);
-                if (remainingSecs < 0) remainingSecs = 15;
-                if (myOrder.status === 'READY' || myOrder.status === 'COMPLETED') remainingSecs = 0;
-                setTimeLeft(remainingSecs);
-            }
         } else {
-            // Fallback generation
-            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-            let id = 'TX-';
-            for (let i = 0; i < 6; i++) {
-                id += chars.charAt(Math.floor(Math.random() * chars.length));
+            // Check if there's a recent order in the context we can use as fallback
+            const latestOrder = orders && orders.length > 0 ? orders[orders.length - 1] : null;
+            if (latestOrder && (Date.now() - latestOrder.timestamp < 1000 * 60 * 60)) { // within 1 hour
+                setOrderId(latestOrder.id);
+            } else {
+                // Fallback generation
+                const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+                let id = 'TX-';
+                for (let i = 0; i < 6; i++) {
+                    id += chars.charAt(Math.floor(Math.random() * chars.length));
+                }
+                setOrderId(id);
             }
-            setOrderId(id);
         }
-    }, [passedOrderId]);
+    }, [passedOrderId, orders]);
+
+    const activeOrderId = passedOrderId || orderId;
+
+    useEffect(() => {
+        if (!activeOrderId) return;
+        
+        const stats = getQueueStats(activeOrderId);
+        const myOrder = getOrder(activeOrderId);
+        
+        if (stats) setQueueData(stats);
+        if (myOrder) {
+            const elapsedMs = Date.now() - myOrder.timestamp;
+            const totalPrepMs = (myOrder.prepTime || 3) * 60 * 1000;
+            let remainingSecs = Math.ceil((totalPrepMs - elapsedMs) / 1000);
+            if (remainingSecs < 0) remainingSecs = 15;
+            if (myOrder.status === 'READY' || myOrder.status === 'COMPLETED') {
+                remainingSecs = 0;
+                setRobotMessage(myOrder.status === 'COMPLETED' ? "Protocol complete. Thank you for your visit." : "Your order is ready for pickup!");
+            }
+            setTimeLeft(remainingSecs);
+        }
+    }, [activeOrderId, orders]);
 
     // Live countdown timer logic
     useEffect(() => {
@@ -146,7 +160,7 @@ const Success = ({ onReset }) => {
         }, 3000);
 
         return () => clearInterval(pollInterval);
-    }, [passedOrderId, queueData.position]);
+    }, [activeOrderId, orders, queueData.position]);
 
     const formatTime = (seconds) => {
         const m = Math.floor(seconds / 60);
@@ -251,11 +265,24 @@ const Success = ({ onReset }) => {
                 </div>
 
                 <h1 className="text-4xl font-black text-secondary tracking-tight mb-3 italic">
-                    {timeLeft <= 0 ? "Module Ready" : "Initializing..."}
+                    {(timeLeft <= 0 || getOrder(activeOrderId)?.status === 'COMPLETED') ? "Module Fulfilled" : "Initializing..."}
                 </h1>
-                <p className="text-slate-500 text-sm font-bold mb-10 max-w-[300px] leading-relaxed">
-                    Your modular request has been fulfilled. Collect your items at the primary exit.
+                <p className="text-slate-500 text-sm font-bold mb-8 max-w-[300px] leading-relaxed">
+                    {getOrder(activeOrderId)?.status === 'COMPLETED' 
+                        ? "Transaction successful. Your order has been collected. Have a great day!"
+                        : "Your modular request is being fulfilled. Collect your items at the primary exit."}
                 </p>
+
+                {/* Order Items Summary */}
+                {getOrder(activeOrderId) && (
+                    <div className="w-full glass-card p-4 mb-6 border-white/30 flex flex-wrap gap-2 justify-center animate-fade-in">
+                        {getOrder(activeOrderId).items?.map((item, idx) => (
+                            <span key={idx} className="text-[10px] font-black bg-white/60 px-3 py-1.5 rounded-xl text-secondary border border-white/50 shadow-sm">
+                                {item.qty}× {item.name}
+                            </span>
+                        ))}
+                    </div>
+                )}
 
                 {/* Real-Time Kitchen Queue & Timer */}
                 <div className="w-full flex gap-4 mb-8">
@@ -288,21 +315,23 @@ const Success = ({ onReset }) => {
                     </div>
 
                     {/* Queue Stats */}
-                    {passedOrderId && (
-                        <div className="glass-card flex-1 p-6 border-white/50 text-left">
-                            <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4">Grid Queue</h3>
-                            <div className="space-y-3">
-                                <div className="flex justify-between items-center">
-                                    <span className="text-xs font-bold text-slate-400">Position</span>
-                                    <span className="font-mono font-black text-lg text-secondary">#{queueData.position}</span>
-                                </div>
-                                <div className="flex justify-between items-center">
-                                    <span className="text-xs font-bold text-slate-400">Wait</span>
-                                    <span className="font-mono font-black text-secondary">{queueData.ordersAhead}</span>
-                                </div>
+                    <div className="glass-card flex-1 p-6 border-white/50 text-left">
+                        <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4">Grid Queue</h3>
+                        <div className="space-y-3">
+                            <div className="flex justify-between items-center">
+                                <span className="text-xs font-bold text-slate-400">Position</span>
+                                <span className="font-mono font-black text-lg text-secondary">
+                                    {getOrder(activeOrderId)?.status === 'COMPLETED' ? "DONE" : `#${queueData.position}`}
+                                </span>
+                            </div>
+                            <div className="flex justify-between items-center">
+                                <span className="text-xs font-bold text-slate-400">Status</span>
+                                <span className="font-mono font-black text-[10px] uppercase text-primary">
+                                    {getOrder(activeOrderId)?.status || 'SYNCING'}
+                                </span>
                             </div>
                         </div>
-                    )}
+                    </div>
                 </div>
 
                 {/* Order ID & QR Module */}
