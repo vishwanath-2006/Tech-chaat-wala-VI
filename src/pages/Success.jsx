@@ -205,7 +205,7 @@ const Success = ({ onReset }) => {
 
                         {/* Success Badge */}
                         <div className={`absolute bottom-4 right-4 bg-green-500 text-white w-10 h-10 rounded-full flex items-center justify-center border-2 border-white/50 shadow-lg z-10 transition-transform duration-500 ${isHovering ? 'scale-110' : 'scale-100'}`}>
-                            <CheckCircle size={24} strokeWidth={3} />
+                            <CheckCircle2 size={24} strokeWidth={3} />
                         </div>
                     </div>
                 </div>

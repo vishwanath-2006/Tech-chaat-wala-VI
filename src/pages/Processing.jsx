@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Bot, Terminal, Loader2, CheckCircle2, Flame, Package, CheckCircle } from 'lucide-react';
+import { Bot, Terminal, Loader2, CheckCircle2, Flame, Package } from 'lucide-react';
 import { useOrders } from '../context/OrderContext';
 
 const Processing = () => {
