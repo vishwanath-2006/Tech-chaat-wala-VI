@@ -39,6 +39,30 @@ const INITIAL_MENU_DATA = [
         ingredients: ["Boiled Eggs", "Spinach Base", "Sautéed Mushrooms", "Cracked Black Pepper"],
         nutrition: { protein: "28g", carbs: "4g", fat: "20g" }
     },
+    {
+        id: 'fw-7', category: 'Fit-Ware 2.0', name: 'Data-Driven Dal', calories: 280, version: '1.0', price: 159, prepTime: 5, icon: '🥣', image: null, isPopular: false, isSoldOut: false,
+        description: "Protein-packed yellow lentils with a tempering of garlic and cumin. A stable foundation for any session.",
+        ingredients: ["Yellow Moong Dal", "Garlic", "Cumin", "Turmeric"],
+        nutrition: { protein: "18g", carbs: "42g", fat: "6g" }
+    },
+    {
+        id: 'fw-8', category: 'Fit-Ware 2.0', name: 'Silicon Soya Chunks', calories: 310, version: '1.2', price: 179, prepTime: 4, icon: '🌱', image: null, isPopular: false, isSoldOut: false,
+        description: "High-protein soya chunks stir-fried with bell peppers and green onions. Optimized for muscle compilation.",
+        ingredients: ["Soya Chunks", "Bell Peppers", "Soy Sauce", "Ginger-Garlic Paste"],
+        nutrition: { protein: "32g", carbs: "12g", fat: "4g" }
+    },
+    {
+        id: 'fw-9', category: 'Fit-Ware 2.0', name: 'Root Directory Roast', calories: 400, version: '2.0', price: 269, prepTime: 6, icon: '🍗', image: null, isPopular: true, isSoldOut: false,
+        description: "Oven-roasted lean chicken or sweet potato with rosemary and thyme. The root of all good nutrition.",
+        ingredients: ["Roasted Chicken/Sweet Potato", "Rosemary", "Olive Oil", "Garlic"],
+        nutrition: { protein: "35g", carbs: "15g", fat: "12g" }
+    },
+    {
+        id: 'fw-10', category: 'Fit-Ware 2.0', name: 'Neural Network Nut Mix', calories: 150, version: '1.0', price: 129, prepTime: 1, icon: '🥜', image: null, isPopular: false, isSoldOut: false,
+        description: "A smart blend of almonds, walnuts, and pumpkin seeds. Boosts brain bandwidth for complex debugging.",
+        ingredients: ["Almonds", "Walnuts", "Pumpkin Seeds", "Sea Salt"],
+        nutrition: { protein: "6g", carbs: "8g", fat: "14g" }
+    },
 
     // Chaatis.js (Street Food Classics)
     {
@@ -77,6 +101,30 @@ const INITIAL_MENU_DATA = [
         ingredients: ["Urad Dal Dumplings", "Chilled Sweet Yogurt", "Cumin Powder", "Red Chili Drizzle", "Imli Chutney"],
         nutrition: { protein: "12g", carbs: "45g", fat: "6g" }
     },
+    {
+        id: 'cj-7', category: 'Chaatis.js', name: 'API Papdi Chaat', calories: 220, version: '1.1', price: 109, prepTime: 3, icon: '🍪', image: null, isPopular: false, isSoldOut: false,
+        description: "Crispy papdis topped with dynamic data points of potato, curd, and spices.",
+        ingredients: ["Papdi", "Potato", "Curd", "Chutneys", "Sev"],
+        nutrition: { protein: "5g", carbs: "38g", fat: "8g" }
+    },
+    {
+        id: 'cj-8', category: 'Chaatis.js', name: 'B-Tree Bhel Puri', calories: 180, version: '2.0', price: 99, prepTime: 2, icon: '🥣', image: null, isPopular: false, isSoldOut: false,
+        description: "Balanced tree of puffed rice, vegetables, and chutneys. Light and efficient.",
+        ingredients: ["Puffed Rice", "Onions", "Tomatoes", "Tamarind Sauce", "Sev"],
+        nutrition: { protein: "4g", carbs: "30g", fat: "4g" }
+    },
+    {
+        id: 'cj-9', category: 'Chaatis.js', name: 'V-Model Vada Pav', calories: 310, version: '1.5', price: 79, prepTime: 3, icon: '🥯', image: null, isPopular: true, isSoldOut: false,
+        description: "Verification and Validation of the perfect potato slider with spicy dry chutney.",
+        ingredients: ["Potato Fritter", "Bun (Pav)", "Garlic Chutney", "Green Chili"],
+        nutrition: { protein: "6g", carbs: "42g", fat: "14g" }
+    },
+    {
+        id: 'cj-10', category: 'Chaatis.js', name: 'Refactored Ragda Pattice', calories: 280, version: '1.2', price: 129, prepTime: 4, icon: '🍛', image: null, isPopular: false, isSoldOut: false,
+        description: "Potato patties recursively dipped in white pea curry. Highly modular flavor.",
+        ingredients: ["Potato Pattice", "White Peas Curry", "Onions", "Coriander", "Tamarind"],
+        nutrition: { protein: "10g", carbs: "44g", fat: "5g" }
+    },
 
     // Liquid Brews (Drinks)
     {
@@ -114,6 +162,92 @@ const INITIAL_MENU_DATA = [
         description: "A thick, yogurt-based standalone executable. Sweet, rich, and traditionally fulfilling.",
         ingredients: ["Fresh Yogurt", "Sugar", "Cardamom Powder", "Rose Water", "Pistachio Garnish"],
         nutrition: { protein: "8g", carbs: "28g", fat: "7g" }
+    },
+    {
+        id: 'lb-7', category: 'Liquid Brews', name: 'Overclocked Orange Juice', calories: 110, version: '1.0', price: 129, prepTime: 2, icon: '🍊', image: null, isPopular: false, isSoldOut: false,
+        description: "Freshly squeezed oranges with a boost of vitamins. Overclocks your immune system.",
+        ingredients: ["Fresh Oranges", "Pulp", "Ice"],
+        nutrition: { protein: "1g", carbs: "28g", fat: "0g" }
+    },
+    {
+        id: 'lb-8', category: 'Liquid Brews', name: 'Mainframe Masala Chai', calories: 90, version: '1.5', price: 59, prepTime: 3, icon: '☕', image: null, isPopular: true, isSoldOut: false,
+        description: "Strong ginger-cardamom tea. The essential fuel for late-night mainframe maintenance.",
+        ingredients: ["Tea Leaves", "Milk", "Ginger", "Cardamom"],
+        nutrition: { protein: "3g", carbs: "12g", fat: "4g" }
+    },
+    {
+        id: 'lb-9', category: 'Liquid Brews', name: 'UDP Unfiltered Coconut Water', calories: 45, version: '1.0', price: 89, prepTime: 1, icon: '🥥', image: null, isPopular: false, isSoldOut: false,
+        description: "Direct transmission of electrolytes. Unfiltered and raw for maximum reliability.",
+        ingredients: ["Tender Coconut Water"],
+        nutrition: { protein: "0g", carbs: "11g", fat: "0g" }
+    },
+    {
+        id: 'lb-10', category: 'Liquid Brews', name: 'Soft Reboot Strawberry Shake', calories: 320, version: '2.1', price: 169, prepTime: 3, icon: '🥤', image: null, isPopular: false, isSoldOut: false,
+        description: "A creamy strawberry shake to softly reboot your senses after a stressful build.",
+        ingredients: ["Strawberries", "Milk", "Vanilla Ice Cream", "Sugar"],
+        nutrition: { protein: "6g", carbs: "48g", fat: "12g" }
+    },
+
+    // Street Bites (Quick Snacks)
+    {
+        id: 'sb-1', category: 'Street Bites', name: 'Veg Shawarma Wrap', calories: 350, price: 159, prepTime: 4, icon: '🌯', image: null, isPopular: false, isSoldOut: false,
+        description: "Grilled veggie shawarma wrap with garlic sauce.",
+        ingredients: ["Assorted Veggies", "Garlic Sauce", "Pita Bread"],
+        nutrition: { protein: "8g", carbs: "45g", fat: "12g" }
+    },
+    {
+        id: 'sb-2', category: 'Street Bites', name: 'Chicken Shawarma Roll', calories: 420, price: 189, prepTime: 4, icon: '🥙', image: null, isPopular: true, isSoldOut: false,
+        description: "Spiced chicken shawarma roll with fresh salad.",
+        ingredients: ["Grilled Chicken", "Salad", "Mayonnaise", "Rumali Roti"],
+        nutrition: { protein: "24g", carbs: "38g", fat: "18g" }
+    },
+    {
+        id: 'sb-3', category: 'Street Bites', name: 'Falafel Pocket', calories: 320, price: 149, prepTime: 5, icon: '🧆', image: null, isPopular: false, isSoldOut: false,
+        description: "Crispy falafel with hummus in pita bread.",
+        ingredients: ["Falafel", "Hummus", "Pickles", "Pita Bread"],
+        nutrition: { protein: "10g", carbs: "42g", fat: "14g" }
+    },
+    {
+        id: 'sb-4', category: 'Street Bites', name: 'Loaded Nachos', calories: 450, price: 199, prepTime: 3, icon: '🌮', image: null, isPopular: true, isSoldOut: false,
+        description: "Nachos topped with cheese, salsa and jalapeños.",
+        ingredients: ["Corn Tortilla Chips", "Cheese Sauce", "Salsa", "Jalapeños"],
+        nutrition: { protein: "7g", carbs: "52g", fat: "22g" }
+    },
+    {
+        id: 'sb-5', category: 'Street Bites', name: 'Cheese Garlic Bread', calories: 300, price: 139, prepTime: 5, icon: '🍞', image: null, isPopular: false, isSoldOut: false,
+        description: "Toasted garlic bread topped with melted cheese.",
+        ingredients: ["French Bread", "Garlic Butter", "Mozzarella Cheese"],
+        nutrition: { protein: "9g", carbs: "34g", fat: "15g" }
+    },
+    {
+        id: 'sb-6', category: 'Street Bites', name: 'Veg Burger Deluxe', calories: 410, price: 169, prepTime: 4, icon: '🍔', image: null, isPopular: false, isSoldOut: false,
+        description: "Crispy veggie patty burger with lettuce and sauce.",
+        ingredients: ["Veg Patty", "Burger Bun", "Lettuce", "Tomato", "Special Sauce"],
+        nutrition: { protein: "11g", carbs: "48g", fat: "16g" }
+    },
+    {
+        id: 'sb-7', category: 'Street Bites', name: 'Chicken Burger Pro', calories: 480, price: 209, prepTime: 4, icon: '🍔', image: null, isPopular: true, isSoldOut: false,
+        description: "Juicy chicken burger with spicy mayo.",
+        ingredients: ["Chicken Patty", "Cheese Slice", "Spicy Mayo", "Caramelized Onions"],
+        nutrition: { protein: "22g", carbs: "44g", fat: "24g" }
+    },
+    {
+        id: 'sb-8', category: 'Street Bites', name: 'Crispy Fries Bucket', calories: 380, price: 129, prepTime: 3, icon: '🍟', image: null, isPopular: false, isSoldOut: false,
+        description: "Golden crispy fries with seasoning.",
+        ingredients: ["Potato Strips", "Salt", "Special Seasoning"],
+        nutrition: { protein: "4g", carbs: "42g", fat: "18g" }
+    },
+    {
+        id: 'sb-9', category: 'Street Bites', name: 'Peri-Peri Fries', calories: 390, price: 139, prepTime: 3, icon: '🍟', image: null, isPopular: true, isSoldOut: false,
+        description: "Fries tossed with spicy peri-peri seasoning.",
+        ingredients: ["Potato Strips", "Peri-Peri Spice Mix"],
+        nutrition: { protein: "4g", carbs: "44g", fat: "18g" }
+    },
+    {
+        id: 'sb-10', category: 'Street Bites', name: 'Loaded Cheese Fries', calories: 430, price: 159, prepTime: 3, icon: '🍟', image: null, isPopular: true, isSoldOut: false,
+        description: "Fries topped with melted cheese sauce.",
+        ingredients: ["Potato Strips", "Cheese Sauce", "Spring Onions"],
+        nutrition: { protein: "6g", carbs: "46g", fat: "22g" }
     }
 ];
 
@@ -121,7 +255,8 @@ export const INITIAL_CATEGORIES = [
     { id: 'cat-0', name: 'All', isVisible: true, order: 0 },
     { id: 'cat-1', name: 'Fit-Ware 2.0', isVisible: true, order: 1 },
     { id: 'cat-2', name: 'Chaatis.js', isVisible: true, order: 2 },
-    { id: 'cat-3', name: 'Liquid Brews', isVisible: true, order: 3 }
+    { id: 'cat-3', name: 'Liquid Brews', isVisible: true, order: 3 },
+    { id: 'cat-4', name: 'Street Bites', isVisible: true, order: 4 }
 ];
 
 const MenuContext = createContext();
@@ -133,7 +268,16 @@ export const MenuProvider = ({ children }) => {
             const saved = localStorage.getItem('tcw_menu');
             if (saved) {
                 const parsed = JSON.parse(saved);
-                if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+                if (Array.isArray(parsed) && parsed.length > 0) {
+                    // Sync logic: Ensure all INITIAL_MENU_DATA items exist in the state
+                    // This allows adding new items to the hardcoded list and having them show up for existing users
+                    const existingIds = new Set(parsed.map(item => item.id));
+                    const newItems = INITIAL_MENU_DATA.filter(item => !existingIds.has(item.id));
+                    if (newItems.length > 0) {
+                        return [...parsed, ...newItems];
+                    }
+                    return parsed;
+                }
             }
         } catch (e) { console.error(e); }
         return INITIAL_MENU_DATA;
@@ -144,7 +288,15 @@ export const MenuProvider = ({ children }) => {
             const saved = localStorage.getItem('tcw_categories');
             if (saved) {
                 const parsed = JSON.parse(saved);
-                if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+                if (Array.isArray(parsed) && parsed.length > 0) {
+                    // Sync logic for categories
+                    const existingNames = new Set(parsed.map(c => c.name));
+                    const newCats = INITIAL_CATEGORIES.filter(c => !existingNames.has(c.name));
+                    if (newCats.length > 0) {
+                        return [...parsed, ...newCats].sort((a, b) => (a.order || 0) - (b.order || 0));
+                    }
+                    return parsed;
+                }
             }
         } catch (e) { console.error(e); }
         return INITIAL_CATEGORIES;
