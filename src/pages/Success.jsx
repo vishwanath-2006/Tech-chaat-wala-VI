@@ -9,7 +9,7 @@ const Success = ({ onReset }) => {
     const navigate = useNavigate();
     const location = useLocation();
     const passedOrderId = location.state?.orderId;
-    const { getOrder, getQueueStats } = useOrders();
+    const { orders, getOrder, getQueueStats } = useOrders();
     const [orderId, setOrderId] = useState('');
     const [isHovering, setIsHovering] = useState(false);
     const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
@@ -63,19 +63,11 @@ const Success = ({ onReset }) => {
         // Define order ID logic
         if (passedOrderId) {
             setOrderId(passedOrderId);
-        } else {
+        } else if (orders && orders.length > 0) {
             // Check if there's a recent order in the context we can use as fallback
-            const latestOrder = orders && orders.length > 0 ? orders[orders.length - 1] : null;
-            if (latestOrder && (Date.now() - latestOrder.timestamp < 1000 * 60 * 60)) { // within 1 hour
+            const latestOrder = orders[orders.length - 1];
+            if (Date.now() - latestOrder.timestamp < 1000 * 60 * 60) { // within 1 hour
                 setOrderId(latestOrder.id);
-            } else {
-                // Fallback generation
-                const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-                let id = 'TX-';
-                for (let i = 0; i < 6; i++) {
-                    id += chars.charAt(Math.floor(Math.random() * chars.length));
-                }
-                setOrderId(id);
             }
         }
     }, [passedOrderId, orders]);
@@ -94,13 +86,13 @@ const Success = ({ onReset }) => {
             const totalPrepMs = (myOrder.prepTime || 3) * 60 * 1000;
             let remainingSecs = Math.ceil((totalPrepMs - elapsedMs) / 1000);
             if (remainingSecs < 0) remainingSecs = 15;
-            if (myOrder.status === 'READY' || myOrder.status === 'COMPLETED') {
+            if (myOrder.status === 'ready' || myOrder.status === 'completed') {
                 remainingSecs = 0;
-                setRobotMessage(myOrder.status === 'COMPLETED' ? "Protocol complete. Thank you for your visit." : "Your order is ready for pickup!");
+                setRobotMessage(myOrder.status === 'completed' ? "Protocol complete. Thank you for your visit." : "Your order is ready for pickup!");
             }
             setTimeLeft(remainingSecs);
         }
-    }, [activeOrderId, orders]);
+    }, [activeOrderId, orders, getOrder, getQueueStats]);
 
     // Live countdown timer logic
     useEffect(() => {
@@ -121,46 +113,6 @@ const Success = ({ onReset }) => {
             if (timerInterval.current) clearInterval(timerInterval.current);
         };
     }, [timeLeft]);
-
-    // Live polling for queue status changes if it's a real order
-    useEffect(() => {
-        if (!passedOrderId) return;
-
-        const pollInterval = setInterval(() => {
-            const order = getOrder(passedOrderId);
-            if (order) {
-                if (order.status === 'READY' || order.status === 'COMPLETED') {
-                    setTimeLeft(0);
-                    setRobotMessage("Your order is ready for pickup!");
-                } else {
-                    const stats = getQueueStats(passedOrderId);
-                    if (stats && stats.position !== queueData.position) {
-                        setQueueData(stats);
-                    }
-
-                    // Sync timer with actual order prep time (e.g. if admin changed it)
-                    const elapsedMs = Date.now() - order.timestamp;
-                    const totalPrepMs = (order.prepTime || 3) * 60 * 1000;
-                    let calculatedRemaining = Math.ceil((totalPrepMs - elapsedMs) / 1000);
-
-                    if (calculatedRemaining < 0) calculatedRemaining = 15;
-
-                    setTimeLeft(prev => {
-                        // Only force update if discrepancy is large to avoid jerky countdowns
-                        if (Math.abs(prev - calculatedRemaining) > 10) {
-                            if (calculatedRemaining > prev + 30) {
-                                setRobotMessage("Display Update: Preparation time was adjusted by module operators.");
-                            }
-                            return calculatedRemaining;
-                        }
-                        return prev;
-                    });
-                }
-            }
-        }, 3000);
-
-        return () => clearInterval(pollInterval);
-    }, [activeOrderId, orders, queueData.position]);
 
     const formatTime = (seconds) => {
         const m = Math.floor(seconds / 60);
@@ -265,10 +217,10 @@ const Success = ({ onReset }) => {
                 </div>
 
                 <h1 className="text-4xl font-black text-secondary tracking-tight mb-3 italic">
-                    {(timeLeft <= 0 || getOrder(activeOrderId)?.status === 'COMPLETED') ? "Module Fulfilled" : "Initializing..."}
+                    {(timeLeft <= 0 || getOrder(activeOrderId)?.status === 'completed') ? "Module Fulfilled" : "Initializing..."}
                 </h1>
                 <p className="text-slate-500 text-sm font-bold mb-8 max-w-[300px] leading-relaxed">
-                    {getOrder(activeOrderId)?.status === 'COMPLETED' 
+                    {getOrder(activeOrderId)?.status === 'completed' 
                         ? "Transaction successful. Your order has been collected. Have a great day!"
                         : "Your modular request is being fulfilled. Collect your items at the primary exit."}
                 </p>
@@ -321,7 +273,7 @@ const Success = ({ onReset }) => {
                             <div className="flex justify-between items-center">
                                 <span className="text-xs font-bold text-slate-400">Position</span>
                                 <span className="font-mono font-black text-lg text-secondary">
-                                    {getOrder(activeOrderId)?.status === 'COMPLETED' ? "DONE" : `#${queueData.position}`}
+                                    {getOrder(activeOrderId)?.status === 'completed' ? "DONE" : `#${queueData.position}`}
                                 </span>
                             </div>
                             <div className="flex justify-between items-center">
@@ -342,7 +294,7 @@ const Success = ({ onReset }) => {
 
                     <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] mb-2 text-left relative z-10">Verification Protocol</p>
                     <div className="text-4xl font-mono font-black text-primary tracking-[0.2em] relative z-10 mb-8 text-left drop-shadow-md italic">
-                        {orderId}
+                        {orderId?.slice(0, 8)}
                     </div>
 
                     <div className="relative w-56 h-56 mx-auto bg-white p-4 rounded-3xl shadow-inner border-4 border-slate-100 overflow-hidden mb-6">

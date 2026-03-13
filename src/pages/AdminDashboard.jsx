@@ -23,7 +23,7 @@ const playAlertSound = () => {
 const AdminDashboard = () => {
     const { user, logout } = useAuth();
     const { menuData, toggleSoldOut, updatePrice, updateItem, addItem, reorderMenu, categories, addCategory, updateCategory, deleteCategory, reorderCategories, toggleCategoryVisibility } = useMenu();
-    const { orders: allOrders, updateOrderStatus, updateOrderPrepTime } = useOrders();
+    const { orders: allOrders, updateOrderStatus, updatePaymentStatus, updateOrderPrepTime } = useOrders();
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('All'); // For Menu filtering
     const [viewMode, setViewMode] = useState('orders'); // 'menu' | 'orders' | 'history'
@@ -46,7 +46,7 @@ const AdminDashboard = () => {
     const [lastOrderCount, setLastOrderCount] = useState(allOrders.length);
     React.useEffect(() => {
         if (allOrders.length > lastOrderCount) {
-            const hasNewPending = allOrders.slice(lastOrderCount).some(o => o.status === 'PENDING');
+            const hasNewPending = allOrders.slice(lastOrderCount).some(o => o.status === 'pending');
             if (hasNewPending && user?.role === 'official') {
                 playAlertSound();
             }
@@ -172,10 +172,10 @@ const AdminDashboard = () => {
     });
 
     // POS Workflow status mapping
-    // PENDING, ACCEPTED, PREPARING, READY, COMPLETED, 'Awaiting Payment'
-    const pendingOrders = [...allOrders].filter(o => o.status === 'PENDING' || o.status === 'Awaiting Payment').sort((a, b) => a.timestamp - b.timestamp);
-    const activeOrders = [...allOrders].filter(o => ['ACCEPTED', 'PREPARING', 'READY'].includes(o.status)).sort((a, b) => a.timestamp - b.timestamp);
-    const completedOrders = [...allOrders].filter(o => o.status === 'COMPLETED').sort((b, a) => a.timestamp - b.timestamp);
+    // pending, accepted, preparing, ready, completed, 'awaiting payment'
+    const pendingOrders = [...allOrders].filter(o => o.status === 'pending' || o.paymentStatus === 'pending').sort((a, b) => a.timestamp - b.timestamp);
+    const activeOrders = [...allOrders].filter(o => ['accepted', 'preparing', 'ready'].includes(o.status) && o.paymentStatus === 'paid').sort((a, b) => a.timestamp - b.timestamp);
+    const completedOrders = [...allOrders].filter(o => o.status === 'completed').sort((b, a) => a.timestamp - b.timestamp);
 
     const formatOrderTime = (timestamp) => {
         const d = new Date(timestamp);
@@ -415,14 +415,14 @@ const AdminDashboard = () => {
                                             <div className={`absolute top-0 left-0 w-1.5 h-full ${order.status === 'Awaiting Payment' ? 'bg-amber-400' : 'bg-red-500'}`}></div>
                                             <div className="flex justify-between items-start mb-2">
                                                 <div>
-                                                    <span className="font-black text-secondary text-lg">#{order.id}</span>
+                                                    <span className="font-black text-secondary text-lg">#{order.id.slice(0, 8)}</span>
                                                     <div className="text-[10px] text-slate-500 flex items-center gap-1 mt-1 font-mono">
                                                         <Clock size={10} /> {formatOrderTime(order.timestamp)}
                                                     </div>
                                                 </div>
                                                 <div className="text-right">
                                                     <div className="font-mono text-primary font-bold">₹{order.total}</div>
-                                                    <div className={`text-[9px] font-bold uppercase tracking-tighter px-1.5 py-0.5 rounded border inline-block mt-1 ${order.paymentStatus === 'Paid' ? 'bg-green-50 text-green-600 border-green-100' : 'bg-amber-50 text-amber-600 border-amber-100'}`}>
+                                                    <div className={`text-[9px] font-bold uppercase tracking-tighter px-1.5 py-0.5 rounded border inline-block mt-1 ${order.paymentStatus === 'paid' ? 'bg-green-50 text-green-600 border-green-100' : 'bg-amber-50 text-amber-600 border-amber-100'}`}>
                                                         {order.paymentMethod} {order.paymentStatus}
                                                     </div>
                                                 </div>
@@ -436,9 +436,9 @@ const AdminDashboard = () => {
                                                 ))}
                                             </div>
                                             <div className="grid grid-cols-2 gap-2 mt-2">
-                                                {order.status === 'Awaiting Payment' ? (
+                                                {order.paymentStatus === 'pending' ? (
                                                     <button 
-                                                        onClick={() => updateOrderStatus(order.id, 'Paid')}
+                                                        onClick={() => updatePaymentStatus(order.id, 'paid')}
                                                         className="col-span-2 bg-amber-500 text-white font-black py-2.5 rounded-lg hover:bg-amber-600 active:scale-95 transition-all text-xs uppercase"
                                                     >
                                                         Confirm Payment
@@ -446,13 +446,13 @@ const AdminDashboard = () => {
                                                 ) : (
                                                     <>
                                                         <button 
-                                                            onClick={() => updateOrderStatus(order.id, 'ACCEPTED')}
+                                                            onClick={() => updateOrderStatus(order.id, 'accepted')}
                                                             className="bg-indigo-600 text-white font-black py-2.5 rounded-lg hover:bg-indigo-700 active:scale-95 transition-all text-xs uppercase"
                                                         >
                                                             Accept Order
                                                         </button>
                                                         <button 
-                                                            onClick={() => updateOrderStatus(order.id, 'PREPARING')}
+                                                            onClick={() => updateOrderStatus(order.id, 'preparing')}
                                                             className="bg-primary text-white font-black py-2.5 rounded-lg shadow-sm hover:bg-primary/90 active:scale-95 transition-all text-xs uppercase"
                                                         >
                                                             Start Cooking
@@ -479,22 +479,22 @@ const AdminDashboard = () => {
                                 ) : (
                                     activeOrders.map(order => (
                                         <div key={order.id} className="surface-card rounded-2xl p-5 border border-slate-200 shadow-sm flex flex-col h-full relative overflow-hidden group">
-                                            {order.status === 'READY' && <div className="absolute top-0 left-0 w-full h-1.5 bg-green-500"></div>}
-                                            {order.status === 'PREPARING' && <div className="absolute top-0 left-0 w-full h-1.5 bg-primary animate-pulse"></div>}
-                                            {order.status === 'ACCEPTED' && <div className="absolute top-0 left-0 w-full h-1.5 bg-indigo-500"></div>}
+                                            {order.status === 'ready' && <div className="absolute top-0 left-0 w-full h-1.5 bg-green-500"></div>}
+                                            {order.status === 'preparing' && <div className="absolute top-0 left-0 w-full h-1.5 bg-primary animate-pulse"></div>}
+                                            {order.status === 'accepted' && <div className="absolute top-0 left-0 w-full h-1.5 bg-indigo-500"></div>}
 
                                             <div className="flex justify-between items-start mb-4 pb-4 border-b border-slate-100">
                                                 <div>
-                                                    <h3 className="text-lg font-black text-secondary uppercase tracking-widest">{order.id}</h3>
+                                                    <h3 className="text-lg font-black text-secondary uppercase tracking-widest">{order.id.slice(0, 8)}</h3>
                                                     <div className="flex items-center gap-2 mt-1">
                                                         <span className="text-[10px] text-textLight font-mono">Recv: {formatOrderTime(order.timestamp)}</span>
                                                         <span className="text-[10px] font-black uppercase tracking-tighter text-slate-400">{order.paymentMethod}</span>
                                                     </div>
                                                 </div>
                                                 <div className={`px-2 py-1 rounded-lg text-[10px] font-black uppercase tracking-tighter border
-                                                    ${order.status === 'ACCEPTED' ? 'bg-indigo-50 text-indigo-700 border-indigo-100' : ''}
-                                                    ${order.status === 'PREPARING' ? 'bg-primary/5 text-primary border-primary/10' : ''}
-                                                    ${order.status === 'READY' ? 'bg-green-50 text-green-700 border-green-100' : ''}
+                                                    ${order.status === 'accepted' ? 'bg-indigo-50 text-indigo-700 border-indigo-100' : ''}
+                                                    ${order.status === 'preparing' ? 'bg-primary/5 text-primary border-primary/10' : ''}
+                                                    ${order.status === 'ready' ? 'bg-green-50 text-green-700 border-green-100' : ''}
                                                 `}>
                                                     {order.status}
                                                 </div>
@@ -518,7 +518,7 @@ const AdminDashboard = () => {
                                             </div>
 
                                             {/* Prep Time Modification */}
-                                            {order.status !== 'READY' && (
+                                            {order.status !== 'ready' && (
                                                 <div className="mb-4 bg-slate-50/50 rounded-xl p-3 flex justify-between items-center border border-slate-100/50 group-hover:bg-slate-50 transition-colors">
                                                     <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1.5"><Clock size={12} /> Cycle Time</span>
                                                     <div className="flex items-center gap-3">
@@ -530,27 +530,27 @@ const AdminDashboard = () => {
                                             )}
 
                                             <div className="mt-auto grid grid-cols-2 gap-3 pt-4 border-t border-slate-100 italic font-black uppercase tracking-widest">
-                                                {order.status === 'ACCEPTED' && (
+                                                {order.status === 'accepted' && (
                                                     <button
-                                                        onClick={() => updateOrderStatus(order.id, 'PREPARING')}
+                                                        onClick={() => updateOrderStatus(order.id, 'preparing')}
                                                         className="col-span-2 btn-primary py-3.5 text-xs flex justify-center gap-2 items-center italic"
                                                     >
                                                         <Play size={16} fill="currentColor" /> Initiate Cooking
                                                     </button>
                                                 )}
 
-                                                {order.status === 'PREPARING' && (
+                                                {order.status === 'preparing' && (
                                                     <button
-                                                        onClick={() => updateOrderStatus(order.id, 'READY')}
+                                                        onClick={() => updateOrderStatus(order.id, 'ready')}
                                                         className="col-span-2 bg-green-500 text-white py-3.5 rounded-xl shadow-[0_4px_12px_rgba(34,197,94,0.4)] hover:bg-green-600 active:scale-95 transition-all text-xs flex justify-center gap-2 items-center italic"
                                                     >
                                                         <PackageCheck size={18} /> Seal & Ready
                                                     </button>
                                                 )}
 
-                                                {order.status === 'READY' && (
+                                                {order.status === 'ready' && (
                                                     <button
-                                                        onClick={() => updateOrderStatus(order.id, 'COMPLETED')}
+                                                        onClick={() => updateOrderStatus(order.id, 'completed')}
                                                         className="col-span-2 bg-slate-900 text-white py-3.5 rounded-xl shadow-lg hover:bg-black active:scale-95 transition-all text-xs flex justify-center gap-2 items-center italic"
                                                     >
                                                         <CheckCircle2 size={18} /> Confirm Handover
@@ -577,7 +577,7 @@ const AdminDashboard = () => {
                                 {completedOrders.map(order => (
                                     <li key={order.id} className="p-4 sm:p-6 hover:bg-slate-50 transition-colors flex justify-between items-center gap-4">
                                         <div>
-                                            <h4 className="font-black text-secondary text-lg">#{order.id}</h4>
+                                            <h4 className="font-black text-secondary text-lg">#{order.id.slice(0, 8)}</h4>
                                             <div className="text-sm text-slate-500 mt-1 line-clamp-1">{order.items.map(i => `${i.qty}x ${i.name}`).join(', ')}</div>
                                             <div className="text-xs font-mono text-slate-400 mt-2 flex items-center gap-2">
                                                 <Clock size={12} /> {new Date(order.timestamp).toLocaleString()}

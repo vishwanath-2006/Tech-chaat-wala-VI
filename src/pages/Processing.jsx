@@ -17,16 +17,18 @@ const Processing = () => {
             const currentOrder = getOrder(orderId);
             if (currentOrder) {
                 setOrder(currentOrder);
-                // Move to success screen as soon as it's READY so user can show QR code
-                if (currentOrder.status === 'READY' || currentOrder.status === 'COMPLETED') {
+                // Move to success screen as soon as it's ready so user can show QR code
+                if (currentOrder.status === 'ready' || currentOrder.status === 'completed') {
                     navigate('/success', { state: { orderId: currentOrder.id } });
                 }
             }
         };
 
         checkStatus();
-        const interval = setInterval(checkStatus, 2000); // Poll every 2s
-        return () => clearInterval(interval);
+        // The context re-render will trigger this effect if the dependencies change correctly,
+        // but since orders is an array, we might want to ensure we track changes.
+        // Actually, the useOrders hook will trigger a re-render of this component 
+        // when the orders state in OrderProvider updates.
     }, [orderId, getOrder, navigate]);
 
     if (!order) {
@@ -40,7 +42,7 @@ const Processing = () => {
 
     const getStatusConfig = () => {
         switch (order.status) {
-            case 'Awaiting Payment':
+            case 'awaiting payment':
                 return {
                     label: "Awaiting Payment",
                     msg: "Please pay at the counter to confirm your order.",
@@ -48,7 +50,7 @@ const Processing = () => {
                     progress: 10,
                     step: 0
                 };
-            case 'PENDING':
+            case 'pending':
                 return {
                     label: "Order Received",
                     msg: "Waiting for kitchen confirmation.",
@@ -56,7 +58,7 @@ const Processing = () => {
                     progress: 25,
                     step: 1
                 };
-            case 'ACCEPTED':
+            case 'accepted':
                 return {
                     label: "Accepted",
                     msg: "Kitchen accepted your order.",
@@ -64,7 +66,7 @@ const Processing = () => {
                     progress: 45,
                     step: 2
                 };
-            case 'PREPARING':
+            case 'preparing':
                 return {
                     label: "Cooking...",
                     msg: "Cooking your meal now.",
@@ -72,7 +74,7 @@ const Processing = () => {
                     progress: 70,
                     step: 3
                 };
-            case 'READY':
+            case 'ready':
                 return {
                     label: "Ready for Pickup",
                     msg: "Your order is ready for pickup!",
@@ -126,7 +128,7 @@ const Processing = () => {
                 </h1>
                 
                 <div className="font-mono text-primary font-black tracking-[0.2em] text-[10px] mb-12 bg-primary/10 px-4 py-1.5 rounded-full border border-primary/20">
-                    TRANSACTION ID: {order.orderId || order.id}
+                    TRANSACTION ID: {(order.orderId || order.id)?.slice(0, 8)}
                 </div>
 
                 {/* Robot Message Speech Bubble */}

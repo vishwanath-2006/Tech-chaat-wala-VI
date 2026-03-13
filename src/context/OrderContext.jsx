@@ -1,126 +1,166 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
+import { supabase } from '../lib/supabaseClient';
 
 const OrderContext = createContext();
 
-// Mock Initial Orders to give the dashboard something to display immediately
-const INITIAL_ORDERS = [
-    {
-        id: '1021',
-        items: [{ name: 'Sprout Circuit Salad', prepTime: 3, qty: 1 }, { name: 'Latency-Free Lemonade', prepTime: 1, qty: 2 }],
-        status: 'completed',
-        timestamp: Date.now() - 1000 * 60 * 15, // 15 mins ago
-        prepTime: 3,
-        total: 307
-    },
-    {
-        id: '1022',
-        items: [{ name: 'Protein Packet Paneer', prepTime: 4, qty: 2 }],
-        status: 'ready',
-        timestamp: Date.now() - 1000 * 60 * 5, // 5 mins ago
-        prepTime: 4,
-        total: 378
-    },
-    {
-        id: '1023',
-        items: [{ name: 'Async Avocado Wrap', prepTime: 4, qty: 1 }],
-        status: 'cooking',
-        timestamp: Date.now() - 1000 * 60 * 2, // 2 mins ago
-        prepTime: 5,
-        total: 249
-    }
-];
-
 export const OrderProvider = ({ children }) => {
-    // Load from local storage or use initial
-    const [orders, setOrders] = useState(() => {
-        try {
-            const saved = localStorage.getItem('tcw_orders');
-            if (saved) {
-                const parsed = JSON.parse(saved);
-                if (Array.isArray(parsed) && parsed.length > 0) {
-                    // Normalize statuses on load for robustness
-                    return parsed.map(o => ({
-                        ...o,
-                        status: String(o.status).toUpperCase(),
-                        paymentStatus: o.paymentStatus || (o.status === 'COMPLETED' ? 'Paid' : 'Pending')
-                    }));
-                }
-            }
-        } catch (e) { console.error(e); }
-        
-        return INITIAL_ORDERS.map(o => ({
-            ...o,
-            status: String(o.status).toUpperCase(),
-            paymentStatus: 'Paid',
-            paymentMethod: 'UPI'
-        }));
-    });
+    const [orders, setOrders] = useState([]);
+    const [loading, setLoading] = useState(true);
 
-    // Cross-tab synchronization
+    // Initial fetch from Supabase
     useEffect(() => {
-        const handleStorageChange = (e) => {
-            if (e.key === 'tcw_orders' && e.newValue) {
-                try {
-                    const parsed = JSON.parse(e.newValue);
-                    if (Array.isArray(parsed)) {
-                        setOrders(parsed.map(o => ({
-                            ...o,
-                            status: String(o.status).toUpperCase()
-                        })));
-                    }
-                } catch (err) { console.error("Sync error:", err); }
+        const fetchOrders = async () => {
+            try {
+                const { data, error } = await supabase
+                    .from('orders')
+                    .select('*')
+                    .order('created_at', { ascending: true });
+
+                if (error) throw error;
+
+                if (data) {
+                    setOrders(data.map(transformOrderFromDB));
+                }
+            } catch (err) {
+                console.error('Error fetching orders:', err.message);
+            } finally {
+                setLoading(false);
             }
         };
 
-        window.addEventListener('storage', handleStorageChange);
-        return () => window.removeEventListener('storage', handleStorageChange);
+        fetchOrders();
+
+        // Real-time subscription
+        const channel = supabase
+            .channel('orders-realtime')
+            .on('postgres_changes', { 
+                event: '*', 
+                schema: 'public', 
+                table: 'orders' 
+            }, (payload) => {
+                console.log('Real-time update:', payload);
+                if (payload.eventType === 'INSERT') {
+                    setOrders(prev => [...prev, transformOrderFromDB(payload.new)]);
+                } else if (payload.eventType === 'UPDATE') {
+                    setOrders(prev => prev.map(o => 
+                        o.id === payload.new.id ? transformOrderFromDB(payload.new) : o
+                    ));
+                } else if (payload.eventType === 'DELETE') {
+                    setOrders(prev => prev.filter(o => o.id !== payload.old.id));
+                }
+            })
+            .subscribe((status) => {
+                if (status === 'SUBSCRIBED') {
+                    console.log('Successfully subscribed to real-time updates');
+                } else if (status === 'CHANNEL_ERROR') {
+                    console.error('Real-time subscription failed');
+                }
+            });
+
+        return () => {
+            supabase.removeChannel(channel);
+        };
     }, []);
 
-    useEffect(() => {
-        localStorage.setItem('tcw_orders', JSON.stringify(orders));
-    }, [orders]);
+    // Helper to transform DB record to UI state
+    const transformOrderFromDB = (dbOrder) => ({
+        id: dbOrder.id,
+        items: dbOrder.items,
+        total: parseFloat(dbOrder.total_price),
+        status: dbOrder.order_status, // normalized to lowercase like 'pending'
+        paymentStatus: dbOrder.payment_status,
+        paymentMethod: dbOrder.payment_mode,
+        timestamp: new Date(dbOrder.created_at).getTime(),
+        prepTime: dbOrder.prep_time || 5, // Default if missing
+    });
+
+    // Helper to transform UI state to DB record
+    const transformOrderToDB = (orderData) => ({
+        items: orderData.items,
+        total_price: orderData.total,
+        payment_mode: orderData.paymentMethod || 'Counter',
+        payment_status: orderData.paymentStatus || 'pending',
+        order_status: orderData.status || 'pending',
+        prep_time: orderData.prepTime || 5
+    });
 
     // Add a new order (from customer checkout)
-    const addOrder = (orderData) => {
-        const newOrderId = `TX-${Math.floor(1000 + Math.random() * 9000)}`;
+    const addOrder = async (orderData) => {
+        try {
+            // Calculate prep time: longest item + 1 min for packaging
+            const maxItemPrepTime = Math.max(1, ...(orderData.items || []).map(i => i.prepTime || 3));
+            const basePrepTime = maxItemPrepTime + 1;
 
-        // Calculate prep time: longest item + 1 min for packaging
-        const maxItemPrepTime = Math.max(1, ...(orderData.items || []).map(i => i.prepTime || 3));
-        const basePrepTime = maxItemPrepTime + 1;
+            const dbOrder = {
+                items: orderData.items,
+                total_price: orderData.total,
+                payment_mode: orderData.paymentMethod || 'Counter',
+                payment_status: orderData.paymentStatus || 'pending',
+                order_status: 'pending',
+                prep_time: basePrepTime
+            };
 
-        const newOrder = {
-            id: newOrderId,
-            status: orderData.paymentStatus === 'Paid' ? 'PENDING' : 'Awaiting Payment',
-            paymentStatus: orderData.paymentStatus || 'Pending',
-            paymentMethod: orderData.paymentMethod || 'Counter',
-            timestamp: Date.now(),
-            prepTime: basePrepTime,
-            ...orderData
-        };
+            const { data, error } = await supabase
+                .from('orders')
+                .insert([dbOrder])
+                .select();
 
-        setOrders(prev => [...prev, newOrder]);
-        return newOrderId; // Return ID so Success page can track it
+            if (error) throw error;
+            
+            console.log('Order created:', data[0]);
+            return data[0].id; // Return UUID
+        } catch (err) {
+            console.error('Error creating order:', err.message);
+            return null;
+        }
     };
 
     // Admin updates status 
-    const updateOrderStatus = (orderId, newStatus) => {
-        setOrders(prev => prev.map(order => {
-            if (order.id === orderId) {
-                // If payment was pending and now it's paid, move to PENDING status for kitchen
-                if (order.paymentStatus === 'Pending' && newStatus === 'Paid') {
-                    return { ...order, paymentStatus: 'Paid', status: 'PENDING' };
-                }
-                return { ...order, status: newStatus };
-            }
-            return order;
-        }));
+    const updateOrderStatus = async (orderId, newStatus) => {
+        try {
+            // Check if status needs processing for specific logic
+            // e.g., if payment was pending and now it's paid, move to 'pending' for kitchen
+            // But usually the buttons will send the exact target status
+            
+            const normalizedStatus = newStatus.toLowerCase();
+            
+            const { error } = await supabase
+                .from('orders')
+                .update({ order_status: normalizedStatus })
+                .eq('id', orderId);
+
+            if (error) throw error;
+        } catch (err) {
+            console.error('Error updating order status:', err.message);
+        }
+    };
+
+    // Admin updates payment status
+    const updatePaymentStatus = async (orderId, newPaymentStatus) => {
+        try {
+            const { error } = await supabase
+                .from('orders')
+                .update({ payment_status: newPaymentStatus.toLowerCase() })
+                .eq('id', orderId);
+
+            if (error) throw error;
+        } catch (err) {
+            console.error('Error updating payment status:', err.message);
+        }
     };
 
     // Admin updates preparation time
-    const updateOrderPrepTime = (orderId, newPrepTime) => {
-        setOrders(prev => prev.map(order =>
-            order.id === orderId ? { ...order, prepTime: newPrepTime } : order
-        ));
+    const updateOrderPrepTime = async (orderId, newPrepTime) => {
+        try {
+            const { error } = await supabase
+                .from('orders')
+                .update({ prep_time: newPrepTime })
+                .eq('id', orderId);
+
+            if (error) throw error;
+        } catch (err) {
+            console.error('Error updating prep time:', err.message);
+        }
     };
 
     // Get specific order details
@@ -133,21 +173,19 @@ export const OrderProvider = ({ children }) => {
         const order = orders.find(o => o.id === orderId);
         if (!order) return { ordersAhead: 0, position: 0, waitTimeMins: 0 };
 
-        const activeStatuses = ['PENDING', 'ACCEPTED', 'PREPARING'];
-        const activeOrders = orders.filter(o => activeStatuses.includes(o.status));
-
+        const activeStatuses = ['pending', 'accepted', 'preparing'];
         // Sort by timestamp (oldest first)
-        activeOrders.sort((a, b) => a.timestamp - b.timestamp);
+        const activeOrders = orders
+            .filter(o => activeStatuses.includes(o.status))
+            .sort((a, b) => a.timestamp - b.timestamp);
 
         const myIndex = activeOrders.findIndex(o => o.id === orderId);
 
         if (myIndex === -1) {
-            // Probably ready or completed or awaiting payment
             return { ordersAhead: 0, position: 1, waitTimeMins: 0 };
         }
 
         const ordersAhead = myIndex;
-        // Estimate 2 minutes per order ahead, plus 2 mins for yours
         const waitTimeMins = (ordersAhead * 2) + 1;
 
         return {
@@ -160,8 +198,10 @@ export const OrderProvider = ({ children }) => {
     return (
         <OrderContext.Provider value={{
             orders,
+            loading,
             addOrder,
             updateOrderStatus,
+            updatePaymentStatus,
             updateOrderPrepTime,
             getOrder,
             getQueueStats

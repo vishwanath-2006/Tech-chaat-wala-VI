@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, Plus, Minus, CreditCard, ShieldCheck, Trash2, X, Smartphone, QrCode, Banknote, Landmark, CheckCircle, Info, Loader2, ArrowRight } from 'lucide-react';
-import { useMenu } from '../context/MenuContext';
-import { useOrders } from '../context/OrderContext';
+import { supabase } from '../lib/supabaseClient';
 
 const Checkout = ({ cart, updateCart }) => {
     const navigate = useNavigate();
@@ -27,25 +26,52 @@ const Checkout = ({ cart, updateCart }) => {
     const cloudTax = Math.round(subtotal * 0.05); // 5% Cloud Storage Tax (GST)
     const grandTotal = subtotal + platformFee + cloudTax;
 
-    const handleConfirmPayment = (method, status = 'Paid') => {
+    const handleConfirmPayment = async (method, status = 'paid') => {
         setIsProcessing(true)
         setProcessingMsg(method === 'Counter' ? "Registering order..." : "Finalizing transaction...");
 
-        setTimeout(() => {
-            // Dispatch the order to the queue
-            const orderId = addOrder({ 
-                items: cartItems.map(i => ({ name: i.name, qty: i.qty, prepTime: i.prepTime })), 
-                total: grandTotal,
-                paymentMethod: method,
-                paymentStatus: status
-            });
+        try {
+            // Calculate prep time: longest item + 1 min for packaging
+            const maxItemPrepTime = Math.max(1, ...cartItems.map(i => i.prepTime || 3));
+            const basePrepTime = maxItemPrepTime + 1;
+
+            // Direct Supabase Insertion as requested
+            const { data, error } = await supabase
+                .from("orders")
+                .insert([
+                    {
+                        items: cartItems.map(i => ({ name: i.name, qty: i.qty, prepTime: i.prepTime })),
+                        total_price: grandTotal,
+                        payment_mode: method,
+                        payment_status: status.toLowerCase(),
+                        order_status: "pending",
+                        prep_time: basePrepTime
+                    }
+                ])
+                .select();
+
+            if (error) {
+                console.error("Order insert failed:", error);
+                setProcessingMsg("Error finalizing transaction. Please contact staff.");
+                setIsProcessing(false);
+                return;
+            }
+
+            const orderId = data[0].id;
+            console.log("Order confirmed with ID:", orderId);
 
             // Clear customer cart
             updateCart('ALL_CLEAR', 0);
 
             // Navigate to processing (live status tracker)
-            navigate('/processing', { state: { orderId } });
-        }, 1500);
+            setTimeout(() => {
+                navigate('/processing', { state: { orderId } });
+            }, 1000);
+        } catch (error) {
+            console.error("Checkout error:", error);
+            setProcessingMsg("System error. Transaction failed.");
+            setIsProcessing(false);
+        }
     };
 
     const handleUPISelect = (app) => {
@@ -184,7 +210,7 @@ const Checkout = ({ cart, updateCart }) => {
                                 ripple.style.top = `${y}px`;
                                 e.currentTarget.appendChild(ripple);
                                 setTimeout(() => ripple.remove(), 600);
-                                setTimeout(() => handleConfirmPayment('Counter', 'Pending'), 200);
+                                setTimeout(() => handleConfirmPayment('Counter', 'pending'), 200);
                             }}
                             className="w-full glass-card p-6 flex flex-col items-start gap-4 hover:border-secondary/50 group transition-all active:scale-[0.98] border-2 border-white/30 relative overflow-hidden"
                         >
