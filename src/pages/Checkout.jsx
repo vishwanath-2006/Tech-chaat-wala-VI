@@ -37,24 +37,23 @@ const Checkout = ({ cart, updateCart }) => {
             const maxItemPrepTime = Math.max(1, ...cartItems.map(i => i.prepTime || 3));
             const basePrepTime = maxItemPrepTime + 1;
 
-            // Direct Supabase Insertion as requested
+            // Direct Supabase Insertion matching the exact table schema provided
             const { data, error } = await supabase
                 .from("orders")
                 .insert([
                     {
-                        items: cartItems.map(i => ({ name: i.name, qty: i.qty, prepTime: i.prepTime })),
-                        total_price: grandTotal,
-                        payment_mode: method,
-                        payment_status: status.toLowerCase(),
-                        order_status: "pending",
-                        prep_time: basePrepTime
+                        items: cartItems.map(i => ({ name: i.name, qty: i.qty })),
+                        total_price: Number(grandTotal),
+                        payment_mode: method || "cash",
+                        payment_status: status.toLowerCase() || "pending",
+                        order_status: "pending"
                     }
                 ])
                 .select();
 
             if (error) {
-                console.error("Order insert failed:", error);
-                setProcessingMsg("Error finalizing transaction. Please contact staff.");
+                console.error("Supabase insert error:", error.message, error.details);
+                setProcessingMsg("Error finalizing transaction. Details: " + error.message);
                 setIsProcessing(false);
                 return;
             }
