@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, Plus, Minus, CreditCard, ShieldCheck, Trash2, X, Smartphone, QrCode, Banknote, Landmark, CheckCircle, Info, Loader2, ArrowRight } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
+import { useMenu } from '../context/MenuContext';
+import { useOrders } from '../context/OrderContext';
 
 const Checkout = ({ cart, updateCart }) => {
     const navigate = useNavigate();
