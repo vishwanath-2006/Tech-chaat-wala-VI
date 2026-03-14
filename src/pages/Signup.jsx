@@ -1,34 +1,71 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { ArrowLeft, UserPlus, Eye, EyeOff } from 'lucide-react';
+import { ArrowLeft, UserPlus, Eye, EyeOff, CheckCircle } from 'lucide-react';
 
 const Signup = () => {
-    const { signup } = useAuth();
     const navigate = useNavigate();
+    const { signup } = useAuth();
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirm, setConfirm] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [isSignedUp, setIsSignedUp] = useState(false);
+    const [error, setError] = useState('');
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        setIsLoading(true);
-        // Basic match check
+        setError('');
+
         if (password !== confirm) {
-            alert("Passwords do not match");
-            setIsLoading(false);
+            setError("Passwords do not match");
             return;
         }
 
-        setTimeout(() => {
-            signup(name, email, password);
+        setIsLoading(true);
+        try {
+            const data = await signup(email, password, name);
+
+            console.log("Signup success:", data);
+            
+            // If session is present immediately, navigate
+            if (data.session) {
+                navigate('/menu');
+            } else {
+                // Otherwise user probably needs to confirm email
+                setIsSignedUp(true);
+            }
+        } catch (err) {
+            console.error("Signup error:", err);
+            setError(err.message || "An unexpected error occurred. Please try again.");
+        } finally {
             setIsLoading(false);
-            navigate('/menu');
-        }, 800);
+        }
     };
+
+    if (isSignedUp) {
+        return (
+            <div className="min-h-screen bg-background flex items-center justify-center p-6">
+                <div className="max-w-md w-full surface-card p-10 rounded-[40px] bg-white border border-slate-100 shadow-2xl text-center space-y-6">
+                    <div className="w-20 h-20 bg-green-50 rounded-3xl mx-auto flex items-center justify-center border border-green-100">
+                        <CheckCircle size={40} className="text-green-500" />
+                    </div>
+                    <div>
+                        <h1 className="text-3xl font-black text-secondary mb-2">Check Email</h1>
+                        <p className="text-slate-500 font-medium">We've sent a verification link to <span className="text-secondary font-bold">{email}</span>. Please authorize your entity.</p>
+                    </div>
+                    <button
+                        onClick={() => navigate('/login')}
+                        className="w-full bg-secondary text-white font-black py-4 rounded-2xl shadow-xl shadow-secondary/20 hover:shadow-secondary/30 active:scale-[0.98] transition-all"
+                    >
+                        Return to Login
+                    </button>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-background flex flex-row-reverse">
@@ -67,6 +104,11 @@ const Signup = () => {
                     </div>
 
                     <form onSubmit={handleSubmit} className="space-y-5">
+                        {error && (
+                            <div className="bg-red-50 text-red-500 p-4 rounded-2xl text-sm font-bold border border-red-100 flex items-start gap-2 animate-in fade-in slide-in-from-top-2 duration-300">
+                                <span className="pt-0.5 mt-0">⚠️</span> {error}
+                            </div>
+                        )}
                         {/* Name Input */}
                         <div className="space-y-2">
                             <label className="text-sm font-bold text-secondary ml-1 block">Full Name</label>

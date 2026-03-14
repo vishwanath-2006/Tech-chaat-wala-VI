@@ -55,7 +55,7 @@ const AdminDashboard = () => {
     }, [allOrders, lastOrderCount, user]);
 
     // Secure route check
-    if (!user || user.role !== 'official') {
+    if (!user || user.role !== 'staff') {
         return (
             <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6 text-center">
                 <ShieldAlert size={48} className="text-red-500 mb-4" />

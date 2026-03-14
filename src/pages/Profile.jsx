@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { ArrowLeft, Edit2, Save, LogOut } from 'lucide-react';
@@ -8,23 +8,36 @@ const Profile = () => {
     const navigate = useNavigate();
     const [isEditing, setIsEditing] = useState(false);
     const [formData, setFormData] = useState({
-        name: user?.name || '',
-        phone: user?.phone || ''
+        name: user?.user_metadata?.full_name || user?.name || '',
+        phone: user?.user_metadata?.phone || user?.phone || ''
     });
 
-    // If suddenly logged out, kick them to login
-    if (!user) {
-        navigate('/login');
-        return null;
-    }
+    // Update form if user data loads late
+    useEffect(() => {
+        if (user) {
+            setFormData({
+                name: user.user_metadata?.full_name || user.name || '',
+                phone: user.user_metadata?.phone || user.phone || ''
+            });
+        }
+    }, [user]);
 
-    const handleSave = () => {
-        updateProfile(formData);
-        setIsEditing(false);
+    if (!user) return null;
+
+    const handleSave = async () => {
+        try {
+            await updateProfile({
+                full_name: formData.name,
+                phone: formData.phone
+            });
+            setIsEditing(false);
+        } catch (err) {
+            console.error("Failed to update profile:", err.message);
+        }
     };
 
-    const handleLogout = () => {
-        logout();
+    const handleLogout = async () => {
+        await logout();
         navigate('/');
     };
 
@@ -47,8 +60,14 @@ const Profile = () => {
                             </button>
                         )}
                     </div>
-                    <h1 className="text-4xl font-black text-secondary leading-tight">{user.name}</h1>
-                    <p className="text-slate-500 font-medium">Verified User Level 1</p>
+                    <h1 className="text-4xl font-black text-secondary leading-tight">{formData.name}</h1>
+                    <div className="flex flex-col items-center gap-1">
+                        <p className="text-slate-500 font-medium">Verified User Level 1</p>
+                        <div className="mt-2 inline-flex items-center gap-2 px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-[10px] font-mono font-bold border border-blue-100 uppercase tracking-tighter">
+                            <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></span>
+                            Project ID: {import.meta.env.VITE_SUPABASE_URL?.split('//')[1]?.split('.')[0] || 'NOT_FOUND'}
+                        </div>
+                    </div>
                 </div>
 
                 <div className="surface-card p-8 rounded-[32px] bg-white border border-slate-100 shadow-xl mb-6">
@@ -73,7 +92,7 @@ const Profile = () => {
                                     onChange={e => setFormData({ ...formData, name: e.target.value })}
                                 />
                             ) : (
-                                <p className="text-secondary font-bold text-lg">{user.name}</p>
+                                <p className="text-secondary font-bold text-lg">{formData.name}</p>
                             )}
                         </div>
 
@@ -94,7 +113,7 @@ const Profile = () => {
                                     placeholder="+91..."
                                 />
                             ) : (
-                                <p className="text-secondary font-bold text-lg">{user.phone || 'Not configured.'}</p>
+                                <p className="text-secondary font-bold text-lg">{formData.phone || 'Not configured.'}</p>
                             )}
                         </div>
                     </div>

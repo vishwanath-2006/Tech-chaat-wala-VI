@@ -7,23 +7,31 @@ const OfficialLogin = () => {
     const [credentials, setCredentials] = useState({ id: '', password: '' });
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
-    const { loginOfficial } = useAuth();
+    const { login, logout } = useAuth();
     const navigate = useNavigate();
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
         setIsLoading(true);
 
-        setTimeout(() => {
-            const success = loginOfficial(credentials.id, credentials.password);
-            if (success) {
-                navigate('/admin');
-            } else {
-                setError('Invalid Official ID or Password. (Hint: admin / admin123)');
-                setIsLoading(false);
+        try {
+            const data = await login(credentials.id, credentials.password);
+            console.log("Official Login success:", data);
+
+            const role = data.user.user_metadata?.role;
+            if (role !== 'staff') {
+                await logout();
+                throw new Error("Unauthorized: Access restricted to staff members.");
             }
-        }, 800);
+            
+            navigate('/admin');
+        } catch (err) {
+            setError(err.message || 'Invalid Official ID or Password.');
+            console.error("Official login error:", err);
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
@@ -66,7 +74,7 @@ const OfficialLogin = () => {
                             <input
                                 type="text"
                                 className="w-full bg-slate-50 border border-slate-200 rounded-xl py-4 px-4 text-secondary font-bold focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all placeholder:text-slate-400 placeholder:font-medium"
-                                placeholder="Official ID"
+                                placeholder="Official Email"
                                 value={credentials.id}
                                 onChange={e => setCredentials({ ...credentials, id: e.target.value })}
                                 required

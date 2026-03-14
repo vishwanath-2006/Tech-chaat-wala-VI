@@ -4,22 +4,36 @@ import { useAuth } from '../context/AuthContext';
 import { ArrowLeft, ArrowRight, Eye, EyeOff } from 'lucide-react';
 
 const Login = () => {
-    const { login } = useAuth();
     const navigate = useNavigate();
+    const { login } = useAuth();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState('');
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
+        setError('');
         setIsLoading(true);
-        // Simulate network request
-        setTimeout(() => {
-            login(email, password);
+        
+        try {
+            const data = await login(email, password);
+            console.log("Login success:", data);
+
+            const userRole = data.user.user_metadata?.role;
+            
+            if (userRole === 'staff') {
+                navigate('/admin');
+            } else {
+                navigate('/menu');
+            }
+        } catch (err) {
+            setError(err.message || "Authentication failed. Check your credentials.");
+            console.error("Login error:", err);
+        } finally {
             setIsLoading(false);
-            navigate('/menu');
-        }, 800);
+        }
     };
 
     return (
@@ -59,12 +73,17 @@ const Login = () => {
                     </div>
 
                     <form onSubmit={handleSubmit} className="space-y-6">
+                        {error && (
+                            <div className="bg-red-50 text-red-500 p-4 rounded-2xl text-sm font-bold border border-red-100 flex items-start gap-2 animate-in fade-in slide-in-from-top-2 duration-300">
+                                <span className="pt-0.5 mt-0">⚠️</span> {error}
+                            </div>
+                        )}
                         {/* Email Input */}
                         <div className="space-y-2">
-                            <label className="text-sm font-bold text-secondary ml-1 block">Email or Phone</label>
+                            <label className="text-sm font-bold text-secondary ml-1 block">Email</label>
                             <div className="relative">
                                 <input
-                                    type="text"
+                                    type="email"
                                     required
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}

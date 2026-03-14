@@ -68,7 +68,7 @@ const ProfileDropdown = () => {
                     <div className="flex flex-col py-1">
                         {user ? (
                             <>
-                                {user.role === 'official' ? (
+                                {user.role === 'staff' ? (
                                     <button onClick={() => handleAction('/admin')} className="flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-secondary hover:bg-slate-50 transition-colors w-full text-left bg-primary/5 border-l-4 border-primary">
                                         <Settings size={16} className="text-primary" /> Admin Terminal
                                     </button>
