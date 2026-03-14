@@ -61,13 +61,7 @@ const Profile = () => {
                         )}
                     </div>
                     <h1 className="text-4xl font-black text-secondary leading-tight">{formData.name}</h1>
-                    <div className="flex flex-col items-center gap-1">
-                        <p className="text-slate-500 font-medium">Verified User Level 1</p>
-                        <div className="mt-2 inline-flex items-center gap-2 px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-[10px] font-mono font-bold border border-blue-100 uppercase tracking-tighter">
-                            <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></span>
-                            Project ID: {import.meta.env.VITE_SUPABASE_URL?.split('//')[1]?.split('.')[0] || 'NOT_FOUND'}
-                        </div>
-                    </div>
+                    <p className="text-slate-500 font-medium">Verified User Level 1</p>
                 </div>
 
                 <div className="surface-card p-8 rounded-[32px] bg-white border border-slate-100 shadow-xl mb-6">

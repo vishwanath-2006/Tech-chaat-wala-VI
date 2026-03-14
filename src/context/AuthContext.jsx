@@ -21,12 +21,6 @@ export const AuthProvider = ({ children }) => {
             }
 
             try {
-                // Diagnostic: Log the project ID (masked) to help user verify the project
-                if (supabaseUrl) {
-                    const projectId = supabaseUrl.split('//')[1]?.split('.')[0];
-                    console.log(`%c[SYSTEM DIAGNOSTIC] Connected to Supabase Project: ${projectId}`, "color: #3b82f6; font-weight: bold;");
-                }
-
                 const { data: { session }, error } = await supabase.auth.getSession();
                 if (error) throw error;
                 

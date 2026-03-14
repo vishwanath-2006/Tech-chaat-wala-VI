@@ -41,8 +41,8 @@ const HomeRedirect = () => {
         return <Navigate to="/menu" replace />;
     }
 
-    // Default to login gate for everyone else
-    return <Navigate to="/login" replace />;
+    // Default to Landing page for everyone else (Guests and newly logged out users)
+    return <Landing />;
 };
 
 function App() {
@@ -88,7 +88,7 @@ function App() {
                                 <Route path="/" element={<HomeRedirect />} />
                                 <Route
                                     path="/menu"
-                                    element={<ProtectedRoute><Menu cart={cart} updateCart={updateCart} triggerRobot={triggerRobot} /></ProtectedRoute>}
+                                    element={<Menu cart={cart} updateCart={updateCart} triggerRobot={triggerRobot} />}
                                 />
                                 <Route path="/checkout" element={
                                     <ProtectedRoute>

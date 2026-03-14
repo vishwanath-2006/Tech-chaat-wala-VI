@@ -3,8 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { Zap, Leaf, ScanLine, Terminal } from 'lucide-react';
 import AssistantPanel from '../components/ui/AssistantPanel';
 import ProfileDropdown from '../components/ui/ProfileDropdown';
+import { useAuth } from '../context/AuthContext';
 
 const Landing = () => {
+    const { user, loading } = useAuth();
     const navigate = useNavigate();
     const [isBooting, setIsBooting] = useState(false);
     const [bootText, setBootText] = useState('');
@@ -15,6 +17,14 @@ const Landing = () => {
         "Activating Cooking Modules...",
         "System Ready."
     ];
+
+    // Auto-redirect if already logged in
+    useEffect(() => {
+        if (!loading && user) {
+            if (user.role === 'staff') navigate('/admin');
+            else if (user.role === 'customer') navigate('/menu');
+        }
+    }, [user, loading, navigate]);
 
     const handleInitialize = () => {
         setIsBooting(true);
@@ -33,6 +43,8 @@ const Landing = () => {
         }, 600); // 600ms per boot step
     };
 
+    if (loading) return null; // Let App.jsx handle the main loading state
+
     return (
         <div className="relative min-h-screen flex flex-col items-center justify-center p-6 bg-background overflow-hidden">
             {/* Absolute Top Action Ribbon */}
@@ -41,7 +53,15 @@ const Landing = () => {
                     <span className="font-black text-white">v4</span>
                 </div>
 
-                <ProfileDropdown />
+                <div className="flex items-center gap-3">
+                    <button 
+                        onClick={() => navigate('/official-login')}
+                        className="text-[10px] font-black uppercase tracking-widest text-secondary/40 hover:text-primary transition-colors pr-2 border-r border-slate-200"
+                    >
+                        Staff Portal
+                    </button>
+                    <ProfileDropdown />
+                </div>
             </div>
 
             {/* Background elements */}
@@ -50,7 +70,7 @@ const Landing = () => {
 
             <div className="z-10 w-full max-w-md flex flex-col items-center">
                 {/* Robot Hero Art Placeholder */}
-                <div className="relative mb-8 group cursor-pointer animate-robot-intro" onClick={() => navigate('/menu')}>
+                <div className="relative mb-8 group cursor-pointer animate-robot-intro" onClick={handleInitialize}>
                     <div className="absolute inset-0 bg-primary/20 rounded-[3rem] blur-xl group-hover:bg-primary/30 transition-all duration-500" />
                     <div className="w-48 h-48 bg-surface rounded-[3rem] shadow-soft border-4 border-white flex items-center justify-center relative overflow-hidden transform group-hover:-translate-y-2 transition-transform duration-500 animate-robot-idle">
                         <img
@@ -80,40 +100,40 @@ const Landing = () => {
                     </p>
                 </div>
 
-                {/* Quick-info features */}
-                <div className="grid grid-cols-3 gap-3 w-full mb-12">
-                    <div className="surface-card p-4 flex flex-col items-center text-center gap-2">
-                        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-                            <Zap size={20} />
-                        </div>
-                        <span className="text-[10px] font-bold text-secondary uppercase tracking-wider">Instant Prep</span>
-                    </div>
-                    <div className="surface-card p-4 flex flex-col items-center text-center gap-2">
-                        <div className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center text-secondary">
-                            <Leaf size={20} />
-                        </div>
-                        <span className="text-[10px] font-bold text-secondary uppercase tracking-wider">Zero Waste</span>
-                    </div>
-                    <div className="surface-card p-4 flex flex-col items-center text-center gap-2">
-                        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-                            <ScanLine size={20} />
-                        </div>
-                        <span className="text-[10px] font-bold text-secondary uppercase tracking-wider">Scan & Order</span>
+                {/* Main Action Stack */}
+                <div className="w-full space-y-4 mb-12">
+                    {/* Guest Entry */}
+                    <button
+                        onClick={handleInitialize}
+                        disabled={isBooting}
+                        className="btn-primary btn-bounce w-full py-5 text-lg flex items-center justify-center gap-3 relative overflow-hidden group shadow-neon-blue"
+                    >
+                        <span className="relative z-10 flex items-center gap-3">
+                            {isBooting ? 'Booting...' : 'Initialize Guest System'}
+                            <ScanLine size={20} className={isBooting ? "animate-spin" : "group-hover:animate-pulse"} />
+                        </span>
+                        <div className="absolute inset-0 bg-gradient-to-r from-primaryHover to-primary opacity-0 group-hover:opacity-100 transition-opacity" />
+                    </button>
+
+                    <div className="flex gap-4">
+                        {/* Customer Login */}
+                        <button
+                            onClick={() => navigate('/login')}
+                            className="flex-1 bg-white border-2 border-slate-100 py-4 rounded-2xl flex items-center justify-center gap-2 text-secondary font-black text-sm hover:border-primary hover:text-primary transition-all shadow-sm active:scale-95"
+                        >
+                            <Terminal size={18} />
+                            Log In
+                        </button>
+                        
+                        {/* Fast Signup */}
+                        <button
+                            onClick={() => navigate('/signup')}
+                            className="flex-1 bg-secondary text-white py-4 rounded-2xl flex items-center justify-center gap-2 font-black text-sm hover:bg-secondary/90 transition-all shadow-soft active:scale-95"
+                        >
+                            Sign Up
+                        </button>
                     </div>
                 </div>
-
-                {/* Main CTA */}
-                <button
-                    onClick={handleInitialize}
-                    disabled={isBooting}
-                    className="btn-primary btn-bounce w-full py-5 text-lg flex items-center justify-center gap-3 relative overflow-hidden group mb-6"
-                >
-                    <span className="relative z-10 flex items-center gap-3">
-                        {isBooting ? 'System Booting...' : 'Initialize System'}
-                        <Zap size={20} className={isBooting ? "animate-spin" : "group-hover:animate-pulse"} />
-                    </span>
-                    <div className="absolute inset-0 bg-gradient-to-r from-primaryHover to-primary opacity-0 group-hover:opacity-100 transition-opacity" />
-                </button>
 
                 {/* Assistant Panel */}
                 <AssistantPanel message="Welcome to Tech Chaat Wala." />
