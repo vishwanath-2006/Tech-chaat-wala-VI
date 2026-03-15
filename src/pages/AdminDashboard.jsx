@@ -26,7 +26,10 @@ const AdminDashboard = () => {
     const { orders: allOrders, updateOrderStatus, updatePaymentStatus, updateOrderPrepTime, deleteOrder, clearHistory } = useOrders();
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('All'); // For Menu filtering
-    const [viewMode, setViewMode] = useState('orders'); // 'menu' | 'orders' | 'history'
+    const [viewMode, setViewMode] = useState('orders'); // 'menu' | 'orders' | 'history' | 'settings'
+    const [historyHiddenBefore, setHistoryHiddenBefore] = useState(() => {
+        return Number(localStorage.getItem('admin_history_hidden_before')) || 0;
+    });
     const [priceEdits, setPriceEdits] = useState({});
     const [searchQuery, setSearchQuery] = useState('');
 
@@ -175,7 +178,9 @@ const AdminDashboard = () => {
     // pending, accepted, preparing, ready, completed, 'awaiting payment'
     const pendingOrders = [...allOrders].filter(o => o.status === 'pending' || o.paymentStatus === 'pending').sort((a, b) => a.timestamp - b.timestamp);
     const activeOrders = [...allOrders].filter(o => ['accepted', 'preparing', 'ready'].includes(o.status) && o.paymentStatus === 'paid').sort((a, b) => a.timestamp - b.timestamp);
-    const completedOrders = [...allOrders].filter(o => o.status === 'completed').sort((b, a) => a.timestamp - b.timestamp);
+    const completedOrders = [...allOrders]
+        .filter(o => o.status === 'completed' && o.timestamp > historyHiddenBefore)
+        .sort((b, a) => a.timestamp - b.timestamp);
 
     const formatOrderTime = (timestamp) => {
         const d = new Date(timestamp);
@@ -241,6 +246,12 @@ const AdminDashboard = () => {
                             className={`px-4 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2 ${viewMode === 'menu' ? 'bg-white text-secondary shadow-md' : 'text-slate-600 hover:bg-slate-200'}`}
                         >
                             <Edit3 size={16} /> Menu Setup
+                        </button>
+                        <button
+                            onClick={() => setViewMode('settings')}
+                            className={`px-4 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2 ${viewMode === 'settings' ? 'bg-white text-secondary shadow-md' : 'text-slate-600 hover:bg-slate-200'}`}
+                        >
+                            <Plus size={16} className="rotate-45" /> Settings
                         </button>
                     </div>
                 </div>
@@ -566,9 +577,41 @@ const AdminDashboard = () => {
                 ) : viewMode === 'history' ? (
                     <HistoryTab 
                         orders={completedOrders} 
-                        clearHistory={clearHistory} 
-                        deleteOrder={deleteOrder}
                     />
+                ) : viewMode === 'settings' ? (
+                    <div className="space-y-6">
+                        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                            <div className="p-6 border-b border-slate-100 bg-slate-50/50">
+                                <h3 className="text-lg font-black text-secondary uppercase tracking-tight">System Settings</h3>
+                                <p className="text-xs text-slate-500 font-medium">Configure terminal protocols and data lifecycle.</p>
+                            </div>
+                            <div className="p-6 space-y-8">
+                                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 bg-red-50 rounded-2xl border border-red-100">
+                                    <div className="flex items-start gap-4">
+                                        <div className="w-12 h-12 bg-red-100 text-red-600 rounded-xl flex items-center justify-center shrink-0">
+                                            <Trash2 size={24} />
+                                        </div>
+                                        <div>
+                                            <h4 className="font-black text-red-900">Purge Active Transaction Logs</h4>
+                                            <p className="text-sm text-red-700/70 font-medium">This will hide current transaction records from the staff view. Data remains archived in the backend storage.</p>
+                                        </div>
+                                    </div>
+                                    <button 
+                                        onClick={() => {
+                                            if (window.confirm('Hide all current history from dashboard? (Records remain in database)')) {
+                                                const now = Date.now();
+                                                localStorage.setItem('admin_history_hidden_before', now.toString());
+                                                setHistoryHiddenBefore(now);
+                                            }
+                                        }}
+                                        className="bg-red-600 text-white font-black px-6 py-3 rounded-xl hover:bg-red-700 active:scale-95 transition-all text-sm uppercase tracking-widest whitespace-nowrap"
+                                    >
+                                        Execute Purge
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 ) : (
                     <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden px-4 py-8 text-center text-slate-500 font-medium">
                         Menu management module active. Use the categories above to sort items.
@@ -722,10 +765,9 @@ const AdminDashboard = () => {
 
 // --- Subcomponents for Cleanliness ---
 
-const HistoryTab = ({ orders, clearHistory, deleteOrder }) => {
+const HistoryTab = ({ orders }) => {
     const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
     const [selectedOrder, setSelectedOrder] = useState(null);
-    const [isClearing, setIsClearing] = useState(false);
 
     // Filter by date
     const filteredOrders = orders.filter(o => {
@@ -736,14 +778,6 @@ const HistoryTab = ({ orders, clearHistory, deleteOrder }) => {
     // Daily Stats
     const dailyCount = filteredOrders.length;
     const dailyRevenue = filteredOrders.reduce((sum, o) => sum + o.total, 0);
-
-    const handleClearHistory = async () => {
-        if (window.confirm('Are you sure you want to clear ALL completed transaction records? This cannot be undone.')) {
-            setIsClearing(true);
-            await clearHistory();
-            setIsClearing(false);
-        }
-    };
 
     return (
         <div className="space-y-6">
@@ -780,13 +814,6 @@ const HistoryTab = ({ orders, clearHistory, deleteOrder }) => {
                             <p className="text-xs text-slate-500 font-medium">Filtered by: {new Date(selectedDate).toDateString()}</p>
                         </div>
                     </div>
-                    <button 
-                        onClick={handleClearHistory}
-                        disabled={isClearing}
-                        className="text-xs font-black text-red-500 uppercase tracking-widest hover:bg-red-50 px-3 py-2 rounded-lg transition-colors flex items-center gap-2 border border-red-100"
-                    >
-                        <Trash2 size={14} /> {isClearing ? 'Clearing...' : 'Wipe History'}
-                    </button>
                 </div>
 
                 {filteredOrders.length === 0 ? (
@@ -894,20 +921,9 @@ const HistoryTab = ({ orders, clearHistory, deleteOrder }) => {
                         <div className="p-6 pt-0 flex gap-3">
                              <button 
                                 onClick={() => setSelectedOrder(null)}
-                                className="flex-1 py-3 rounded-xl border border-slate-200 text-slate-500 font-bold text-xs"
+                                className="flex-1 py-4 bg-secondary text-white rounded-xl font-black text-xs uppercase tracking-widest hover:bg-black transition-all"
                             >
-                                Close Terminal
-                            </button>
-                            <button 
-                                onClick={() => {
-                                    if(window.confirm('Wipe this specific transaction from database?')){
-                                        deleteOrder(selectedOrder.id);
-                                        setSelectedOrder(null);
-                                    }
-                                }}
-                                className="flex-1 py-3 rounded-xl bg-red-50 text-red-600 font-black text-xs uppercase tracking-widest hover:bg-red-100 transition-colors"
-                            >
-                                Wipe Record
+                                Close Specs View
                             </button>
                         </div>
                     </div>

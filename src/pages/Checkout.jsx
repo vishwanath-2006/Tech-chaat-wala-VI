@@ -10,10 +10,11 @@ const Checkout = ({ cart, updateCart }) => {
     const { menuData } = useMenu();
     const { addOrder } = useOrders();
 
-    const [checkoutStep, setCheckoutStep] = useState('summary'); // summary | payment-choice | upi-apps | qr-code | confirming
+    const [checkoutStep, setCheckoutStep] = useState('summary'); // summary | collect-name | payment-choice | upi-apps | qr-code | confirming
     const [selectedUPI, setSelectedUPI] = useState(null);
     const [isProcessing, setIsProcessing] = useState(false);
     const [processingMsg, setProcessingMsg] = useState('');
+    const [guestName, setGuestName] = useState('');
 
     const cartItems = Object.entries(cart).map(([id, qty]) => {
         const item = menuData.find(i => i.id === id);
@@ -39,7 +40,7 @@ const Checkout = ({ cart, updateCart }) => {
 
             // Get user info if available
             const { data: { user } } = await supabase.auth.getUser();
-            const customerName = user?.user_metadata?.name || user?.user_metadata?.full_name || 'Guest User';
+            const customerName = user ? (user.user_metadata?.name || user.user_metadata?.full_name || user.email) : guestName;
 
             // Direct Supabase Insertion matching the exact table schema provided
             const { data, error } = await supabase
@@ -134,6 +135,52 @@ const Checkout = ({ cart, updateCart }) => {
                 <div className="mt-12 w-full max-w-xs bg-slate-100 h-1.5 rounded-full overflow-hidden">
                     <div className="bg-primary h-full animate-progress-fast shadow-[0_0_10px_rgba(255,122,26,0.5)]"></div>
                 </div>
+            </div>
+        );
+    }
+
+    if (checkoutStep === 'collect-name') {
+        const handleNameSubmit = (e) => {
+            e.preventDefault();
+            if (guestName.trim()) {
+                setCheckoutStep('payment-choice');
+            }
+        };
+
+        return (
+            <div className="min-h-screen fintech-bg flex flex-col relative">
+                <div className="blob top-[-10%] left-[-10%]"></div>
+                <header className="p-6 border-b border-white/20 bg-white/40 backdrop-blur-xl sticky top-0 z-40">
+                    <button onClick={() => setCheckoutStep('summary')} className="flex items-center gap-2 text-secondary font-bold">
+                        <ChevronLeft size={20} /> Back
+                    </button>
+                </header>
+                <main className="p-6 max-w-md mx-auto w-full z-10 flex flex-col items-center">
+                    <div className="w-20 h-20 bg-white/40 backdrop-blur-md rounded-3xl flex items-center justify-center border border-white/30 shadow-inner mb-8">
+                        <img src="/images/hero_robot.png" alt="Robot" className="w-14 h-14 object-contain" />
+                    </div>
+                    <div className="text-center mb-10">
+                        <h1 className="text-3xl font-black text-secondary mb-2 tracking-tight">Identity Request</h1>
+                        <p className="text-textLight text-sm font-medium opacity-80">Please provide your name for order tracking</p>
+                    </div>
+                    <form onSubmit={handleNameSubmit} className="w-full space-y-6">
+                        <div className="glass-card p-6 border-2 border-white/30">
+                            <label className="text-xs font-black text-slate-400 uppercase tracking-widest mb-2 block">Customer Name</label>
+                            <input 
+                                required 
+                                type="text" 
+                                value={guestName} 
+                                onChange={(e) => setGuestName(e.target.value)}
+                                placeholder="Enter your full name"
+                                className="w-full bg-white/50 border border-slate-200 rounded-2xl p-4 text-secondary font-bold focus:border-primary outline-none transition-all placeholder:text-slate-300"
+                                autoFocus
+                            />
+                        </div>
+                        <button type="submit" className="btn-primary w-full py-5 text-sm uppercase tracking-widest font-black flex items-center justify-center gap-3">
+                            Continue to Payment <ArrowRight size={20} />
+                        </button>
+                    </form>
+                </main>
             </div>
         );
     }
@@ -489,7 +536,14 @@ const Checkout = ({ cart, updateCart }) => {
             <div className="fixed bottom-0 left-0 w-full bg-white/40 backdrop-blur-2xl border-t border-white/20 p-6 pb-safe z-50">
                 <div className="max-w-md mx-auto">
                     <button
-                        onClick={() => setCheckoutStep('payment-choice')}
+                        onClick={async () => {
+                            const { data: { user } } = await supabase.auth.getUser();
+                            if (!user && !guestName) {
+                                setCheckoutStep('collect-name');
+                            } else {
+                                setCheckoutStep('payment-choice');
+                            }
+                        }}
                         className="btn-primary w-full py-5 text-lg flex items-center justify-center gap-4 relative overflow-hidden group shadow-[0_20px_40px_rgba(255,122,26,0.3)]"
                     >
                         <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
