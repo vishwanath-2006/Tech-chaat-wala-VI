@@ -34,31 +34,31 @@ const INITIAL_MENU_DATA = [
         nutrition: { protein: "14g", carbs: "54g", fat: "18g" }
     },
     {
-        id: 'fw-6', category: 'Fit-Ware 2.0', name: 'Macro Optimized Egg Bowl', calories: 320, version: '1.5', price: 159, prepTime: 4, icon: '🥚', image: 'https://images.unsplash.com/photo-1511690656952-34342bb7c2f2?auto=format&fit=crop&q=80&w=400', isPopular: false, isSoldOut: false,
+        id: 'fw-6', category: 'Fit-Ware 2.0', name: 'Macro Optimized Egg Bowl', calories: 320, version: '1.5', price: 159, prepTime: 4, icon: '🥚', image: '/images/fw_egg.png', isPopular: false, isSoldOut: false,
         description: "High performance egg whites compiled with subtle spices. The ultimate pre-session bootup.",
         ingredients: ["Boiled Eggs", "Spinach Base", "Sautéed Mushrooms", "Cracked Black Pepper"],
         nutrition: { protein: "28g", carbs: "4g", fat: "20g" }
     },
     {
-        id: 'fw-7', category: 'Fit-Ware 2.0', name: 'Data-Driven Dal', calories: 280, version: '1.0', price: 159, prepTime: 5, icon: '🥣', image: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&q=80&w=400', isPopular: false, isSoldOut: false,
+        id: 'fw-7', category: 'Fit-Ware 2.0', name: 'Data-Driven Dal', calories: 280, version: '1.0', price: 159, prepTime: 5, icon: '🥣', image: 'https://images.unsplash.com/photo-1585857183825-51e18d28e641?auto=format&fit=crop&q=80&w=600', isPopular: false, isSoldOut: false,
         description: "Protein-packed yellow lentils with a tempering of garlic and cumin. A stable foundation for any session.",
         ingredients: ["Yellow Moong Dal", "Garlic", "Cumin", "Turmeric"],
         nutrition: { protein: "18g", carbs: "42g", fat: "6g" }
     },
     {
-        id: 'fw-8', category: 'Fit-Ware 2.0', name: 'Silicon Soya Chunks', calories: 310, version: '1.2', price: 179, prepTime: 4, icon: '🌱', image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&q=80&w=400', isPopular: false, isSoldOut: false,
+        id: 'fw-8', category: 'Fit-Ware 2.0', name: 'Silicon Soya Chunks', calories: 310, version: '1.2', price: 179, prepTime: 4, icon: '🌱', image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&q=80&w=600', isPopular: false, isSoldOut: false,
         description: "High-protein soya chunks stir-fried with bell peppers and green onions. Optimized for muscle compilation.",
         ingredients: ["Soya Chunks", "Bell Peppers", "Soy Sauce", "Ginger-Garlic Paste"],
         nutrition: { protein: "32g", carbs: "12g", fat: "4g" }
     },
     {
-        id: 'fw-9', category: 'Fit-Ware 2.0', name: 'Root Directory Roast', calories: 400, version: '2.0', price: 269, prepTime: 6, icon: '🍗', image: 'https://images.unsplash.com/photo-1594221708779-94822f4335d4?auto=format&fit=crop&q=80&w=400', isPopular: true, isSoldOut: false,
+        id: 'fw-9', category: 'Fit-Ware 2.0', name: 'Root Directory Roast', calories: 400, version: '2.0', price: 269, prepTime: 6, icon: '🍗', image: 'https://images.unsplash.com/photo-1598103442097-8b74394b95c6?auto=format&fit=crop&q=80&w=600', isPopular: true, isSoldOut: false,
         description: "Oven-roasted lean chicken or sweet potato with rosemary and thyme. The root of all good nutrition.",
         ingredients: ["Roasted Chicken/Sweet Potato", "Rosemary", "Olive Oil", "Garlic"],
         nutrition: { protein: "35g", carbs: "15g", fat: "12g" }
     },
     {
-        id: 'fw-10', category: 'Fit-Ware 2.0', name: 'Neural Network Nut Mix', calories: 150, version: '1.0', price: 129, prepTime: 1, icon: '🥜', image: 'https://images.unsplash.com/photo-1511117833452-4724f3ce098a?auto=format&fit=crop&q=80&w=400', isPopular: false, isSoldOut: false,
+        id: 'fw-10', category: 'Fit-Ware 2.0', name: 'Neural Network Nut Mix', calories: 150, version: '1.0', price: 129, prepTime: 1, icon: '🥜', image: 'https://images.unsplash.com/photo-1596506306546-2187fa594191?auto=format&fit=crop&q=80&w=600', isPopular: false, isSoldOut: false,
         description: "A smart blend of almonds, walnuts, and pumpkin seeds. Boosts brain bandwidth for complex debugging.",
         ingredients: ["Almonds", "Walnuts", "Pumpkin Seeds", "Sea Salt"],
         nutrition: { protein: "6g", carbs: "8g", fat: "14g" }
@@ -78,7 +78,7 @@ const INITIAL_MENU_DATA = [
         nutrition: { protein: "8g", carbs: "56g", fat: "22g" }
     },
     {
-        id: 'cj-3', category: 'Chaatis.js', name: 'Packet-Switched Pakora', calories: 350, version: '2.0', price: 99, prepTime: 5, icon: '🧅', image: 'https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&q=80&w=400', isPopular: false, isSoldOut: false,
+        id: 'cj-3', category: 'Chaatis.js', name: 'Packet-Switched Pakora', calories: 350, version: '2.0', price: 99, prepTime: 5, icon: '🧅', image: '/images/cj_pakora.png', isPopular: false, isSoldOut: false,
         description: "Assorted deep-fried vegetable fritters served hot and fast like UDP packets.",
         ingredients: ["Sliced Onions", "Gram Flour Base", "Green Chilies", "Coriander", "Chaat Masala"],
         nutrition: { protein: "10g", carbs: "40g", fat: "16g" }
@@ -108,13 +108,13 @@ const INITIAL_MENU_DATA = [
         nutrition: { protein: "5g", carbs: "38g", fat: "8g" }
     },
     {
-        id: 'cj-8', category: 'Chaatis.js', name: 'B-Tree Bhel Puri', calories: 180, version: '2.0', price: 99, prepTime: 2, icon: '🥣', image: 'https://images.unsplash.com/photo-1517244465804-747da30022ad?auto=format&fit=crop&q=80&w=400', isPopular: false, isSoldOut: false,
+        id: 'cj-8', category: 'Chaatis.js', name: 'B-Tree Bhel Puri', calories: 180, version: '2.0', price: 99, prepTime: 2, icon: '🥣', image: 'https://images.unsplash.com/photo-1517244465804-747da30022ad?auto=format&fit=crop&q=80&w=600', isPopular: false, isSoldOut: false,
         description: "Balanced tree of puffed rice, vegetables, and chutneys. Light and efficient.",
         ingredients: ["Puffed Rice", "Onions", "Tomatoes", "Tamarind Sauce", "Sev"],
         nutrition: { protein: "4g", carbs: "30g", fat: "4g" }
     },
     {
-        id: 'cj-9', category: 'Chaatis.js', name: 'V-Model Vada Pav', calories: 310, version: '1.5', price: 79, prepTime: 3, icon: '🥯', image: 'https://images.unsplash.com/photo-1603048588665-791ca8aea617?auto=format&fit=crop&q=80&w=400', isPopular: true, isSoldOut: false,
+        id: 'cj-9', category: 'Chaatis.js', name: 'V-Model Vada Pav', calories: 310, version: '1.5', price: 79, prepTime: 3, icon: '🥯', image: 'https://images.unsplash.com/photo-1606491956689-2ea8c5119c85?auto=format&fit=crop&q=80&w=600', isPopular: true, isSoldOut: false,
         description: "Verification and Validation of the perfect potato slider with spicy dry chutney.",
         ingredients: ["Potato Fritter", "Bun (Pav)", "Garlic Chutney", "Green Chili"],
         nutrition: { protein: "6g", carbs: "42g", fat: "14g" }
@@ -140,7 +140,7 @@ const INITIAL_MENU_DATA = [
         nutrition: { protein: "1g", carbs: "12g", fat: "0g" }
     },
     {
-        id: 'lb-3', category: 'Liquid Brews', name: 'Bandwidth Berry Soda', calories: 160, version: '2.5', price: 119, prepTime: 1, icon: '🫐', image: 'https://images.unsplash.com/photo-1513267048331-5611cad82e41?auto=format&fit=crop&q=80&w=400', isPopular: false, isSoldOut: false,
+        id: 'lb-3', category: 'Liquid Brews', name: 'Bandwidth Berry Soda', calories: 160, version: '2.5', price: 119, prepTime: 1, icon: '🫐', image: 'https://images.unsplash.com/photo-1513267048331-5611cad82e41?auto=format&fit=crop&q=80&w=600', isPopular: false, isSoldOut: false,
         description: "High-throughput mixed berry soda. Effervescent and violently purple.",
         ingredients: ["Mixed Berry Compote", "Sparkling Water", "Mint Sprig", "Lime Wedge"],
         nutrition: { protein: "0g", carbs: "38g", fat: "0g" }
@@ -176,13 +176,13 @@ const INITIAL_MENU_DATA = [
         nutrition: { protein: "3g", carbs: "12g", fat: "4g" }
     },
     {
-        id: 'lb-9', category: 'Liquid Brews', name: 'UDP Unfiltered Coconut Water', calories: 45, version: '1.0', price: 89, prepTime: 1, icon: '🥥', image: 'https://images.unsplash.com/photo-1526016655855-75842c330df3?auto=format&fit=crop&q=80&w=400', isPopular: false, isSoldOut: false,
+        id: 'lb-9', category: 'Liquid Brews', name: 'UDP Unfiltered Coconut Water', calories: 45, version: '1.0', price: 89, prepTime: 1, icon: '🥥', image: 'https://images.unsplash.com/photo-1526016655855-75842c330df3?auto=format&fit=crop&q=80&w=600', isPopular: false, isSoldOut: false,
         description: "Direct transmission of electrolytes. Unfiltered and raw for maximum reliability.",
         ingredients: ["Tender Coconut Water"],
         nutrition: { protein: "0g", carbs: "11g", fat: "0g" }
     },
     {
-        id: 'lb-10', category: 'Liquid Brews', name: 'Soft Reboot Strawberry Shake', calories: 320, version: '2.1', price: 169, prepTime: 3, icon: '🥤', image: 'https://images.unsplash.com/photo-1543644574-2cbf61a7188b?auto=format&fit=crop&q=80&w=400', isPopular: false, isSoldOut: false,
+        id: 'lb-10', category: 'Liquid Brews', name: 'Soft Reboot Strawberry Shake', calories: 320, version: '2.1', price: 169, prepTime: 3, icon: '🥤', image: 'https://images.unsplash.com/photo-1543644574-2cbf61a7188b?auto=format&fit=crop&q=80&w=600', isPopular: false, isSoldOut: false,
         description: "A creamy strawberry shake to softly reboot your senses after a stressful build.",
         ingredients: ["Strawberries", "Milk", "Vanilla Ice Cream", "Sugar"],
         nutrition: { protein: "6g", carbs: "48g", fat: "12g" }
@@ -202,7 +202,7 @@ const INITIAL_MENU_DATA = [
         nutrition: { protein: "24g", carbs: "38g", fat: "18g" }
     },
     {
-        id: 'sb-3', category: 'Street Bites', name: 'Falafel Pocket', calories: 320, price: 149, prepTime: 5, icon: '🧆', image: 'https://images.unsplash.com/photo-1547046296-5fe111c10f2d?auto=format&fit=crop&q=80&w=400', isPopular: false, isSoldOut: false,
+        id: 'sb-3', category: 'Street Bites', name: 'Falafel Pocket', calories: 320, price: 149, prepTime: 5, icon: '🧆', image: 'https://images.unsplash.com/photo-1547046296-5fe111c10f2d?auto=format&fit=crop&q=80&w=600', isPopular: false, isSoldOut: false,
         description: "Crispy falafel with hummus in pita bread.",
         ingredients: ["Falafel", "Hummus", "Pickles", "Pita Bread"],
         nutrition: { protein: "10g", carbs: "42g", fat: "14g" }
@@ -214,7 +214,7 @@ const INITIAL_MENU_DATA = [
         nutrition: { protein: "7g", carbs: "52g", fat: "22g" }
     },
     {
-        id: 'sb-5', category: 'Street Bites', name: 'Cheese Garlic Bread', calories: 300, price: 139, prepTime: 5, icon: '🍞', image: 'https://images.unsplash.com/photo-1573140247632-f8fd74997d5c?auto=format&fit=crop&q=80&w=400', isPopular: false, isSoldOut: false,
+        id: 'sb-5', category: 'Street Bites', name: 'Cheese Garlic Bread', calories: 300, price: 139, prepTime: 5, icon: '🍞', image: 'https://images.unsplash.com/photo-1608638488555-293f30fc9a2c?auto=format&fit=crop&q=80&w=600', isPopular: false, isSoldOut: false,
         description: "Toasted garlic bread topped with melted cheese.",
         ingredients: ["French Bread", "Garlic Butter", "Mozzarella Cheese"],
         nutrition: { protein: "9g", carbs: "34g", fat: "15g" }
