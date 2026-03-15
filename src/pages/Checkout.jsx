@@ -384,7 +384,7 @@ const Checkout = ({ cart, updateCart }) => {
                     </div>
 
                     <button 
-                        onClick={() => setCheckoutStep('qr-code')}
+                        onClick={() => handleRazorpayPayment()}
                         className="w-full glass-card hover:border-emerald-500/50 flex items-center justify-center gap-4 py-6 text-secondary font-black uppercase tracking-widest shadow-2xl active:scale-[0.98] border-2 border-white/60 group relative overflow-hidden"
                     >
                         <div className="absolute inset-0 bg-emerald-500/5 translate-x-full group-hover:translate-x-0 transition-transform duration-500" />
