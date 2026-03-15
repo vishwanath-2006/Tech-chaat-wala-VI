@@ -30,6 +30,14 @@ const AdminDashboard = () => {
     const [historyHiddenBefore, setHistoryHiddenBefore] = useState(() => {
         return Number(localStorage.getItem('admin_history_hidden_before')) || 0;
     });
+    const [audioEnabled, setAudioEnabled] = useState(() => {
+        const saved = localStorage.getItem('admin_audio_enabled');
+        return saved === null ? true : saved === 'true';
+    });
+    const [shopOpen, setShopOpen] = useState(() => {
+        const saved = localStorage.getItem('admin_shop_open');
+        return saved === null ? true : saved === 'true';
+    });
     const [priceEdits, setPriceEdits] = useState({});
     const [searchQuery, setSearchQuery] = useState('');
 
@@ -50,12 +58,20 @@ const AdminDashboard = () => {
     React.useEffect(() => {
         if (allOrders.length > lastOrderCount) {
             const hasNewPending = allOrders.slice(lastOrderCount).some(o => o.status === 'pending');
-            if (hasNewPending && user?.role === 'official') {
+            if (hasNewPending && user?.role === 'staff' && audioEnabled) {
                 playAlertSound();
             }
             setLastOrderCount(allOrders.length);
         }
-    }, [allOrders, lastOrderCount, user]);
+    }, [allOrders, lastOrderCount, user, audioEnabled]);
+
+    React.useEffect(() => {
+        localStorage.setItem('admin_audio_enabled', audioEnabled);
+    }, [audioEnabled]);
+
+    React.useEffect(() => {
+        localStorage.setItem('admin_shop_open', shopOpen);
+    }, [shopOpen]);
 
     // Secure route check
     if (!user || user.role !== 'staff') {
@@ -208,8 +224,19 @@ const AdminDashboard = () => {
                         </div>
                         <div className="flex items-center gap-4">
                             <span className="text-sm font-medium text-slate-300 hidden sm:block">Logged in as <span className="text-white font-bold">{user.name}</span></span>
-                            <button onClick={handleLogout} className="flex items-center gap-2 bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-lg text-sm font-bold transition-colors">
-                                <LogOut size={16} /> <span className="hidden sm:inline">Terminate</span>
+                            <button
+                                onClick={() => setViewMode('settings')}
+                                className={`p-2 rounded-xl transition-all ${viewMode === 'settings' ? 'bg-primary text-secondary shadow-lg scale-110' : 'bg-white/10 text-white/70 hover:bg-white/20'}`}
+                                title="Terminal Settings"
+                            >
+                                <BellRing size={20} className={audioEnabled && viewMode !== 'settings' ? 'animate-pulse text-primary' : ''} />
+                            </button>
+                            <button
+                                onClick={handleLogout}
+                                className="flex items-center gap-2 bg-red-500/20 text-red-100 px-4 py-2 rounded-xl hover:bg-red-500 transition-all font-bold text-sm border border-red-500/30"
+                            >
+                                <LogOut size={18} />
+                                <span className="hidden sm:inline">Logout</span>
                             </button>
                         </div>
                     </div>
@@ -223,10 +250,10 @@ const AdminDashboard = () => {
                         <p className="text-slate-500 font-medium">Real-time control over kiosk modules.</p>
                     </div>
 
-                    <div className="flex bg-slate-100 p-1 rounded-xl">
+                    <nav className="flex space-x-2">
                         <button
                             onClick={() => setViewMode('orders')}
-                            className={`px-4 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2 ${viewMode === 'orders' ? 'bg-primary text-white shadow-md' : 'text-slate-600 hover:bg-slate-200'}`}
+                            className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-black uppercase tracking-widest text-xs transition-all ${viewMode === 'orders' ? 'bg-secondary text-white shadow-xl translate-y-[-2px]' : 'text-slate-400 hover:bg-slate-100'}`}
                         >
                             <ChefHat size={16} /> Live Orders
                             {(activeOrders.length + pendingOrders.length) > 0 && (
@@ -237,23 +264,17 @@ const AdminDashboard = () => {
                         </button>
                         <button
                             onClick={() => setViewMode('history')}
-                            className={`px-4 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2 ${viewMode === 'history' ? 'bg-white text-secondary shadow-md' : 'text-slate-600 hover:bg-slate-200'}`}
+                            className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-black uppercase tracking-widest text-xs transition-all ${viewMode === 'history' ? 'bg-secondary text-white shadow-xl translate-y-[-2px]' : 'text-slate-400 hover:bg-slate-100'}`}
                         >
                             <History size={16} /> History
                         </button>
                         <button
                             onClick={() => setViewMode('menu')}
-                            className={`px-4 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2 ${viewMode === 'menu' ? 'bg-white text-secondary shadow-md' : 'text-slate-600 hover:bg-slate-200'}`}
+                            className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-black uppercase tracking-widest text-xs transition-all ${viewMode === 'menu' ? 'bg-secondary text-white shadow-xl translate-y-[-2px]' : 'text-slate-400 hover:bg-slate-100'}`}
                         >
                             <Edit3 size={16} /> Menu Setup
                         </button>
-                        <button
-                            onClick={() => setViewMode('settings')}
-                            className={`px-4 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2 ${viewMode === 'settings' ? 'bg-white text-secondary shadow-md' : 'text-slate-600 hover:bg-slate-200'}`}
-                        >
-                            <Plus size={16} className="rotate-45" /> Settings
-                        </button>
-                    </div>
+                    </nav>
                 </div>
 
                 {viewMode === 'menu' ? (
@@ -448,7 +469,7 @@ const AdminDashboard = () => {
                                             </div>
                                             <div className="grid grid-cols-2 gap-2 mt-2">
                                                 {order.paymentStatus === 'pending' ? (
-                                                    <button 
+                                                    <button
                                                         onClick={() => updatePaymentStatus(order.id, 'paid')}
                                                         className="col-span-2 bg-amber-500 text-white font-black py-2.5 rounded-lg hover:bg-amber-600 active:scale-95 transition-all text-xs uppercase"
                                                     >
@@ -456,13 +477,13 @@ const AdminDashboard = () => {
                                                     </button>
                                                 ) : (
                                                     <>
-                                                        <button 
+                                                        <button
                                                             onClick={() => updateOrderStatus(order.id, 'accepted')}
                                                             className="bg-indigo-600 text-white font-black py-2.5 rounded-lg hover:bg-indigo-700 active:scale-95 transition-all text-xs uppercase"
                                                         >
                                                             Accept Order
                                                         </button>
-                                                        <button 
+                                                        <button
                                                             onClick={() => updateOrderStatus(order.id, 'preparing')}
                                                             className="bg-primary text-white font-black py-2.5 rounded-lg shadow-sm hover:bg-primary/90 active:scale-95 transition-all text-xs uppercase"
                                                         >
@@ -575,34 +596,81 @@ const AdminDashboard = () => {
                         </div>
                     </div>
                 ) : viewMode === 'history' ? (
-                    <HistoryTab 
-                        orders={completedOrders} 
+                    <HistoryTab
+                        orders={completedOrders}
                     />
                 ) : viewMode === 'settings' ? (
                     <div className="space-y-6">
-                        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                            <div className="p-6 border-b border-slate-100 bg-slate-50/50">
-                                <h3 className="text-lg font-black text-secondary uppercase tracking-tight">System Settings</h3>
-                                <p className="text-xs text-slate-500 font-medium">Configure terminal protocols and data lifecycle.</p>
+                        <div className="surface-card rounded-[40px] shadow-2xl border border-slate-100 overflow-hidden">
+                            <div className="p-10 border-b border-slate-100">
+                                <h2 className="text-3xl font-black text-secondary">SYSTEM SETTINGS</h2>
+                                <p className="text-slate-500 font-medium">Configure terminal protocols and data lifecycle.</p>
                             </div>
-                            <div className="p-6 space-y-8">
-                                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 bg-red-50 rounded-2xl border border-red-100">
-                                    <div className="flex items-start gap-4">
-                                        <div className="w-12 h-12 bg-red-100 text-red-600 rounded-xl flex items-center justify-center shrink-0">
+
+                            <div className="p-10 space-y-8">
+                                {/* Audio Toggle */}
+                                <div className="flex items-center justify-between p-6 bg-slate-50 rounded-3xl border border-slate-100">
+                                    <div className="flex items-center gap-4">
+                                        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${audioEnabled ? 'bg-primary/10 text-primary' : 'bg-slate-200 text-slate-400'}`}>
+                                            <BellRing size={24} />
+                                        </div>
+                                        <div>
+                                            <h3 className="font-black text-secondary uppercase tracking-tight">Audio Notifications</h3>
+                                            <p className="text-xs text-slate-500 font-medium whitespace-nowrap">Play sound when a new order arrives.</p>
+                                        </div>
+                                    </div>
+                                    <button
+                                        onClick={() => setAudioEnabled(!audioEnabled)}
+                                        className={`w-14 h-8 rounded-full relative transition-all ${audioEnabled ? 'bg-primary' : 'bg-slate-300'}`}
+                                    >
+                                        <div className={`absolute top-1 w-6 h-6 bg-white rounded-full transition-all ${audioEnabled ? 'left-7' : 'left-1 shadow-sm'}`} />
+                                    </button>
+                                </div>
+
+                                {/* Shop Status Toggle */}
+                                <div className="flex items-center justify-between p-6 bg-slate-50 rounded-3xl border border-slate-100">
+                                    <div className="flex items-center gap-4">
+                                        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${shopOpen ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}`}>
+                                            {shopOpen ? <CheckCircle2 size={24} /> : <XCircle size={24} />}
+                                        </div>
+                                        <div>
+                                            <h3 className="font-black text-secondary uppercase tracking-tight">Business Status</h3>
+                                            <p className="text-xs text-slate-500 font-medium whitespace-nowrap">Current shop accessibility for customers.</p>
+                                        </div>
+                                    </div>
+                                    <button
+                                        onClick={() => setShopOpen(!shopOpen)}
+                                        className="flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-xs uppercase transition-all tracking-widest border-2"
+                                        style={{
+                                            borderColor: shopOpen ? '#22c55e' : '#ef4444',
+                                            color: shopOpen ? '#22c55e' : '#ef4444',
+                                            backgroundColor: shopOpen ? '#f0fdf4' : '#fef2f2'
+                                        }}
+                                    >
+                                        {shopOpen ? 'OPEN' : 'CLOSED'}
+                                    </button>
+                                </div>
+
+                                {/* Purge Action */}
+                                <div className="bg-red-50 p-8 rounded-[32px] border border-red-100 relative overflow-hidden group">
+                                    <div className="flex items-start gap-4 mb-6 relative z-10">
+                                        <div className="w-12 h-12 bg-white rounded-2xl shadow-sm text-red-500 flex items-center justify-center shrink-0">
                                             <Trash2 size={24} />
                                         </div>
                                         <div>
-                                            <h4 className="font-black text-red-900">Purge Active Transaction Logs</h4>
-                                            <p className="text-sm text-red-700/70 font-medium">This will hide current transaction records from the staff view. Data remains archived in the backend storage.</p>
+                                            <h4 className="text-lg font-black text-red-900 leading-tight">Purge Active Transaction Logs</h4>
+                                            <p className="text-red-700/70 text-sm font-medium mt-1">
+                                                This will hide current transaction records from the staff view.
+                                                <span className="font-bold"> Data remains archived </span> in the backend storage.
+                                            </p>
                                         </div>
                                     </div>
-                                    <button 
+                                    <button
                                         onClick={() => {
-                                            if (window.confirm('Hide all current history from dashboard? (Records remain in database)')) {
-                                                const now = Date.now();
-                                                localStorage.setItem('admin_history_hidden_before', now.toString());
-                                                setHistoryHiddenBefore(now);
-                                            }
+                                            const timestamp = Date.now();
+                                            setHistoryHiddenBefore(timestamp);
+                                            localStorage.setItem('admin_history_hidden_before', timestamp.toString());
+                                            setViewMode('history');
                                         }}
                                         className="bg-red-600 text-white font-black px-6 py-3 rounded-xl hover:bg-red-700 active:scale-95 transition-all text-sm uppercase tracking-widest whitespace-nowrap"
                                     >

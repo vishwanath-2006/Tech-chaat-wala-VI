@@ -94,14 +94,14 @@ const Menu = ({ cart, updateCart, triggerRobot }) => {
                 </div>
 
                 {/* Categories Tab Bar */}
-                <div className="flex overflow-x-auto hide-scrollbar px-4 pb-4 gap-2">
+                <div className="flex flex-nowrap items-center overflow-x-auto hide-scrollbar px-4 py-3 gap-3 touch-pan-x">
                     {categories.filter(c => c.isVisible).map(category => (
                         <button
                             key={category.id}
                             onClick={() => setActiveTab(category.name)}
-                            className={`whitespace-nowrap px-5 py-2 rounded-full text-sm font-bold transition-all ${activeTab === category.name
-                                ? 'bg-secondary text-white shadow-neon-blue border border-secondary/50 transform scale-105'
-                                : 'bg-surface text-textLight border border-slate-200 hover:border-slate-300:border-slate-600'
+                            className={`whitespace-nowrap px-6 py-2.5 rounded-full text-sm font-bold transition-all flex-shrink-0 ${activeTab === category.name
+                                ? 'bg-secondary text-white shadow-lg border border-secondary/50 transform scale-105'
+                                : 'bg-white text-slate-500 border border-slate-200 hover:border-slate-400'
                                 }`}
                         >
                             {category.name}
