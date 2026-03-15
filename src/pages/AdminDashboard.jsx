@@ -773,11 +773,21 @@ const HistoryTab = ({ orders }) => {
         return istDate;
     });
     const [selectedOrder, setSelectedOrder] = useState(null);
+    const [sortBy, setSortBy] = useState('latest'); // latest | oldest | high-price | low-price
 
     // Filter by local IST date
     const filteredOrders = orders.filter(o => {
         const orderDate = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(o.timestamp));
         return orderDate === selectedDate;
+    });
+
+    // Apply Sorting
+    const sortedOrders = [...filteredOrders].sort((a, b) => {
+        if (sortBy === 'latest') return b.timestamp - a.timestamp;
+        if (sortBy === 'oldest') return a.timestamp - b.timestamp;
+        if (sortBy === 'high-price') return b.total - a.total;
+        if (sortBy === 'low-price') return a.total - b.total;
+        return 0;
     });
 
     // Daily Stats
@@ -797,13 +807,30 @@ const HistoryTab = ({ orders }) => {
                     <h4 className="text-3xl font-black text-primary italic">₹{dailyRevenue.toLocaleString()}</h4>
                 </div>
                 <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col justify-center">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Protocol Date</label>
-                    <input 
-                        type="date" 
-                        value={selectedDate}
-                        onChange={(e) => setSelectedDate(e.target.value)}
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 font-bold text-secondary outline-none focus:border-primary transition-colors"
-                    />
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Protocol Date</label>
+                            <input 
+                                type="date" 
+                                value={selectedDate}
+                                onChange={(e) => setSelectedDate(e.target.value)}
+                                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 font-bold text-secondary outline-none focus:border-primary transition-colors text-xs"
+                            />
+                        </div>
+                        <div>
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Sort By</label>
+                            <select 
+                                value={sortBy}
+                                onChange={(e) => setSortBy(e.target.value)}
+                                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 font-bold text-secondary outline-none focus:border-primary transition-colors text-xs appearance-none"
+                            >
+                                <option value="latest">Latest First</option>
+                                <option value="oldest">Oldest First</option>
+                                <option value="high-price">Price: High</option>
+                                <option value="low-price">Price: Low</option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -840,7 +867,7 @@ const HistoryTab = ({ orders }) => {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-50">
-                                {filteredOrders.map(order => (
+                                {sortedOrders.map(order => (
                                     <tr key={order.id} className="hover:bg-slate-50/50 transition-colors group">
                                         <td className="px-6 py-4">
                                             <div className="font-black text-secondary uppercase tracking-tighter">#{order.id.slice(0, 8)}</div>
@@ -869,7 +896,7 @@ const HistoryTab = ({ orders }) => {
                                             </button>
                                         </td>
                                     </tr>
-                                )).reverse()}
+                                ))}
                             </tbody>
                         </table>
                     </div>
