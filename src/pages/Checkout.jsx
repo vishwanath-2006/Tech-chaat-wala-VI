@@ -28,8 +28,9 @@ const Checkout = ({ cart, updateCart }) => {
     const platformFee = 15; // Gas fee equivalent
     const cloudTax = Math.round(subtotal * 0.05); // 5% Cloud Storage Tax (GST)
     const grandTotal = subtotal + platformFee + cloudTax;
+    const RAZORPAY_KEY = import.meta.env.VITE_RAZORPAY_KEY_ID;
 
-    const handleConfirmPayment = async (method, status = 'paid') => {
+    const handleConfirmPayment = async (method, status = 'paid', razorpayPaymentId = null) => {
         setIsProcessing(true)
         setProcessingMsg(method === 'Counter' ? "Registering order..." : "Finalizing transaction...");
 
@@ -53,7 +54,8 @@ const Checkout = ({ cart, updateCart }) => {
                         total_price: Number(grandTotal),
                         payment_mode: method || "cash",
                         payment_status: status.toLowerCase() || "pending",
-                        order_status: "pending"
+                        order_status: "pending",
+                        razorpay_payment_id: razorpayPaymentId
                     }
                 ])
                 .select();
@@ -82,28 +84,57 @@ const Checkout = ({ cart, updateCart }) => {
         }
     };
 
+    const handleRazorpayPayment = () => {
+        if (!RAZORPAY_KEY || RAZORPAY_KEY.includes('YOUR_KEY_HERE')) {
+            alert("Razorpay Key not configured. Please add your Key ID to the .env file.");
+            return;
+        }
+
+        const options = {
+            key: RAZORPAY_KEY,
+            amount: grandTotal * 100, // Amount in paise
+            currency: "INR",
+            name: "Tech Chaat Wala",
+            description: "Cyber-Street Food Transaction",
+            image: "/images/hero_robot.png",
+            handler: function (response) {
+                // Payment Successful
+                setCheckoutStep('confirming');
+                setProcessingMsg("Payment Verified! Synchronizing with database...");
+                handleConfirmPayment('Razorpay-UPI', 'Paid', response.razorpay_payment_id);
+            },
+            prefill: {
+                name: guestName || "Guest User",
+                contact: "9999999999"
+            },
+            notes: {
+                address: "Tech Chaat Wala Kiosk"
+            },
+            theme: {
+                color: "#ff7a1a"
+            },
+            method: {
+                upi: true,
+                card: false,
+                netbanking: false,
+                wallet: false
+            }
+        };
+
+        const rzp = new window.Razorpay(options);
+        rzp.on('payment.failed', function (response) {
+            alert("Payment Failed: " + response.error.description);
+            setCheckoutStep('payment-choice');
+        });
+        rzp.open();
+    };
+
     const handleUPISelect = (app) => {
-        setSelectedUPI(app);
-        setCheckoutStep('confirming');
-        setProcessingMsg(`Redirecting to ${app}...`);
-        
-        setTimeout(() => {
-            setProcessingMsg("Payment Successful! Sending order to kitchen...");
-            setTimeout(() => {
-                handleConfirmPayment('UPI', 'Paid');
-            }, 1500);
-        }, 2000);
+        handleRazorpayPayment();
     };
 
     const handleQRConfirm = () => {
-        setCheckoutStep('confirming');
-        setProcessingMsg("Verifying QR Transaction...");
-        setTimeout(() => {
-            setProcessingMsg("Payment Verified! Order assigned.");
-            setTimeout(() => {
-                handleConfirmPayment('QR-UPI', 'Paid');
-            }, 1500);
-        }, 2000);
+        handleRazorpayPayment();
     };
 
     if (cartItems.length === 0 && checkoutStep === 'summary') {

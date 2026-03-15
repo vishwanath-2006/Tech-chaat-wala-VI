@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS public.orders (
     payment_mode TEXT NOT NULL,
     payment_status TEXT NOT NULL DEFAULT 'pending',
     order_status TEXT NOT NULL DEFAULT 'pending',
+    razorpay_payment_id TEXT,
     prep_time INTEGER DEFAULT 5,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
