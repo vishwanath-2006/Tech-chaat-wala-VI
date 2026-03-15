@@ -40,7 +40,7 @@ const INITIAL_MENU_DATA = [
         nutrition: { protein: "28g", carbs: "4g", fat: "20g" }
     },
     {
-        id: 'fw-7', category: 'Fit-Ware 2.0', name: 'Data-Driven Dal', calories: 280, version: '1.0', price: 159, prepTime: 5, icon: '🥣', image: 'https://images.unsplash.com/photo-1585857183825-51e18d28e641?auto=format&fit=crop&q=80&w=600', isPopular: false, isSoldOut: false,
+        id: 'fw-7', category: 'Fit-Ware 2.0', name: 'Data-Driven Dal', calories: 280, version: '1.0', price: 159, prepTime: 5, icon: '🥣', image: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&q=80&w=400', isPopular: false, isSoldOut: false,
         description: "Protein-packed yellow lentils with a tempering of garlic and cumin. A stable foundation for any session.",
         ingredients: ["Yellow Moong Dal", "Garlic", "Cumin", "Turmeric"],
         nutrition: { protein: "18g", carbs: "42g", fat: "6g" }
@@ -114,7 +114,7 @@ const INITIAL_MENU_DATA = [
         nutrition: { protein: "4g", carbs: "30g", fat: "4g" }
     },
     {
-        id: 'cj-9', category: 'Chaatis.js', name: 'V-Model Vada Pav', calories: 310, version: '1.5', price: 79, prepTime: 3, icon: '🥯', image: 'https://images.unsplash.com/photo-1606491956689-2ea8c5119c85?auto=format&fit=crop&q=80&w=600', isPopular: true, isSoldOut: false,
+        id: 'cj-9', category: 'Chaatis.js', name: 'V-Model Vada Pav', calories: 310, version: '1.5', price: 79, prepTime: 3, icon: '🥯', image: 'https://images.unsplash.com/photo-1606491956689-2ea8c5119c85?auto=format&fit=crop&q=80&w=400', isPopular: true, isSoldOut: false,
         description: "Verification and Validation of the perfect potato slider with spicy dry chutney.",
         ingredients: ["Potato Fritter", "Bun (Pav)", "Garlic Chutney", "Green Chili"],
         nutrition: { protein: "6g", carbs: "42g", fat: "14g" }
@@ -152,7 +152,7 @@ const INITIAL_MENU_DATA = [
         nutrition: { protein: "0g", carbs: "24g", fat: "0g" }
     },
     {
-        id: 'lb-5', category: 'Liquid Brews', name: 'Cloud Matcha Latte', calories: 180, version: '3.1', price: 169, prepTime: 3, icon: '🍵', image: 'https://images.unsplash.com/photo-1515823662273-0b25528a29c6?auto=format&fit=crop&q=80&w=400', isPopular: true, isSoldOut: false,
+        id: 'lb-5', category: 'Liquid Brews', name: 'Cloud Matcha Latte', calories: 180, version: '3.1', price: 169, prepTime: 3, icon: '🍵', image: 'https://images.unsplash.com/photo-1582736143158-54848d753c12?auto=format&fit=crop&q=80&w=400', isPopular: true, isSoldOut: false,
         description: "Earthy, robust matcha floated on an airy cloud of perfectly foamed milk.",
         ingredients: ["Ceremonial Grade Matcha", "Steamed Oat Milk", "Agave Nectar"],
         nutrition: { protein: "4g", carbs: "26g", fat: "6g" }
@@ -176,13 +176,13 @@ const INITIAL_MENU_DATA = [
         nutrition: { protein: "3g", carbs: "12g", fat: "4g" }
     },
     {
-        id: 'lb-9', category: 'Liquid Brews', name: 'UDP Unfiltered Coconut Water', calories: 45, version: '1.0', price: 89, prepTime: 1, icon: '🥥', image: 'https://images.unsplash.com/photo-1526016655855-75842c330df3?auto=format&fit=crop&q=80&w=600', isPopular: false, isSoldOut: false,
+        id: 'lb-9', category: 'Liquid Brews', name: 'UDP Unfiltered Coconut Water', calories: 45, version: '1.0', price: 89, prepTime: 1, icon: '🥥', image: 'https://images.unsplash.com/photo-1598414457312-3f14068305c7?auto=format&fit=crop&q=80&w=400', isPopular: false, isSoldOut: false,
         description: "Direct transmission of electrolytes. Unfiltered and raw for maximum reliability.",
         ingredients: ["Tender Coconut Water"],
         nutrition: { protein: "0g", carbs: "11g", fat: "0g" }
     },
     {
-        id: 'lb-10', category: 'Liquid Brews', name: 'Soft Reboot Strawberry Shake', calories: 320, version: '2.1', price: 169, prepTime: 3, icon: '🥤', image: 'https://images.unsplash.com/photo-1543644574-2cbf61a7188b?auto=format&fit=crop&q=80&w=600', isPopular: false, isSoldOut: false,
+        id: 'lb-10', category: 'Liquid Brews', name: 'Soft Reboot Strawberry Shake', calories: 320, version: '2.1', price: 169, prepTime: 3, icon: '🥤', image: 'https://images.unsplash.com/photo-1572490122747-3968b75cc699?auto=format&fit=crop&q=80&w=400', isPopular: false, isSoldOut: false,
         description: "A creamy strawberry shake to softly reboot your senses after a stressful build.",
         ingredients: ["Strawberries", "Milk", "Vanilla Ice Cream", "Sugar"],
         nutrition: { protein: "6g", carbs: "48g", fat: "12g" }
@@ -202,7 +202,7 @@ const INITIAL_MENU_DATA = [
         nutrition: { protein: "24g", carbs: "38g", fat: "18g" }
     },
     {
-        id: 'sb-3', category: 'Street Bites', name: 'Falafel Pocket', calories: 320, price: 149, prepTime: 5, icon: '🧆', image: 'https://images.unsplash.com/photo-1547046296-5fe111c10f2d?auto=format&fit=crop&q=80&w=600', isPopular: false, isSoldOut: false,
+        id: 'sb-3', category: 'Street Bites', name: 'Falafel Pocket', calories: 320, price: 149, prepTime: 5, icon: '🧆', image: 'https://images.unsplash.com/photo-1593001872782-9392a18035fa?auto=format&fit=crop&q=80&w=400', isPopular: false, isSoldOut: false,
         description: "Crispy falafel with hummus in pita bread.",
         ingredients: ["Falafel", "Hummus", "Pickles", "Pita Bread"],
         nutrition: { protein: "10g", carbs: "42g", fat: "14g" }
@@ -214,7 +214,7 @@ const INITIAL_MENU_DATA = [
         nutrition: { protein: "7g", carbs: "52g", fat: "22g" }
     },
     {
-        id: 'sb-5', category: 'Street Bites', name: 'Cheese Garlic Bread', calories: 300, price: 139, prepTime: 5, icon: '🍞', image: 'https://images.unsplash.com/photo-1608638488555-293f30fc9a2c?auto=format&fit=crop&q=80&w=600', isPopular: false, isSoldOut: false,
+        id: 'sb-5', category: 'Street Bites', name: 'Cheese Garlic Bread', calories: 300, price: 139, prepTime: 5, icon: '🍞', image: 'https://images.unsplash.com/photo-1619096279114-1f6498ee8c61?auto=format&fit=crop&q=80&w=400', isPopular: false, isSoldOut: false,
         description: "Toasted garlic bread topped with melted cheese.",
         ingredients: ["French Bread", "Garlic Butter", "Mozzarella Cheese"],
         nutrition: { protein: "9g", carbs: "34g", fat: "15g" }

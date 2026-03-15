@@ -6,6 +6,7 @@ const FoodCard = ({ item, count, onAdd, onRemove, onClick, triggerRobot }) => {
     const { user, toggleSavedItem } = useAuth();
     const [isPulsing, setIsPulsing] = useState(false);
     const [popKey, setPopKey] = useState(0);
+    const [imgError, setImgError] = useState(false);
 
     const isSaved = user?.savedItems?.includes(item.id);
 
@@ -42,11 +43,12 @@ const FoodCard = ({ item, count, onAdd, onRemove, onClick, triggerRobot }) => {
             {/* Image Placeholder */}
             <div className="flex items-center justify-center -mt-8 mb-2 relative px-4">
                 <div className="w-24 h-24 rounded-full shadow-lg border-4 border-white overflow-hidden relative z-10 bg-slate-100 group-hover:-translate-y-1 group-hover:shadow-xl transition-all duration-300">
-                    {item.image ? (
+                    {item.image && !imgError ? (
                         <img
                             src={item.image}
                             alt={item.name}
                             className="w-full h-full object-cover"
+                            onError={() => setImgError(true)}
                             loading="lazy"
                         />
                     ) : (
