@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, SlidersHorizontal, ShoppingBag, ChevronLeft, Sparkles } from 'lucide-react';
+import { Search, SlidersHorizontal, ShoppingBag, ChevronLeft, Sparkles, XCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import FoodCard from '../components/menu/FoodCard';
 import ItemDetailModal from '../components/menu/ItemDetailModal';
@@ -94,19 +94,23 @@ const Menu = ({ cart, updateCart, triggerRobot }) => {
                 </div>
 
                 {/* Categories Tab Bar */}
-                <div className="flex flex-nowrap items-center overflow-x-auto hide-scrollbar px-4 py-3 gap-3 touch-pan-x">
-                    {categories.filter(c => c.isVisible).map(category => (
-                        <button
-                            key={category.id}
-                            onClick={() => setActiveTab(category.name)}
-                            className={`whitespace-nowrap px-6 py-2.5 rounded-full text-sm font-bold transition-all flex-shrink-0 ${activeTab === category.name
-                                ? 'bg-secondary text-white shadow-lg border border-secondary/50 transform scale-105'
-                                : 'bg-white text-slate-500 border border-slate-200 hover:border-slate-400'
-                                }`}
-                        >
-                            {category.name}
-                        </button>
-                    ))}
+                <div className="bg-surface/90 backdrop-blur-md">
+                    <div className="flex flex-nowrap items-center overflow-x-auto hide-scrollbar px-4 py-4 gap-3 touch-pan-x select-none">
+                        {categories.filter(c => c.isVisible).map(category => (
+                            <button
+                                key={category.id}
+                                onClick={() => setActiveTab(category.name)}
+                                className={`whitespace-nowrap px-6 py-2.5 rounded-full text-sm font-bold transition-all flex-shrink-0 active:scale-95 ${activeTab === category.name
+                                    ? 'bg-secondary text-white shadow-lg border border-secondary/50 transform scale-105'
+                                    : 'bg-white text-slate-500 border border-slate-200 hover:border-slate-400 hover:bg-slate-50'
+                                    }`}
+                            >
+                                {category.name}
+                            </button>
+                        ))}
+                        {/* Shadow Gradient to indicate scroll */}
+                        <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-surface/80 to-transparent pointer-events-none"></div>
+                    </div>
                 </div>
             </header>
 
@@ -162,23 +166,34 @@ const Menu = ({ cart, updateCart, triggerRobot }) => {
             </main>
 
             {/* Smart Combo Suggestions Overlay */}
-            <div className={`fixed top-24 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-sm z-50 transition-all duration-500 pointer-events-none ${showCombo ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'}`}>
-                <div className="surface-card bg-surface/95 backdrop-blur-xl p-4 border-2 border-secondary shadow-2xl pointer-events-auto">
-                    <p className="text-xs font-black uppercase text-secondary tracking-wider mb-2 flex items-center gap-2">
-                        <Sparkles size={14} className="text-primary animate-pulse" /> Perfect Pairings
-                    </p>
-                    <div className="flex items-center justify-between bg-slate-50 p-2 rounded-xl border border-slate-100 cursor-pointer hover:border-primary/50 transition-colors" onClick={() => { updateCart('lb-2', 1); setShowCombo(false); }}>
-                        <div className="flex items-center gap-2">
-                            <span className="text-2xl">☕</span>
-                            <div>
-                                <p className="text-sm font-bold text-secondary leading-tight">Nitro Coffee</p>
-                                <p className="text-[10px] text-primary font-mono font-bold">+₹149</p>
+            {showCombo && (
+                <div className="fixed top-24 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-sm z-[100] animate-bounce-in">
+                    <div className="surface-card bg-surface shadow-2xl p-4 border-2 border-secondary relative overflow-hidden">
+                        <p className="text-xs font-black uppercase text-secondary tracking-wider mb-2 flex items-center gap-2">
+                            <Sparkles size={14} className="text-primary animate-pulse" /> Perfect Pairings
+                        </p>
+                        <div 
+                            className="flex items-center justify-between bg-slate-50 p-3 rounded-2xl border border-slate-100 cursor-pointer hover:border-primary/50 transition-colors" 
+                            onClick={() => { updateCart('lb-2', 1); setShowCombo(false); }}
+                        >
+                            <div className="flex items-center gap-3">
+                                <span className="text-2xl drop-shadow-sm">☕</span>
+                                <div>
+                                    <p className="text-sm font-black text-secondary leading-tight">Nitro Coffee</p>
+                                    <p className="text-[10px] text-primary font-mono font-black">+₹149</p>
+                                </div>
                             </div>
+                            <button className="bg-primary hover:bg-primaryHover text-white px-4 py-1.5 rounded-xl text-xs font-black shadow-sm active:scale-95 transition-all">ADD</button>
                         </div>
-                        <button className="bg-primary/10 text-primary px-3 py-1 rounded-lg text-xs font-bold active:scale-95">Add</button>
+                        <button 
+                            onClick={() => setShowCombo(false)}
+                            className="absolute top-2 right-2 text-slate-300 hover:text-slate-500"
+                        >
+                            <XCircle size={16} />
+                        </button>
                     </div>
                 </div>
-            </div>
+            )}
 
             {/* AI Assistant Hook */}
             <AssistantPanel message={assistantMsg} fixed={true} position="bottom-left" />
