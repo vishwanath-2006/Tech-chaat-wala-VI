@@ -22,12 +22,14 @@ const Orders = () => {
     }
 
     const formatLongDate = (timestamp) => {
-        return new Date(timestamp).toLocaleDateString('en-IN', {
+        return new Date(timestamp).toLocaleString('en-IN', {
+            timeZone: 'Asia/Kolkata',
             day: '2-digit',
             month: 'short',
             year: 'numeric',
             hour: '2-digit',
-            minute: '2-digit'
+            minute: '2-digit',
+            hour12: true
         });
     };
 
@@ -132,7 +134,7 @@ const Orders = () => {
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
                                     <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Timestamp</p>
-                                    <p className="font-bold text-secondary text-sm">{new Date(selectedOrder.timestamp).toLocaleString()}</p>
+                                    <p className="font-bold text-secondary text-sm">{new Date(selectedOrder.timestamp).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}</p>
                                 </div>
                                 <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
                                     <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Method</p>

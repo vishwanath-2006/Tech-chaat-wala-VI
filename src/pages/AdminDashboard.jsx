@@ -766,12 +766,17 @@ const AdminDashboard = () => {
 // --- Subcomponents for Cleanliness ---
 
 const HistoryTab = ({ orders }) => {
-    const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+    // Default to today's date in IST
+    const [selectedDate, setSelectedDate] = useState(() => {
+        const d = new Date();
+        const istDate = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata', year: 'numeric', month: '2-digit', day: '2-digit' }).format(d);
+        return istDate;
+    });
     const [selectedOrder, setSelectedOrder] = useState(null);
 
-    // Filter by date
+    // Filter by local IST date
     const filteredOrders = orders.filter(o => {
-        const orderDate = new Date(o.timestamp).toISOString().split('T')[0];
+        const orderDate = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(o.timestamp));
         return orderDate === selectedDate;
     });
 
@@ -848,7 +853,7 @@ const HistoryTab = ({ orders }) => {
                                         </td>
                                         <td className="px-6 py-4">
                                             <div className="text-xs font-mono font-bold text-slate-500">
-                                                {new Date(order.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                {new Date(order.timestamp).toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit', hour12: true })}
                                             </div>
                                         </td>
                                         <td className="px-6 py-4">

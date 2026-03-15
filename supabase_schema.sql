@@ -2,6 +2,8 @@
 
 CREATE TABLE IF NOT EXISTS public.orders (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES auth.users(id),
+    customer_name TEXT,
     items JSONB NOT NULL,
     total_price NUMERIC NOT NULL,
     payment_mode TEXT NOT NULL,
