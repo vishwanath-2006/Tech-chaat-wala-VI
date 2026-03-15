@@ -281,7 +281,7 @@ const Checkout = ({ cart, updateCart }) => {
                                 <div className="flex gap-2">
                                     <img src="https://upload.wikimedia.org/wikipedia/commons/f/f2/Google_Pay_Logo.svg" className="h-4 opacity-40 group-hover:opacity-100 transition-opacity" alt="GP" />
                                     <img src="https://upload.wikimedia.org/wikipedia/commons/7/71/PhonePe_Logo.svg" className="h-4 opacity-40 group-hover:opacity-100 transition-opacity" alt="PP" />
-                                    <img src="https://upload.wikimedia.org/wikipedia/commons/e/e1/BHIM_logo.svg" className="h-4 opacity-40 group-hover:opacity-100 transition-opacity" alt="UPI" />
+                                    <img src="/images/bhim_logo.png" className="h-4 opacity-40 group-hover:opacity-100 transition-opacity" alt="UPI" />
                                 </div>
                             </div>
                             <div className="text-left w-full">
