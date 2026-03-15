@@ -340,7 +340,7 @@ const Checkout = ({ cart, updateCart }) => {
             { name: 'Google Pay', icon: 'https://upload.wikimedia.org/wikipedia/commons/f/f2/Google_Pay_Logo.svg', color: 'bg-white' },
             { name: 'PhonePe', icon: 'https://upload.wikimedia.org/wikipedia/commons/7/71/PhonePe_Logo.svg', color: 'bg-white' },
             { name: 'Paytm', icon: 'https://upload.wikimedia.org/wikipedia/commons/2/24/Paytm_Logo_%28standalone%29.svg', color: 'bg-white' },
-            { name: 'BHIM UPI', icon: 'https://raw.githubusercontent.com/AnandChowdhary/upi-icons/master/bhim.svg', color: 'bg-white' }
+            { name: 'BHIM UPI', icon: '/images/bhim_logo.png', color: 'bg-white' }
         ];
 
         return (
