@@ -269,14 +269,20 @@ export const MenuProvider = ({ children }) => {
             if (saved) {
                 const parsed = JSON.parse(saved);
                 if (Array.isArray(parsed) && parsed.length > 0) {
-                    // Sync logic: Ensure all INITIAL_MENU_DATA items exist in the state
-                    // This allows adding new items to the hardcoded list and having them show up for existing users
+                    // Sync logic: Force update images/icons and add new items
                     const existingIds = new Set(parsed.map(item => item.id));
+                    
+                    const synced = parsed.map(item => {
+                        const fresh = INITIAL_MENU_DATA.find(f => f.id === item.id);
+                        if (fresh) {
+                            // Automatically update visual fields if they changed in the code
+                            return { ...item, image: fresh.image, icon: fresh.icon };
+                        }
+                        return item;
+                    });
+
                     const newItems = INITIAL_MENU_DATA.filter(item => !existingIds.has(item.id));
-                    if (newItems.length > 0) {
-                        return [...parsed, ...newItems];
-                    }
-                    return parsed;
+                    return [...synced, ...newItems];
                 }
             }
         } catch (e) { console.error(e); }
