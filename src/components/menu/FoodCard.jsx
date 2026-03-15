@@ -50,7 +50,7 @@ const FoodCard = ({ item, count, onAdd, onRemove, onClick, triggerRobot }) => {
                             loading="lazy"
                         />
                     ) : (
-                        <span className="text-3xl opacity-50 flex items-center justify-center h-full blur-[1px]">{item.icon}</span>
+                        <span className="text-3xl opacity-50 flex items-center justify-center h-full">{item.icon}</span>
                     )}
                     <div className="absolute inset-0 shadow-[inset_0_0_15px_rgba(0,0,0,0.08)] pointer-events-none rounded-full" />
                 </div>

@@ -4,37 +4,37 @@ import React, { createContext, useState, useContext, useEffect } from 'react';
 const INITIAL_MENU_DATA = [
     // Fit-Ware 2.0 (Healthy Tech Meals)
     {
-        id: 'fw-1', category: 'Fit-Ware 2.0', name: 'Sprout Circuit Salad', calories: 120, version: '2.1', price: 149, prepTime: 3, icon: '🥗', image: '/images/fw1_salad.png', isPopular: true, isSoldOut: false,
+        id: 'fw-1', category: 'Fit-Ware 2.0', name: 'Sprout Circuit Salad', calories: 120, version: '2.1', price: 149, prepTime: 3, icon: '🥗', image: '/images/sprout_salad.png', isPopular: true, isSoldOut: false,
         description: "A healthy protein-rich salad packed with sprouts, fresh vegetables, and herbs. Highly optimized for quick energy loading.",
         ingredients: ["Mixed Sprouts", "Cherry Tomatoes", "Cucumber", "Lemon-Herb Dressing", "Microgreens"],
         nutrition: { protein: "12g", carbs: "18g", fat: "4g" }
     },
     {
-        id: 'fw-2', category: 'Fit-Ware 2.0', name: 'Protein Packet Paneer', calories: 340, version: '3.0', price: 189, prepTime: 4, icon: '🧀', image: '/images/fw_paneer.png', isPopular: true, isSoldOut: false,
+        id: 'fw-2', category: 'Fit-Ware 2.0', name: 'Protein Packet Paneer', calories: 340, version: '3.0', price: 189, prepTime: 4, icon: '🧀', image: '/images/grilled_paneer.png', isPopular: true, isSoldOut: false,
         description: "Premium grilled paneer blocks marinated in our custom spice compiler. Maximize your hardware gains.",
         ingredients: ["Cottage Cheese (Paneer)", "Bell Peppers", "Onions", "Mint Yogurt Drop", "Secret Spice Mix"],
         nutrition: { protein: "24g", carbs: "8g", fat: "22g" }
     },
     {
-        id: 'fw-3', category: 'Fit-Ware 2.0', name: 'Quantum Quinoa Bowl', calories: 250, version: '1.4', price: 229, prepTime: 5, icon: '🍲', image: '/images/fw2_bowl.png', isPopular: false, isSoldOut: false,
+        id: 'fw-3', category: 'Fit-Ware 2.0', name: 'Quantum Quinoa Bowl', calories: 250, version: '1.4', price: 229, prepTime: 5, icon: '🍲', image: '/images/quinoa_bowl.png', isPopular: false, isSoldOut: false,
         description: "A balanced dataset of quinoa, roasted veggies, and a tangy dressing. Perfectly multithreaded for a complete meal.",
         ingredients: ["Organic Quinoa", "Roasted Zucchini", "Cherry Tomatoes", "Feta Crumble", "Balsamic Glaze"],
         nutrition: { protein: "9g", carbs: "42g", fat: "6g" }
     },
     {
-        id: 'fw-4', category: 'Fit-Ware 2.0', name: 'Kernel Kale Salad', calories: 180, version: '2.2', price: 169, prepTime: 3, icon: '🥬', image: '/images/fw_kale.png', isPopular: false, isSoldOut: false,
+        id: 'fw-4', category: 'Fit-Ware 2.0', name: 'Kernel Kale Salad', calories: 180, version: '2.2', price: 169, prepTime: 3, icon: '🥬', image: '/images/kale_salad.png', isPopular: false, isSoldOut: false,
         description: "Deep learning based raw kale tossed with nuts, seeds, and a sharp vinaigrette. Low latency digestion.",
         ingredients: ["Fresh Kale", "Toasted Almonds", "Sunflower Seeds", "Parmesan Shavings", "Lemon Vinaigrette"],
         nutrition: { protein: "7g", carbs: "12g", fat: "14g" }
     },
     {
-        id: 'fw-5', category: 'Fit-Ware 2.0', name: 'Async Avocado Wrap', calories: 410, version: '1.1', price: 249, prepTime: 4, icon: '🌯', image: '/images/fw_wrap.png', isPopular: true, isSoldOut: false,
+        id: 'fw-5', category: 'Fit-Ware 2.0', name: 'Async Avocado Wrap', calories: 410, version: '1.1', price: 249, prepTime: 4, icon: '🌯', image: '/images/avocado_wrap.png', isPopular: true, isSoldOut: false,
         description: "A non-blocking hearty wrap stuffed with fresh avocado, beans, and salsa. Fulfills standard runtime requirements.",
         ingredients: ["Whole Wheat Tortilla", "Hass Avocado", "Black Beans", "Corn Salsa", "Lettuce"],
         nutrition: { protein: "14g", carbs: "54g", fat: "18g" }
     },
     {
-        id: 'fw-6', category: 'Fit-Ware 2.0', name: 'Macro Optimized Egg Bowl', calories: 320, version: '1.5', price: 159, prepTime: 4, icon: '🥚', image: '/images/fw_egg.png', isPopular: false, isSoldOut: false,
+        id: 'fw-6', category: 'Fit-Ware 2.0', name: 'Macro Optimized Egg Bowl', calories: 320, version: '1.5', price: 159, prepTime: 4, icon: '🥚', image: 'https://images.unsplash.com/photo-1511690656952-34342bb7c2f2?auto=format&fit=crop&q=80&w=400', isPopular: false, isSoldOut: false,
         description: "High performance egg whites compiled with subtle spices. The ultimate pre-session bootup.",
         ingredients: ["Boiled Eggs", "Spinach Base", "Sautéed Mushrooms", "Cracked Black Pepper"],
         nutrition: { protein: "28g", carbs: "4g", fat: "20g" }
@@ -66,19 +66,19 @@ const INITIAL_MENU_DATA = [
 
     // Chaatis.js (Street Food Classics)
     {
-        id: 'cj-1', category: 'Chaatis.js', name: 'Circuit-Breaker Pani Puri', calories: 180, version: '4.0', price: 89, prepTime: 2, icon: '🥟', image: '/images/cj1_panipuri.png', isPopular: true, isSoldOut: false,
+        id: 'cj-1', category: 'Chaatis.js', name: 'Circuit-Breaker Pani Puri', calories: 180, version: '4.0', price: 89, prepTime: 2, icon: '🥟', image: '/images/pani_puri.png', isPopular: true, isSoldOut: false,
         description: "A burst of spicy, tangy flavor guaranteed to overload your taste sensors safely.",
         ingredients: ["Crispy Puris", "Spicy Mint Water", "Tamarind Chutney", "Mashed Potato & Chickpeas"],
         nutrition: { protein: "4g", carbs: "32g", fat: "6g" }
     },
     {
-        id: 'cj-2', category: 'Chaatis.js', name: 'Samosa CPU Chaat', calories: 420, version: '5.1', price: 129, prepTime: 4, icon: '🥠', image: '/images/cj_samosa.png', isPopular: true, isSoldOut: false,
+        id: 'cj-2', category: 'Chaatis.js', name: 'Samosa CPU Chaat', calories: 420, version: '5.1', price: 129, prepTime: 4, icon: '🥠', image: '/images/samosa_chaat.png', isPopular: true, isSoldOut: false,
         description: "Overclocked crushed samosa topped with an array of chutneys, sweetened curd, and sev. High processing power required.",
         ingredients: ["Crushed Samosa", "Sweet Curd", "Green Chutney", "Dates & Tamarind Chutney", "Crispy Sev"],
         nutrition: { protein: "8g", carbs: "56g", fat: "22g" }
     },
     {
-        id: 'cj-3', category: 'Chaatis.js', name: 'Packet-Switched Pakora', calories: 350, version: '2.0', price: 99, prepTime: 5, icon: '🧅', image: '/images/cj_pakora.png', isPopular: false, isSoldOut: false,
+        id: 'cj-3', category: 'Chaatis.js', name: 'Packet-Switched Pakora', calories: 350, version: '2.0', price: 99, prepTime: 5, icon: '🧅', image: 'https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&q=80&w=400', isPopular: false, isSoldOut: false,
         description: "Assorted deep-fried vegetable fritters served hot and fast like UDP packets.",
         ingredients: ["Sliced Onions", "Gram Flour Base", "Green Chilies", "Coriander", "Chaat Masala"],
         nutrition: { protein: "10g", carbs: "40g", fat: "16g" }
@@ -90,13 +90,13 @@ const INITIAL_MENU_DATA = [
         nutrition: { protein: "8g", carbs: "58g", fat: "24g" }
     },
     {
-        id: 'cj-5', category: 'Chaatis.js', name: 'Async Aloo Tikki', calories: 320, version: '3.2', price: 119, prepTime: 4, icon: '🥔', image: '/images/cj2_tikki.png', isPopular: true, isSoldOut: false,
+        id: 'cj-5', category: 'Chaatis.js', name: 'Async Aloo Tikki', calories: 320, version: '3.2', price: 119, prepTime: 4, icon: '🥔', image: '/images/aloo_tikki.png', isPopular: true, isSoldOut: false,
         description: "Crispy potato patties executed concurrently with spicy and sweet chutneys.",
         ingredients: ["Mashed Potato Patties", "Chaat Masala", "Mint & Coriander Dip", "Tamarind Drizzle", "Sev"],
         nutrition: { protein: "5g", carbs: "48g", fat: "12g" }
     },
     {
-        id: 'cj-6', category: 'Chaatis.js', name: 'DDoS Dahi Bhalla', calories: 290, version: '2.4', price: 139, prepTime: 3, icon: '🥣', image: '/images/cj_bhalla.png', isPopular: true, isSoldOut: false,
+        id: 'cj-6', category: 'Chaatis.js', name: 'DDoS Dahi Bhalla', calories: 290, version: '2.4', price: 139, prepTime: 3, icon: '🥣', image: '/images/dahi_bhalla.png', isPopular: true, isSoldOut: false,
         description: "A massive influx of soft lentil dumplings flooded in sweetened, chilled yogurt.",
         ingredients: ["Urad Dal Dumplings", "Chilled Sweet Yogurt", "Cumin Powder", "Red Chili Drizzle", "Imli Chutney"],
         nutrition: { protein: "12g", carbs: "45g", fat: "6g" }
@@ -128,13 +128,13 @@ const INITIAL_MENU_DATA = [
 
     // Liquid Brews (Drinks)
     {
-        id: 'lb-1', category: 'Liquid Brews', name: 'Cyber Shikanji', calories: 85, version: '1.0', price: 69, prepTime: 1, icon: '🍋', image: '/images/lb1_shikanji.png', isPopular: false, isSoldOut: false,
+        id: 'lb-1', category: 'Liquid Brews', name: 'Cyber Shikanji', calories: 85, version: '1.0', price: 69, prepTime: 1, icon: '🍋', image: 'https://images.unsplash.com/photo-1513558161293-cdaf76589fdc?auto=format&fit=crop&q=80&w=400', isPopular: false, isSoldOut: false,
         description: "An electrified version of the classic Indian lemonade. Refreshing, bright, and resets your session.",
         ingredients: ["Fresh Lemon Juice", "Roasted Cumin Server", "Black Salt", "Mint Leaves", "Chilled Water"],
         nutrition: { protein: "0g", carbs: "22g", fat: "0g" }
     },
     {
-        id: 'lb-2', category: 'Liquid Brews', name: 'Nitro Processed Coffee', calories: 120, version: '4.2', price: 149, prepTime: 2, icon: '☕', image: '/images/lb_coffee.png', isPopular: true, isSoldOut: false,
+        id: 'lb-2', category: 'Liquid Brews', name: 'Nitro Processed Coffee', calories: 120, version: '4.2', price: 149, prepTime: 2, icon: '☕', image: '/images/nitro_coffee.png', isPopular: true, isSoldOut: false,
         description: "Cold-brewed, nitrogen-infused coffee that downloads energy directly to your mainline.",
         ingredients: ["Premium Arabica Cold Brew", "Nitrogen Gas", "Vanilla Syrup (Optional)", "Ice"],
         nutrition: { protein: "1g", carbs: "12g", fat: "0g" }
@@ -158,13 +158,13 @@ const INITIAL_MENU_DATA = [
         nutrition: { protein: "4g", carbs: "26g", fat: "6g" }
     },
     {
-        id: 'lb-6', category: 'Liquid Brews', name: 'Latino Lassi.exe', calories: 210, version: '2.0', price: 99, prepTime: 2, icon: '🥛', image: '/images/lb2_lassi.png', isPopular: true, isSoldOut: false,
+        id: 'lb-6', category: 'Liquid Brews', name: 'Latino Lassi.exe', calories: 210, version: '2.0', price: 99, prepTime: 2, icon: '🥛', image: '/images/mango_lassi.png', isPopular: true, isSoldOut: false,
         description: "A thick, yogurt-based standalone executable. Sweet, rich, and traditionally fulfilling.",
         ingredients: ["Fresh Yogurt", "Sugar", "Cardamom Powder", "Rose Water", "Pistachio Garnish"],
         nutrition: { protein: "8g", carbs: "28g", fat: "7g" }
     },
     {
-        id: 'lb-7', category: 'Liquid Brews', name: 'Overclocked Orange Juice', calories: 110, version: '1.0', price: 129, prepTime: 2, icon: '🍊', image: null, isPopular: false, isSoldOut: false,
+        id: 'lb-7', category: 'Liquid Brews', name: 'Overclocked Orange Juice', calories: 110, version: '1.0', price: 129, prepTime: 2, icon: '🍊', image: '/images/orange_juice.png', isPopular: false, isSoldOut: false,
         description: "Freshly squeezed oranges with a boost of vitamins. Overclocks your immune system.",
         ingredients: ["Fresh Oranges", "Pulp", "Ice"],
         nutrition: { protein: "1g", carbs: "28g", fat: "0g" }
@@ -190,13 +190,13 @@ const INITIAL_MENU_DATA = [
 
     // Street Bites (Quick Snacks)
     {
-        id: 'sb-1', category: 'Street Bites', name: 'Veg Shawarma Wrap', calories: 350, price: 159, prepTime: 4, icon: '🌯', image: null, isPopular: false, isSoldOut: false,
+        id: 'sb-1', category: 'Street Bites', name: 'Veg Shawarma Wrap', calories: 350, price: 159, prepTime: 4, icon: '🌯', image: '/images/veg_shawarma.png', isPopular: false, isSoldOut: false,
         description: "Grilled veggie shawarma wrap with garlic sauce.",
         ingredients: ["Assorted Veggies", "Garlic Sauce", "Pita Bread"],
         nutrition: { protein: "8g", carbs: "45g", fat: "12g" }
     },
     {
-        id: 'sb-2', category: 'Street Bites', name: 'Chicken Shawarma Roll', calories: 420, price: 189, prepTime: 4, icon: '🥙', image: null, isPopular: true, isSoldOut: false,
+        id: 'sb-2', category: 'Street Bites', name: 'Chicken Shawarma Roll', calories: 420, price: 189, prepTime: 4, icon: '🥙', image: '/images/chicken_shawarma.png', isPopular: true, isSoldOut: false,
         description: "Spiced chicken shawarma roll with fresh salad.",
         ingredients: ["Grilled Chicken", "Salad", "Mayonnaise", "Rumali Roti"],
         nutrition: { protein: "24g", carbs: "38g", fat: "18g" }
@@ -208,7 +208,7 @@ const INITIAL_MENU_DATA = [
         nutrition: { protein: "10g", carbs: "42g", fat: "14g" }
     },
     {
-        id: 'sb-4', category: 'Street Bites', name: 'Loaded Nachos', calories: 450, price: 199, prepTime: 3, icon: '🌮', image: null, isPopular: true, isSoldOut: false,
+        id: 'sb-4', category: 'Street Bites', name: 'Loaded Nachos', calories: 450, price: 199, prepTime: 3, icon: '🌮', image: '/images/nachos.png', isPopular: true, isSoldOut: false,
         description: "Nachos topped with cheese, salsa and jalapeños.",
         ingredients: ["Corn Tortilla Chips", "Cheese Sauce", "Salsa", "Jalapeños"],
         nutrition: { protein: "7g", carbs: "52g", fat: "22g" }
@@ -220,19 +220,19 @@ const INITIAL_MENU_DATA = [
         nutrition: { protein: "9g", carbs: "34g", fat: "15g" }
     },
     {
-        id: 'sb-6', category: 'Street Bites', name: 'Veg Burger Deluxe', calories: 410, price: 169, prepTime: 4, icon: '🍔', image: null, isPopular: false, isSoldOut: false,
+        id: 'sb-6', category: 'Street Bites', name: 'Veg Burger Deluxe', calories: 410, price: 169, prepTime: 4, icon: '🍔', image: '/images/veg_burger.png', isPopular: false, isSoldOut: false,
         description: "Crispy veggie patty burger with lettuce and sauce.",
         ingredients: ["Veg Patty", "Burger Bun", "Lettuce", "Tomato", "Special Sauce"],
         nutrition: { protein: "11g", carbs: "48g", fat: "16g" }
     },
     {
-        id: 'sb-7', category: 'Street Bites', name: 'Chicken Burger Pro', calories: 480, price: 209, prepTime: 4, icon: '🍔', image: null, isPopular: true, isSoldOut: false,
+        id: 'sb-7', category: 'Street Bites', name: 'Chicken Burger Pro', calories: 480, price: 209, prepTime: 4, icon: '🍔', image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&q=80&w=400', isPopular: true, isSoldOut: false,
         description: "Juicy chicken burger with spicy mayo.",
         ingredients: ["Chicken Patty", "Cheese Slice", "Spicy Mayo", "Caramelized Onions"],
         nutrition: { protein: "22g", carbs: "44g", fat: "24g" }
     },
     {
-        id: 'sb-8', category: 'Street Bites', name: 'Crispy Fries Bucket', calories: 380, price: 129, prepTime: 3, icon: '🍟', image: null, isPopular: false, isSoldOut: false,
+        id: 'sb-8', category: 'Street Bites', name: 'Crispy Fries Bucket', calories: 380, price: 129, prepTime: 3, icon: '🍟', image: '/images/french_fries.png', isPopular: false, isSoldOut: false,
         description: "Golden crispy fries with seasoning.",
         ingredients: ["Potato Strips", "Salt", "Special Seasoning"],
         nutrition: { protein: "4g", carbs: "42g", fat: "18g" }
@@ -244,7 +244,7 @@ const INITIAL_MENU_DATA = [
         nutrition: { protein: "4g", carbs: "44g", fat: "18g" }
     },
     {
-        id: 'sb-10', category: 'Street Bites', name: 'Loaded Cheese Fries', calories: 430, price: 159, prepTime: 3, icon: '🍟', image: null, isPopular: true, isSoldOut: false,
+        id: 'sb-10', category: 'Street Bites', name: 'Loaded Cheese Fries', calories: 430, price: 159, prepTime: 3, icon: '🍟', image: 'https://images.unsplash.com/photo-1585109649139-366815a0d713?auto=format&fit=crop&q=80&w=400', isPopular: true, isSoldOut: false,
         description: "Fries topped with melted cheese sauce.",
         ingredients: ["Potato Strips", "Cheese Sauce", "Spring Onions"],
         nutrition: { protein: "6g", carbs: "46g", fat: "22g" }
