@@ -65,6 +65,8 @@ export const OrderProvider = ({ children }) => {
     // Helper to transform DB record to UI state
     const transformOrderFromDB = (dbOrder) => ({
         id: dbOrder.id,
+        userId: dbOrder.user_id,
+        customerName: dbOrder.customer_name || 'Anonymous',
         items: dbOrder.items,
         total: parseFloat(dbOrder.total_price),
         status: dbOrder.order_status, // normalized to lowercase like 'pending'
@@ -76,6 +78,8 @@ export const OrderProvider = ({ children }) => {
 
     // Helper to transform UI state to DB record
     const transformOrderToDB = (orderData) => ({
+        user_id: orderData.userId,
+        customer_name: orderData.customerName,
         items: orderData.items,
         total_price: orderData.total,
         payment_mode: orderData.paymentMethod || 'Counter',
@@ -92,6 +96,8 @@ export const OrderProvider = ({ children }) => {
             const basePrepTime = maxItemPrepTime + 1;
 
             const dbOrder = {
+                user_id: orderData.userId,
+                customer_name: orderData.customerName,
                 items: orderData.items,
                 total_price: orderData.total,
                 payment_mode: orderData.paymentMethod || 'Counter',
@@ -112,6 +118,35 @@ export const OrderProvider = ({ children }) => {
         } catch (err) {
             console.error('Error creating order:', err.message);
             return null;
+        }
+    };
+
+    // Delete a specific order
+    const deleteOrder = async (orderId) => {
+        try {
+            const { error } = await supabase
+                .from('orders')
+                .delete()
+                .eq('id', orderId);
+
+            if (error) throw error;
+        } catch (err) {
+            console.error('Error deleting order:', err.message);
+        }
+    };
+
+    // Clear all completed history
+    const clearHistory = async () => {
+        try {
+            const { error } = await supabase
+                .from('orders')
+                .delete()
+                .eq('order_status', 'completed');
+
+            if (error) throw error;
+            console.log('History cleared successfully');
+        } catch (err) {
+            console.error('Error clearing history:', err.message);
         }
     };
 
@@ -203,6 +238,8 @@ export const OrderProvider = ({ children }) => {
             updateOrderStatus,
             updatePaymentStatus,
             updateOrderPrepTime,
+            deleteOrder,
+            clearHistory,
             getOrder,
             getQueueStats
         }}>

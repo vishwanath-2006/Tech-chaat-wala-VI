@@ -23,7 +23,7 @@ const playAlertSound = () => {
 const AdminDashboard = () => {
     const { user, logout } = useAuth();
     const { menuData, toggleSoldOut, updatePrice, updateItem, addItem, reorderMenu, categories, addCategory, updateCategory, deleteCategory, reorderCategories, toggleCategoryVisibility } = useMenu();
-    const { orders: allOrders, updateOrderStatus, updatePaymentStatus, updateOrderPrepTime } = useOrders();
+    const { orders: allOrders, updateOrderStatus, updatePaymentStatus, updateOrderPrepTime, deleteOrder, clearHistory } = useOrders();
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('All'); // For Menu filtering
     const [viewMode, setViewMode] = useState('orders'); // 'menu' | 'orders' | 'history'
@@ -563,34 +563,15 @@ const AdminDashboard = () => {
                             </div>
                         </div>
                     </div>
+                ) : viewMode === 'history' ? (
+                    <HistoryTab 
+                        orders={completedOrders} 
+                        clearHistory={clearHistory} 
+                        deleteOrder={deleteOrder}
+                    />
                 ) : (
-                    // History Tab
-                    <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                        <div className="p-6 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
-                            <h3 className="text-lg font-bold text-secondary">Completed Transactions</h3>
-                            <span className="text-sm font-medium text-slate-500">{completedOrders.length} Orders</span>
-                        </div>
-                        {completedOrders.length === 0 ? (
-                            <div className="p-10 text-center text-slate-500">No history available.</div>
-                        ) : (
-                            <ul className="divide-y divide-slate-100">
-                                {completedOrders.map(order => (
-                                    <li key={order.id} className="p-4 sm:p-6 hover:bg-slate-50 transition-colors flex justify-between items-center gap-4">
-                                        <div>
-                                            <h4 className="font-black text-secondary text-lg">#{order.id.slice(0, 8)}</h4>
-                                            <div className="text-sm text-slate-500 mt-1 line-clamp-1">{order.items.map(i => `${i.qty}x ${i.name}`).join(', ')}</div>
-                                            <div className="text-xs font-mono text-slate-400 mt-2 flex items-center gap-2">
-                                                <Clock size={12} /> {new Date(order.timestamp).toLocaleString()}
-                                            </div>
-                                        </div>
-                                        <div className="text-right">
-                                            <div className="font-mono text-primary font-bold text-lg">₹{order.total}</div>
-                                            <div className="text-xs bg-slate-200 text-slate-600 px-2 py-1 rounded inline-block mt-2 font-bold uppercase tracking-wider">Completed</div>
-                                        </div>
-                                    </li>
-                                ))}
-                            </ul>
-                        )}
+                    <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden px-4 py-8 text-center text-slate-500 font-medium">
+                        Menu management module active. Use the categories above to sort items.
                     </div>
                 )}
             </main>
@@ -656,8 +637,8 @@ const AdminDashboard = () => {
                                 </div>
                             </div>
                             <div className="col-span-1 md:col-span-2 mt-4 flex gap-4 pt-6 border-t border-slate-100">
-                                <button type="button" onClick={() => setEditingItem(null)} className="flex-1 btn-outline py-3">Cancel</button>
-                                <button type="submit" className="flex-1 btn-primary py-3">Save Configuration</button>
+                                <button type="button" onClick={() => setEditingItem(null)} className="flex-1 btn-outline py-3 text-sm">Cancel</button>
+                                <button type="submit" className="flex-1 btn-primary py-3 text-sm">Save Configuration</button>
                             </div>
                         </form>
                     </div>
@@ -731,6 +712,203 @@ const AdminDashboard = () => {
                         <div className="flex gap-3">
                             <button onClick={() => setDeletingCategory(null)} className="flex-1 btn-outline py-3 text-sm">Cancel</button>
                             <button onClick={confirmDeleteCategory} className="flex-1 bg-red-500 text-white font-bold rounded-xl shadow-sm hover:bg-red-600 active:scale-95 transition-all text-sm">Delete & Reassign</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+};
+
+// --- Subcomponents for Cleanliness ---
+
+const HistoryTab = ({ orders, clearHistory, deleteOrder }) => {
+    const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+    const [selectedOrder, setSelectedOrder] = useState(null);
+    const [isClearing, setIsClearing] = useState(false);
+
+    // Filter by date
+    const filteredOrders = orders.filter(o => {
+        const orderDate = new Date(o.timestamp).toISOString().split('T')[0];
+        return orderDate === selectedDate;
+    });
+
+    // Daily Stats
+    const dailyCount = filteredOrders.length;
+    const dailyRevenue = filteredOrders.reduce((sum, o) => sum + o.total, 0);
+
+    const handleClearHistory = async () => {
+        if (window.confirm('Are you sure you want to clear ALL completed transaction records? This cannot be undone.')) {
+            setIsClearing(true);
+            await clearHistory();
+            setIsClearing(false);
+        }
+    };
+
+    return (
+        <div className="space-y-6">
+            {/* Stats & Filters Row */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                    <p className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-2">Daily Payload</p>
+                    <h4 className="text-3xl font-black text-secondary">{dailyCount} <span className="text-sm font-medium text-slate-400">Orders</span></h4>
+                </div>
+                <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                    <p className="text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-2">Daily Revenue</p>
+                    <h4 className="text-3xl font-black text-primary italic">₹{dailyRevenue.toLocaleString()}</h4>
+                </div>
+                <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col justify-center">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Protocol Date</label>
+                    <input 
+                        type="date" 
+                        value={selectedDate}
+                        onChange={(e) => setSelectedDate(e.target.value)}
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 font-bold text-secondary outline-none focus:border-primary transition-colors"
+                    />
+                </div>
+            </div>
+
+            {/* History List */}
+            <div className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
+                <div className="p-6 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-secondary text-white rounded-xl flex items-center justify-center">
+                            <History size={20} />
+                        </div>
+                        <div>
+                            <h3 className="text-lg font-black text-secondary">Transaction Logs</h3>
+                            <p className="text-xs text-slate-500 font-medium">Filtered by: {new Date(selectedDate).toDateString()}</p>
+                        </div>
+                    </div>
+                    <button 
+                        onClick={handleClearHistory}
+                        disabled={isClearing}
+                        className="text-xs font-black text-red-500 uppercase tracking-widest hover:bg-red-50 px-3 py-2 rounded-lg transition-colors flex items-center gap-2 border border-red-100"
+                    >
+                        <Trash2 size={14} /> {isClearing ? 'Clearing...' : 'Wipe History'}
+                    </button>
+                </div>
+
+                {filteredOrders.length === 0 ? (
+                    <div className="p-20 text-center flex flex-col items-center">
+                        <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center text-4xl mb-4 border border-slate-100">📂</div>
+                        <h4 className="text-xl font-bold text-secondary">No recorded data for this cycle</h4>
+                        <p className="text-slate-500 text-sm mt-1">Select a different date or check live orders.</p>
+                    </div>
+                ) : (
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left border-collapse">
+                            <thead>
+                                <tr className="bg-slate-50/50 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] border-b border-slate-100">
+                                    <th className="px-6 py-4">ID / Customer</th>
+                                    <th className="px-6 py-4">Modules</th>
+                                    <th className="px-6 py-4">Time</th>
+                                    <th className="px-6 py-4">Payload</th>
+                                    <th className="px-6 py-4 text-center">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-50">
+                                {filteredOrders.map(order => (
+                                    <tr key={order.id} className="hover:bg-slate-50/50 transition-colors group">
+                                        <td className="px-6 py-4">
+                                            <div className="font-black text-secondary uppercase tracking-tighter">#{order.id.slice(0, 8)}</div>
+                                            <div className="text-xs font-bold text-slate-400">{order.customerName}</div>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <div className="text-sm font-medium text-slate-600 line-clamp-1 max-w-[200px]">
+                                                {order.items.map(i => `${i.qty}x ${i.name}`).join(', ')}
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <div className="text-xs font-mono font-bold text-slate-500">
+                                                {new Date(order.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <div className="font-mono font-black text-secondary">₹{order.total}</div>
+                                        </td>
+                                        <td className="px-6 py-4 text-center">
+                                            <button 
+                                                onClick={() => setSelectedOrder(order)}
+                                                className="p-2 bg-slate-100 text-slate-500 rounded-lg hover:bg-secondary hover:text-white transition-all shadow-sm"
+                                                title="View Technical Specs"
+                                            >
+                                                <Eye size={16} />
+                                            </button>
+                                        </td>
+                                    </tr>
+                                )).reverse()}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
+            </div>
+
+            {/* Order Details Modal (Technical Specs View) */}
+            {selectedOrder && (
+                <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+                    <div className="absolute inset-0 bg-secondary/80 backdrop-blur-md" onClick={() => setSelectedOrder(null)}></div>
+                    <div className="bg-white rounded-[32px] shadow-2xl w-full max-w-lg relative z-10 overflow-hidden animate-scale-in">
+                        <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                            <div>
+                                <h2 className="text-xl font-black text-secondary uppercase tracking-tight">Transaction Specs</h2>
+                                <p className="text-[10px] font-mono font-bold text-slate-400">UID: {selectedOrder.id}</p>
+                            </div>
+                            <button onClick={() => setSelectedOrder(null)} className="w-10 h-10 bg-white text-slate-400 rounded-full hover:bg-red-50 hover:text-red-500 flex items-center justify-center border border-slate-200 transition-all">
+                                <XCircle size={24} />
+                            </button>
+                        </div>
+                        <div className="p-6 space-y-6">
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Customer Identifier</p>
+                                    <p className="font-bold text-secondary text-sm">{selectedOrder.customerName}</p>
+                                </div>
+                                <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Execution Method</p>
+                                    <p className="font-bold text-secondary text-sm">{selectedOrder.paymentMethod}</p>
+                                </div>
+                            </div>
+
+                            <div className="bg-slate-900 rounded-2xl p-5 border border-slate-800">
+                                <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-4">Module Breakdown</h3>
+                                <div className="space-y-3">
+                                    {selectedOrder.items.map((item, idx) => (
+                                        <div key={idx} className="flex justify-between items-center">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-6 h-6 rounded-md bg-white/10 text-primary flex items-center justify-center font-black text-[10px]">
+                                                    {item.qty}x
+                                                </div>
+                                                <span className="font-bold text-slate-300 text-sm">{item.name}</span>
+                                            </div>
+                                            <span className="font-mono font-bold text-slate-500 text-xs">₹{item.price ? item.price * item.qty : '--'}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                                <div className="mt-6 pt-5 border-t border-slate-800 flex justify-between items-center">
+                                    <span className="text-xs font-black text-slate-500 uppercase italic">Final Payload</span>
+                                    <span className="text-2xl font-black text-primary italic">₹{selectedOrder.total}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="p-6 pt-0 flex gap-3">
+                             <button 
+                                onClick={() => setSelectedOrder(null)}
+                                className="flex-1 py-3 rounded-xl border border-slate-200 text-slate-500 font-bold text-xs"
+                            >
+                                Close Terminal
+                            </button>
+                            <button 
+                                onClick={() => {
+                                    if(window.confirm('Wipe this specific transaction from database?')){
+                                        deleteOrder(selectedOrder.id);
+                                        setSelectedOrder(null);
+                                    }
+                                }}
+                                className="flex-1 py-3 rounded-xl bg-red-50 text-red-600 font-black text-xs uppercase tracking-widest hover:bg-red-100 transition-colors"
+                            >
+                                Wipe Record
+                            </button>
                         </div>
                     </div>
                 </div>

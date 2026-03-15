@@ -1,49 +1,42 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { ArrowLeft, CheckCircle2, Package, Clock } from 'lucide-react';
-
-// Mock static data for orders
-const MOCK_ORDERS = [
-    {
-        id: 'ORD-1094',
-        date: 'Today, 14:32',
-        status: 'Completed',
-        total: 298,
-        items: [
-            { name: 'Sprout Circuit Salad', qty: 1, price: 149 },
-            { name: 'Nitro Processed Coffee', qty: 1, price: 149 }
-        ]
-    },
-    {
-        id: 'ORD-0962',
-        date: 'Yesterday, 19:15',
-        status: 'Completed',
-        total: 139,
-        items: [
-            { name: 'DDoS Dahi Bhalla', qty: 1, price: 139 }
-        ]
-    },
-    {
-        id: 'ORD-0511',
-        date: 'Mar 08, 12:00',
-        status: 'Completed',
-        total: 418,
-        items: [
-            { name: 'Async Avocado Wrap', qty: 1, price: 249 },
-            { name: 'Cloud Matcha Latte', qty: 1, price: 169 }
-        ]
-    }
-];
+import { useOrders } from '../context/OrderContext';
+import { ArrowLeft, CheckCircle2, Package, Clock, X, Info } from 'lucide-react';
 
 const Orders = () => {
     const { user } = useAuth();
+    const { orders: allOrders, loading } = useOrders();
     const navigate = useNavigate();
+    const [selectedOrder, setSelectedOrder] = useState(null);
+
+    // Filter orders for the current user
+    const userOrders = allOrders
+        .filter(o => o.userId === user?.id && o.status === 'completed')
+        .sort((a, b) => b.timestamp - a.timestamp);
 
     // Check auth
     if (!user) {
         navigate('/login');
         return null;
+    }
+
+    const formatLongDate = (timestamp) => {
+        return new Date(timestamp).toLocaleDateString('en-IN', {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    };
+
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-background flex items-center justify-center p-6">
+                <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary border-t-transparent shadow-lg"></div>
+            </div>
+        );
     }
 
     return (
@@ -63,53 +56,123 @@ const Orders = () => {
             </div>
 
             <div className="max-w-3xl mx-auto space-y-6">
-                {MOCK_ORDERS.map((order) => (
-                    <div key={order.id} className="surface-card p-6 md:p-8 rounded-[32px] bg-white border border-slate-100 shadow-xl relative overflow-hidden">
-
-                        {/* Decorative background element */}
-                        <div className="absolute -right-10 -top-10 w-40 h-40 bg-primary/5 rounded-full blur-2xl" />
-
-                        {/* Order Header / Meta */}
-                        <div className="flex flex-wrap md:flex-nowrap justify-between items-start md:items-center gap-4 border-b border-slate-100 pb-5 mb-5 relative z-10">
-                            <div>
-                                <h3 className="text-lg font-black text-secondary flex items-center gap-2">
-                                    <Package size={20} className="text-primary" /> {order.id}
-                                </h3>
-                                <p className="text-sm font-medium text-slate-500 flex items-center gap-1 mt-1">
-                                    <Clock size={14} /> {order.date}
-                                </p>
-                            </div>
-                            <div className="text-right">
-                                <span className="bg-green-100 text-green-700 font-bold px-3 py-1 rounded-full text-xs flex items-center gap-1 border border-green-200 w-fit ml-auto md:mx-0 mb-1">
-                                    <CheckCircle2 size={12} /> {order.status}
-                                </span>
-                                <p className="font-black text-secondary text-xl pr-1">₹{order.total}</p>
-                            </div>
-                        </div>
-
-                        {/* Order Items */}
-                        <div className="space-y-3 relative z-10">
-                            {order.items.map((item, idx) => (
-                                <div key={idx} className="flex justify-between items-center bg-slate-50 p-3 rounded-2xl mb-2">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center font-bold text-sm text-secondary">
-                                            {item.qty}x
-                                        </div>
-                                        <span className="font-bold text-secondary">{item.name}</span>
-                                    </div>
-                                    <span className="font-black text-secondary whitespace-nowrap opacity-60">₹{item.price * item.qty}</span>
-                                </div>
-                            ))}
-                        </div>
-
-                        {/* Reorder Button */}
-                        <button className="w-full mt-6 py-3.5 rounded-xl border-2 border-primary text-primary font-black hover:bg-primary hover:text-white transition-colors">
-                            Recompile Request (Reorder)
-                        </button>
-
+                {userOrders.length === 0 ? (
+                    <div className="surface-card p-12 rounded-[32px] text-center border-2 border-dashed border-slate-200">
+                        <div className="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-4 text-3xl">📭</div>
+                        <h2 className="text-xl font-bold text-secondary mb-2">No Records Found</h2>
+                        <p className="text-slate-500 mb-6">Your interaction history is currently empty. Initialize a transaction to see logs here.</p>
+                        <button onClick={() => navigate('/menu')} className="btn-primary px-8 py-3">Start Browsing</button>
                     </div>
-                ))}
+                ) : (
+                    userOrders.map((order) => (
+                        <div 
+                            key={order.id} 
+                            onClick={() => setSelectedOrder(order)}
+                            className="surface-card p-6 md:p-8 rounded-[32px] bg-white border border-slate-100 shadow-xl relative overflow-hidden cursor-pointer hover:border-primary/30 hover:shadow-2xl transition-all group"
+                        >
+
+                            {/* Decorative background element */}
+                            <div className="absolute -right-10 -top-10 w-40 h-40 bg-primary/5 rounded-full blur-2xl group-hover:bg-primary/10 transition-colors" />
+
+                            {/* Order Header / Meta */}
+                            <div className="flex flex-wrap md:flex-nowrap justify-between items-start md:items-center gap-4 border-b border-slate-100 pb-5 mb-5 relative z-10">
+                                <div>
+                                    <h3 className="text-lg font-black text-secondary flex items-center gap-2">
+                                        <Package size={20} className="text-primary" /> #{order.id.slice(0, 8)}
+                                    </h3>
+                                    <p className="text-sm font-medium text-slate-500 flex items-center gap-1 mt-1">
+                                        <Clock size={14} /> {formatLongDate(order.timestamp)}
+                                    </p>
+                                </div>
+                                <div className="text-right">
+                                    <span className="bg-green-100 text-green-700 font-bold px-3 py-1 rounded-full text-[10px] uppercase tracking-wider flex items-center gap-1 border border-green-200 w-fit ml-auto md:mx-0 mb-1">
+                                        <CheckCircle2 size={12} /> {order.status}
+                                    </span>
+                                    <p className="font-black text-secondary text-xl pr-1">₹{order.total}</p>
+                                </div>
+                            </div>
+
+                            {/* Order Items Summary */}
+                            <div className="space-y-3 relative z-10">
+                                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                                    <Info size={14} /> Items Summary
+                                </p>
+                                <div className="text-sm text-secondary font-bold line-clamp-1">
+                                    {order.items.map(item => `${item.qty}x ${item.name}`).join(', ')}
+                                </div>
+                            </div>
+
+                            {/* View Details Button */}
+                            <div className="mt-6 flex justify-center">
+                                <span className="text-xs font-black text-primary uppercase tracking-[0.2em] group-hover:translate-y-[-2px] transition-transform">
+                                    Click to view technical specs
+                                </span>
+                            </div>
+
+                        </div>
+                    ))
+                )}
             </div>
+
+            {/* Order Details Modal */}
+            {selectedOrder && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                    <div className="absolute inset-0 bg-secondary/80 backdrop-blur-md" onClick={() => setSelectedOrder(null)}></div>
+                    <div className="bg-white rounded-[40px] shadow-2xl w-full max-w-lg relative z-10 overflow-hidden animate-scale-in">
+                        <div className="p-8 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                            <div>
+                                <h2 className="text-2xl font-black text-secondary">Transaction Specs</h2>
+                                <p className="text-sm font-medium text-slate-500">ID: {selectedOrder.id}</p>
+                            </div>
+                            <button onClick={() => setSelectedOrder(null)} className="w-12 h-12 bg-white text-slate-500 rounded-full hover:bg-slate-100 flex items-center justify-center border border-slate-200 transition-colors">
+                                <X size={24} />
+                            </button>
+                        </div>
+                        <div className="p-8 space-y-6">
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                                    <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Timestamp</p>
+                                    <p className="font-bold text-secondary text-sm">{new Date(selectedOrder.timestamp).toLocaleString()}</p>
+                                </div>
+                                <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                                    <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Method</p>
+                                    <p className="font-bold text-secondary text-sm">{selectedOrder.paymentMethod}</p>
+                                </div>
+                            </div>
+
+                            <div className="space-y-4">
+                                <h3 className="text-sm font-black text-secondary uppercase tracking-widest opacity-60">Module Breakdown</h3>
+                                <div className="space-y-2">
+                                    {selectedOrder.items.map((item, idx) => (
+                                        <div key={idx} className="flex justify-between items-center bg-slate-50 p-4 rounded-2xl">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-black text-xs">
+                                                    {item.qty}x
+                                                </div>
+                                                <span className="font-bold text-secondary">{item.name}</span>
+                                            </div>
+                                            <span className="font-black text-secondary opacity-60">₹{item.price ? item.price * item.qty : '--'}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <div className="bg-primary/5 p-6 rounded-3xl border border-primary/10 flex justify-between items-center">
+                                <span className="text-lg font-black text-secondary italic">Final Payload</span>
+                                <span className="text-3xl font-black text-primary italic">₹{selectedOrder.total}</span>
+                            </div>
+                        </div>
+                        <div className="p-8 pt-0">
+                            <button 
+                                onClick={() => navigate('/menu')}
+                                className="w-full py-4 rounded-2xl bg-secondary text-white font-black uppercase tracking-widest hover:bg-black transition-all shadow-lg active:scale-95"
+                            >
+                                Recompile Order (Reorder)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

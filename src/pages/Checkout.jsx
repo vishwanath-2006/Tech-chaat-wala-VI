@@ -37,11 +37,17 @@ const Checkout = ({ cart, updateCart }) => {
             const maxItemPrepTime = Math.max(1, ...cartItems.map(i => i.prepTime || 3));
             const basePrepTime = maxItemPrepTime + 1;
 
+            // Get user info if available
+            const { data: { user } } = await supabase.auth.getUser();
+            const customerName = user?.user_metadata?.name || user?.user_metadata?.full_name || 'Guest User';
+
             // Direct Supabase Insertion matching the exact table schema provided
             const { data, error } = await supabase
                 .from("orders")
                 .insert([
                     {
+                        user_id: user?.id,
+                        customer_name: customerName,
                         items: cartItems.map(i => ({ name: i.name, qty: i.qty })),
                         total_price: Number(grandTotal),
                         payment_mode: method || "cash",
