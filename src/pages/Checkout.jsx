@@ -92,32 +92,42 @@ const Checkout = ({ cart, updateCart }) => {
 
         const options = {
             key: RAZORPAY_KEY,
-            amount: grandTotal * 100, // Amount in paise
+            amount: Math.round(grandTotal * 100), // Amount in paise
             currency: "INR",
             name: "Tech Chaat Wala",
-            description: "Cyber-Street Food Transaction",
+            description: "Order Transaction",
             image: "/images/hero_robot.png",
+            config: {
+                display: {
+                    hide: [
+                        { method: 'paylater' },
+                        { method: 'emi' },
+                        { method: 'card' },
+                        { method: 'netbanking' },
+                        { method: 'wallet' }
+                    ],
+                    preferences: {
+                        show_default_blocks: true
+                    }
+                }
+            },
             handler: function (response) {
-                // Payment Successful
                 setCheckoutStep('confirming');
-                setProcessingMsg("Payment Verified! Synchronizing with database...");
+                setProcessingMsg("Payment Verified! Synchronizing...");
                 handleConfirmPayment('Razorpay-UPI', 'Paid', response.razorpay_payment_id);
             },
             prefill: {
                 name: guestName || "Guest User",
-                contact: "9999999999"
-            },
-            notes: {
-                address: "Tech Chaat Wala Kiosk"
+                contact: "9999999999",
+                method: "upi"
             },
             theme: {
-                color: "#ff7a1a"
+                color: "#10b981"
             },
-            method: {
-                upi: true,
-                card: false,
-                netbanking: false,
-                wallet: false
+            modal: {
+                ondismiss: function() {
+                    setCheckoutStep('payment-choice');
+                }
             }
         };
 
@@ -344,34 +354,41 @@ const Checkout = ({ cart, updateCart }) => {
                 </header>
                 
                 <main className="p-6 max-w-md mx-auto w-full z-10">
-                    <h2 className="text-2xl font-black text-secondary mb-6 tracking-tight">Select UPI App</h2>
-                    <div className="grid grid-cols-2 gap-4 mb-8">
+                    <div className="text-center mb-10">
+                        <h2 className="text-4xl font-black text-secondary mb-2 tracking-tight">Select Protocol</h2>
+                        <p className="text-textLight text-sm font-semibold opacity-70">Direct bridge to UPI execution layer</p>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-5 mb-10">
                         {UPI_APPS.map(app => (
                             <button 
                                 key={app.name}
                                 onClick={() => handleUPISelect(app.name)}
-                                className="glass-card p-6 flex flex-col items-center gap-4 hover:border-primary/50 transition-all active:scale-95 group relative overflow-hidden"
+                                className="glass-card group p-6 flex flex-col items-center gap-4 hover:border-emerald-500/50 transition-all active:scale-95 relative overflow-hidden h-40 justify-center border-2 border-white/40 shadow-xl"
                             >
-                                <div className="w-16 h-12 flex items-center justify-center grayscale group-hover:grayscale-0 transition-all p-1">
-                                    <img src={app.icon} alt={app.name} className="max-h-full max-w-full drop-shadow-sm" />
+                                <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                                <div className="w-20 h-16 flex items-center justify-center transition-all group-hover:scale-110">
+                                    <img src={app.icon} alt={app.name} className="max-h-full max-w-full drop-shadow-md" />
                                 </div>
-                                <span className="text-xs font-black text-slate-500 uppercase tracking-wider">{app.name}</span>
+                                <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] group-hover:text-emerald-600 transition-colors">{app.name}</span>
                                 
-                                <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                {/* Status Indicator Dot */}
+                                <div className="absolute top-3 right-3 w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                             </button>
                         ))}
                     </div>
 
                     <div className="relative mb-10">
-                        <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-white/40"></div></div>
-                        <div className="relative flex justify-center text-xs uppercase"><span className="bg-transparent backdrop-blur-sm px-4 text-slate-400 font-bold">Protocol Diversion</span></div>
+                        <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-slate-200"></div></div>
+                        <div className="relative flex justify-center text-xs uppercase"><span className="bg-[#f0f9f1] px-4 text-slate-400 font-bold tracking-widest">Alternative Path</span></div>
                     </div>
 
                     <button 
                         onClick={() => setCheckoutStep('qr-code')}
-                        className="w-full glass-card hover:border-primary/50 flex items-center justify-center gap-4 py-5 text-secondary font-black uppercase tracking-wider shadow-lg active:scale-[0.98]"
+                        className="w-full glass-card hover:border-emerald-500/50 flex items-center justify-center gap-4 py-6 text-secondary font-black uppercase tracking-widest shadow-2xl active:scale-[0.98] border-2 border-white/60 group relative overflow-hidden"
                     >
-                        <QrCode size={24} className="text-primary" />
+                        <div className="absolute inset-0 bg-emerald-500/5 translate-x-full group-hover:translate-x-0 transition-transform duration-500" />
+                        <QrCode size={24} className="text-emerald-500 group-hover:rotate-12 transition-transform" />
                         Scan Universal QR
                     </button>
                 </main>
@@ -394,19 +411,17 @@ const Checkout = ({ cart, updateCart }) => {
                     <h2 className="text-2xl font-black text-secondary mb-2 tracking-tight">Universal UPI QR</h2>
                     <p className="text-textLight text-sm font-bold opacity-70 mb-8">Scan with GPay, PhonePe, or BHIM</p>
 
-                    <div className="glass-card p-8 inline-block mb-10 relative glowing-border active shadow-2xl">
-                        {/* Mock QR Code */}
-                        <div className="w-56 h-56 bg-slate-900 rounded-2xl p-4 flex flex-wrap gap-1 relative overflow-hidden">
-                            {Array.from({ length: 49 }).map((_, i) => (
-                                <div key={i} className={`w-6 h-6 rounded-sm ${Math.random() > 0.4 ? 'bg-white' : 'bg-slate-800'}`}></div>
-                            ))}
+                    <div className="glass-card p-8 inline-block mb-10 relative glowing-border active shadow-2xl bg-white border-2 border-emerald-500/20">
+                        {/* Real QR Code */}
+                        <div className="w-64 h-64 relative overflow-hidden rounded-2xl">
+                            <img 
+                                src="/images/personal_qr.png" 
+                                alt="Payment QR" 
+                                className="w-full h-full object-contain"
+                            />
                             
                             {/* Scanning Light Animation */}
-                            <div className="absolute left-0 w-full h-1 bg-primary/80 shadow-[0_0_15px_rgba(255,122,26,0.8)] animate-[scanning-line_2s_infinite_ease-in-out]"></div>
-                            
-                            <div className="absolute inset-0 m-auto w-12 h-12 bg-white rounded-xl p-2 flex items-center justify-center shadow-lg border border-slate-200">
-                                <img src="https://upload.wikimedia.org/wikipedia/commons/e/e1/BHIM_logo.svg" alt="UPI" className="w-full h-full" />
-                            </div>
+                            <div className="absolute left-0 w-full h-1.5 bg-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.8)] animate-[scanning-line_3s_infinite_ease-in-out]"></div>
                         </div>
                     </div>
 
