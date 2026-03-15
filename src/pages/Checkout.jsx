@@ -340,7 +340,7 @@ const Checkout = ({ cart, updateCart }) => {
             { name: 'Google Pay', icon: 'https://upload.wikimedia.org/wikipedia/commons/f/f2/Google_Pay_Logo.svg', color: 'bg-white' },
             { name: 'PhonePe', icon: 'https://upload.wikimedia.org/wikipedia/commons/7/71/PhonePe_Logo.svg', color: 'bg-white' },
             { name: 'Paytm', icon: 'https://upload.wikimedia.org/wikipedia/commons/2/24/Paytm_Logo_%28standalone%29.svg', color: 'bg-white' },
-            { name: 'BHIM UPI', icon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/BHIM_logo.svg/512px-BHIM_logo.svg.png', color: 'bg-white' }
+            { name: 'BHIM UPI', icon: 'https://raw.githubusercontent.com/AnandChowdhary/upi-icons/master/bhim.svg', color: 'bg-white' }
         ];
 
         return (
@@ -396,59 +396,8 @@ const Checkout = ({ cart, updateCart }) => {
         );
     }
 
-    if (checkoutStep === 'qr-code') {
-        return (
-            <div className="min-h-screen fintech-bg flex flex-col">
-                <div className="blob top-[20%] right-[-10%] scale-150 opacity-40"></div>
-                
-                <header className="p-6 border-b border-white/20 bg-white/40 backdrop-blur-xl sticky top-0 z-40">
-                    <button onClick={() => setCheckoutStep('upi-apps')} className="flex items-center gap-2 text-secondary font-bold">
-                        <ChevronLeft size={20} /> Back
-                    </button>
-                </header>
-                
-                <main className="p-6 max-w-md mx-auto w-full text-center z-10">
-                    <h2 className="text-2xl font-black text-secondary mb-2 tracking-tight">Universal UPI QR</h2>
-                    <p className="text-textLight text-sm font-bold opacity-70 mb-8">Scan with GPay, PhonePe, or BHIM</p>
 
-                    <div className="glass-card p-8 inline-block mb-10 relative glowing-border active shadow-2xl bg-white border-2 border-emerald-500/20">
-                        {/* Real QR Code */}
-                        <div className="w-64 h-64 relative overflow-hidden rounded-2xl">
-                            <img 
-                                src="/images/personal_qr.png" 
-                                alt="Payment QR" 
-                                className="w-full h-full object-contain"
-                            />
-                            
-                            {/* Scanning Light Animation */}
-                            <div className="absolute left-0 w-full h-1.5 bg-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.8)] animate-[scanning-line_3s_infinite_ease-in-out]"></div>
-                        </div>
-                    </div>
 
-                    <div className="glass-card bg-white/40 p-6 mb-8 border border-white/50 shadow-sm">
-                        <div className="text-xs font-black text-primary uppercase tracking-[0.2em] mb-1">Amount to Execute</div>
-                        <div className="text-4xl font-black text-secondary font-mono tracking-tighter">₹{grandTotal}</div>
-                    </div>
-
-                    {/* Expiry Timer Mock */}
-                    <div className="flex items-center justify-center gap-2 text-sm font-bold text-slate-500 mb-10">
-                        <Loader2 size={16} className="animate-spin text-primary" />
-                        <span>QR expires in <span className="text-secondary">02:45</span></span>
-                    </div>
-
-                    <button 
-                        onClick={handleQRConfirm}
-                        className="btn-primary w-full py-5 text-sm uppercase tracking-widest font-black shadow-[0_10px_30px_rgba(255,122,26,0.4)] group overflow-hidden relative"
-                    >
-                        <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
-                        <span className="relative z-10">I've Completed Payment</span>
-                    </button>
-                    
-                    <p className="text-slate-400 text-xs font-bold mt-6 animate-pulse">Waiting for transaction signal...</p>
-                </main>
-            </div>
-        );
-    }
 
     return (
         <div className="min-h-screen fintech-bg flex flex-col animate-fade-in relative pb-32">
