@@ -9,9 +9,18 @@ import { useMenu } from '../context/MenuContext';
 
 const Menu = ({ cart, updateCart, triggerRobot }) => {
     const navigate = useNavigate();
-    const { menuData, categories } = useMenu();
+    const { menuData, categories, loading } = useMenu();
     const [activeTab, setActiveTab] = useState('All');
     const [searchQuery, setSearchQuery] = useState('');
+
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6">
+                <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4" />
+                <p className="text-slate-500 font-bold animate-pulse">Syncing Menu Data...</p>
+            </div>
+        );
+    }
 
     const filteredData = menuData.filter(item => {
         const matchesCategory = activeTab === 'All' || item.category === activeTab;

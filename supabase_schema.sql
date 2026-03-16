@@ -14,15 +14,55 @@ CREATE TABLE IF NOT EXISTS public.orders (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- Enable Realtime for the orders table
-ALTER PUBLICATION supabase_realtime ADD TABLE public.orders;
+-- Categories Table
+CREATE TABLE IF NOT EXISTS public.categories (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    is_visible BOOLEAN DEFAULT true,
+    "order" INTEGER DEFAULT 0,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
 
--- Set up Row Level Security (RLS)
--- For a kiosk app, you might want careful policies. 
--- Below is a basic permissive policy for development:
-ALTER TABLE public.orders ENABLE ROW LEVEL SECURITY;
+-- Menu Items Table
+CREATE TABLE IF NOT EXISTS public.menu_items (
+    id TEXT PRIMARY KEY,
+    category TEXT NOT NULL,
+    name TEXT NOT NULL,
+    description TEXT,
+    price NUMERIC NOT NULL,
+    is_sold_out BOOLEAN DEFAULT false,
+    image TEXT,
+    icon TEXT,
+    is_popular BOOLEAN DEFAULT false,
+    calories INTEGER,
+    version TEXT,
+    ingredients JSONB,
+    nutrition JSONB,
+    prep_time INTEGER DEFAULT 5,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
 
-CREATE POLICY "Allow all operations for kiosk" ON public.orders
-    FOR ALL
-    USING (true)
-    WITH CHECK (true);
+-- 1. FORCE-RESET REALTIME
+DROP PUBLICATION IF EXISTS supabase_realtime;
+CREATE PUBLICATION supabase_realtime FOR ALL TABLES;
+
+-- 2. ENABLE FULL BROADCAST (Ensures all columns are sent in the live update)
+ALTER TABLE public.menu_items REPLICA IDENTITY FULL;
+ALTER TABLE public.categories REPLICA IDENTITY FULL;
+
+-- 3. BYPASS SECURITY FOR TESTING (Rule out RLS issues)
+ALTER TABLE public.menu_items DISABLE ROW LEVEL SECURITY;
+ALTER TABLE public.categories DISABLE ROW LEVEL SECURITY;
+
+-- 4. CLEANUP OLD POLICIES
+DROP POLICY IF EXISTS "Public Access" ON public.categories;
+DROP POLICY IF EXISTS "Public Access" ON public.menu_items;
+
+-- 5. RE-ENABLE SECURITY (OPTIONAL - do this after verification works)
+-- ALTER TABLE public.menu_items ENABLE ROW LEVEL SECURITY;
+-- ALTER TABLE public.categories ENABLE ROW LEVEL SECURITY;
+-- CREATE POLICY "Public Access" ON public.categories FOR ALL USING (true) WITH CHECK (true);
+-- CREATE POLICY "Public Access" ON public.menu_items FOR ALL USING (true) WITH CHECK (true);
+
+
+

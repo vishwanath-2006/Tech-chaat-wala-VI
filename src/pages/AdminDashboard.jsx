@@ -343,7 +343,7 @@ const AdminDashboard = () => {
                                     <Plus size={16} /> Add New Menu
                                 </button>
                                 <button
-                                    onClick={() => setEditingItem({ id: 'new', category: categories.length > 1 ? categories[1].name : 'Uncategorized', name: '', price: 0, calories: 0, prepTime: 3, description: '', ingredients: [], image: '', icon: '🍽️', isSoldOut: false, isPopular: false })}
+                                    onClick={() => setEditingItem({ id: 'new', category: categories.length > 1 ? categories[1].name : 'Uncategorized', name: '', price: 0, calories: 0, prep_time: 3, description: '', ingredients: [], image: '', icon: '🍽️', is_sold_out: false, is_popular: false })}
                                     className="btn-primary py-2 px-4 shadow-sm text-sm whitespace-nowrap flex items-center gap-2"
                                 >
                                     <Plus size={16} /> Add New Item
@@ -361,7 +361,7 @@ const AdminDashboard = () => {
                                         onDragStart={(e) => handleDragStart(e, index)}
                                         onDragOver={handleDragOver}
                                         onDrop={(e) => handleDrop(e, index)}
-                                        className={`p-4 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-colors ${item.isSoldOut ? 'bg-red-50/50' : 'hover:bg-slate-50'} ${dragIdx === index ? 'opacity-50' : ''}`}
+                                        className={`p-4 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-colors ${item.is_sold_out ? 'bg-red-50/50' : 'hover:bg-slate-50'} ${dragIdx === index ? 'opacity-50' : ''}`}
                                     >
 
                                         <div className="flex items-center gap-4 flex-1">
@@ -370,11 +370,11 @@ const AdminDashboard = () => {
                                                     <GripVertical size={20} />
                                                 </div>
                                             )}
-                                            <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-2xl border flex-shrink-0 ${item.isSoldOut ? 'bg-red-100 border-red-200 grayscale' : 'bg-slate-100 border-slate-200'}`}>
+                                            <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-2xl border flex-shrink-0 ${item.is_sold_out ? 'bg-red-100 border-red-200 grayscale' : 'bg-slate-100 border-slate-200'}`}>
                                                 {item.image ? <img src={item.image} alt={item.name} className="w-full h-full object-cover rounded-xl" /> : item.icon}
                                             </div>
                                             <div>
-                                                <h3 className={`font-bold text-lg leading-tight ${item.isSoldOut ? 'text-red-900 line-through opacity-70' : 'text-secondary'}`}>
+                                                <h3 className={`font-bold text-lg leading-tight ${item.is_sold_out ? 'text-red-900 line-through opacity-70' : 'text-secondary'}`}>
                                                     {item.name}
                                                 </h3>
                                                 <div className="flex items-center gap-2 mt-1">
@@ -407,12 +407,12 @@ const AdminDashboard = () => {
                                             {/* Availability Toggle */}
                                             <button
                                                 onClick={() => toggleSoldOut(item.id)}
-                                                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold border-2 transition-all w-36 justify-center ${item.isSoldOut
+                                                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold border-2 transition-all w-36 justify-center ${item.is_sold_out
                                                     ? 'border-red-200 bg-red-100 text-red-700 hover:bg-red-200 hover:border-red-300'
                                                     : 'border-green-200 bg-green-100 text-green-700 hover:bg-green-200 hover:border-green-300'
                                                     }`}
                                             >
-                                                {item.isSoldOut ? (
+                                                {item.is_sold_out ? (
                                                     <><XCircle size={16} /> Sold Out</>
                                                 ) : (
                                                     <><CheckCircle2 size={16} /> Available</>
@@ -718,7 +718,7 @@ const AdminDashboard = () => {
                                     </div>
                                     <div>
                                         <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1 block">Prep Time (m)</label>
-                                        <input required type="number" value={editingItem.prepTime} onChange={e => setEditingItem({ ...editingItem, prepTime: Number(e.target.value) })} className="w-full bg-slate-50 border border-slate-200 rounded-lg p-3 text-secondary font-mono font-bold focus:border-primary outline-none" />
+                                        <input required type="number" value={editingItem.prep_time} onChange={e => setEditingItem({ ...editingItem, prep_time: Number(e.target.value) })} className="w-full bg-slate-50 border border-slate-200 rounded-lg p-3 text-secondary font-mono font-bold focus:border-primary outline-none" />
                                     </div>
                                 </div>
                                 <div className="grid grid-cols-2 gap-4">

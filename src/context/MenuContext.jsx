@@ -1,4 +1,5 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
+import { supabase } from '../lib/supabaseClient';
 
 // Initial dataset
 const INITIAL_MENU_DATA = [
@@ -262,127 +263,255 @@ export const INITIAL_CATEGORIES = [
 const MenuContext = createContext();
 
 export const MenuProvider = ({ children }) => {
-    // Basic state hosting the full menu list. Defaults to the initial mock data above.
-    const [menuData, setMenuData] = useState(() => {
+    const [menuData, setMenuData] = useState([]);
+    const [categories, setCategories] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    const fetchMenu = useCallback(async () => {
         try {
-            const saved = localStorage.getItem('tcw_menu');
-            if (saved) {
-                const parsed = JSON.parse(saved);
-                if (Array.isArray(parsed) && parsed.length > 0) {
-                    // Sync logic: Force update images/icons and add new items
-                    const existingIds = new Set(parsed.map(item => item.id));
-                    
-                    const synced = parsed.map(item => {
-                        const fresh = INITIAL_MENU_DATA.find(f => f.id === item.id);
-                        if (fresh) {
-                            // Automatically update visual fields if they changed in the code
-                            return { ...item, image: fresh.image, icon: fresh.icon };
+            setLoading(true);
+            const { data: menuItems, error: menuError } = await supabase
+                .from('menu_items')
+                .select('*')
+                .order('name');
+            
+            const { data: catData, error: catError } = await supabase
+                .from('categories')
+                .select('*')
+                .order('order');
+
+            if (menuError) throw menuError;
+            if (catError) throw catError;
+
+            // If empty, seed initial data (only on first-ever run)
+            if (menuItems.length === 0 && catData.length === 0) {
+                console.log('Database empty, seeding initial data...');
+                await supabase.from('categories').upsert(INITIAL_CATEGORIES);
+                const itemsToSeed = INITIAL_MENU_DATA.map(item => ({
+                    id: item.id, category: item.category, name: item.name, price: item.price,
+                    is_sold_out: item.isSoldOut, image: item.image, icon: item.icon,
+                    is_popular: item.isPopular, calories: item.calories, version: item.version,
+                    description: item.description, ingredients: item.ingredients,
+                    nutrition: item.nutrition, prep_time: item.prepTime
+                }));
+                await supabase.from('menu_items').upsert(itemsToSeed);
+                // Re-fetch after seeding
+                const { data: seededMenu } = await supabase.from('menu_items').select('*').order('name');
+                const { data: seededCats } = await supabase.from('categories').select('*').order('order');
+                setMenuData(seededMenu);
+                setCategories(seededCats);
+            } else {
+                setMenuData(menuItems);
+                setCategories(catData);
+            }
+        } catch (error) {
+            console.error('Error fetching menu:', error);
+        } finally {
+            setLoading(false);
+        }
+    }, []);
+
+    // 1. Initial Fetch
+    useEffect(() => {
+        fetchMenu();
+    }, [fetchMenu]);
+
+    // 2. Realtime Management
+    useEffect(() => {
+        let channel;
+        
+        const setupSubscription = () => {
+            console.log('🔄 Initializing Supabase Realtime...');
+            
+            channel = supabase
+                .channel('menu-sync')
+                .on('postgres_changes', 
+                    { event: '*', schema: 'public', table: 'menu_items' }, 
+                    (payload) => {
+                        console.log('📡 REALTIME_EVENT [menu_items]:', payload.eventType, payload.new?.id, 'newState:', payload.new?.is_sold_out);
+                        
+                        // Map incoming snake_case from DB to camelCase if necessary (though app is mostly snake_case now)
+                        const mappedItem = {
+                            ...payload.new,
+                            // Ensure both properties are present just in case
+                            isSoldOut: payload.new?.is_sold_out,
+                            prepTime: payload.new?.prep_time,
+                            isPopular: payload.new?.is_popular
+                        };
+
+                        if (payload.eventType === 'INSERT') {
+                            setMenuData(prev => [...prev, mappedItem]);
+                        } else if (payload.eventType === 'UPDATE') {
+                            setMenuData(prev => prev.map(item => item.id === payload.new.id ? mappedItem : item));
+                        } else if (payload.eventType === 'DELETE') {
+                            setMenuData(prev => prev.filter(item => item.id !== payload.old.id));
                         }
-                        return item;
-                    });
-
-                    const newItems = INITIAL_MENU_DATA.filter(item => !existingIds.has(item.id));
-                    return [...synced, ...newItems];
-                }
-            }
-        } catch (e) { console.error(e); }
-        return INITIAL_MENU_DATA;
-    });
-
-    const [categories, setCategories] = useState(() => {
-        try {
-            const saved = localStorage.getItem('tcw_categories');
-            if (saved) {
-                const parsed = JSON.parse(saved);
-                if (Array.isArray(parsed) && parsed.length > 0) {
-                    // Sync logic for categories
-                    const existingNames = new Set(parsed.map(c => c.name));
-                    const newCats = INITIAL_CATEGORIES.filter(c => !existingNames.has(c.name));
-                    if (newCats.length > 0) {
-                        return [...parsed, ...newCats].sort((a, b) => (a.order || 0) - (b.order || 0));
                     }
-                    return parsed;
-                }
+                )
+                .on('postgres_changes', 
+                    { event: '*', schema: 'public', table: 'categories' }, 
+                    (payload) => {
+                        console.log('📡 REALTIME_EVENT [categories]:', payload.eventType, payload.new?.name);
+                        if (payload.eventType === 'INSERT') {
+                            setCategories(prev => [...prev, payload.new].sort((a,b) => a.order - b.order));
+                        } else if (payload.eventType === 'UPDATE') {
+                            setCategories(prev => prev.map(c => c.id === payload.new.id ? payload.new : c).sort((a,b) => a.order - b.order));
+                        } else if (payload.eventType === 'DELETE') {
+                            setCategories(prev => prev.filter(c => c.id !== payload.old.id));
+                        }
+                    }
+                )
+                .subscribe((status, err) => {
+                    console.log('📡 Sync Status:', status);
+                    if (err) console.error('❌ Sync Error:', err);
+                    
+                    if (status === 'CHANNEL_ERROR') {
+                        console.warn('⚠️ Connection failed. Retrying in 5s...');
+                        setTimeout(setupSubscription, 5000);
+                    }
+                });
+        };
+
+        setupSubscription();
+
+        return () => {
+            if (channel) {
+                console.log('🔌 Cleaning up Realtime channel');
+                supabase.removeChannel(channel);
             }
-        } catch (e) { console.error(e); }
-        return INITIAL_CATEGORIES;
-    });
-
-    useEffect(() => {
-        localStorage.setItem('tcw_menu', JSON.stringify(menuData));
-    }, [menuData]);
-
-    useEffect(() => {
-        localStorage.setItem('tcw_categories', JSON.stringify(categories));
-    }, [categories]);
+        };
+    }, []); // Empty dependency array means it only runs once per app lifecycle
 
     // Categories CRUD
-    const addCategory = (categoryObj) => {
-        setCategories(prev => [...prev, categoryObj]);
+    const addCategory = async (categoryObj) => {
+        // Optimistic update
+        setCategories(prev => [...prev, categoryObj].sort((a,b) => a.order - b.order));
+        const { error } = await supabase.from('categories').insert([categoryObj]);
+        if (error) {
+            console.error('Add Category Error:', error);
+            fetchMenu(); // Rollback
+        }
     };
 
-    const updateCategory = (updatedCat) => {
-        setCategories(prev => prev.map(c => c.id === updatedCat.id ? updatedCat : c));
+    const updateCategory = async (updatedCat) => {
+        // Optimistic update
+        setCategories(prev => prev.map(c => c.id === updatedCat.id ? updatedCat : c).sort((a,b) => a.order - b.order));
+        const { error } = await supabase.from('categories').update(updatedCat).eq('id', updatedCat.id);
+        if (error) {
+            console.error('Update Category Error:', error);
+            fetchMenu(); // Rollback
+        }
     };
 
-    const deleteCategory = (catId, fallbackCategoryName) => {
+    const deleteCategory = async (catId, fallbackCategoryName) => {
         const catToDelete = categories.find(c => c.id === catId);
         if (!catToDelete) return;
 
-        // Reassign items matching this category
-        setMenuData(prev => prev.map(item =>
-            item.category === catToDelete.name ? { ...item, category: fallbackCategoryName } : item
-        ));
-
-        // Remove category
+        // Optimistic update
         setCategories(prev => prev.filter(c => c.id !== catId));
+        setMenuData(prev => prev.map(item => item.category === catToDelete.name ? { ...item, category: fallbackCategoryName } : item));
+
+        const { error: moveError } = await supabase.from('menu_items')
+            .update({ category: fallbackCategoryName })
+            .eq('category', catToDelete.name);
+        
+        if (moveError) {
+            console.error('Error reassigning items:', moveError);
+            fetchMenu();
+            return;
+        }
+
+        const { error: delError } = await supabase.from('categories').delete().eq('id', catId);
+        if (delError) {
+            console.error('Delete Category Error:', delError);
+            fetchMenu();
+        }
     };
 
-    const reorderCategories = (newOrderArray) => {
+    const reorderCategories = async (newOrderArray) => {
         setCategories(newOrderArray);
+        const updates = newOrderArray.map((c, index) => 
+            supabase.from('categories').update({ order: index }).eq('id', c.id)
+        );
+        const results = await Promise.all(updates);
+        if (results.some(r => r.error)) {
+            console.error('Reorder Error');
+            fetchMenu();
+        }
     };
 
-    const toggleCategoryVisibility = (catId) => {
-        setCategories(prev => prev.map(c =>
-            c.id === catId ? { ...c, isVisible: !c.isVisible } : c
-        ));
+    const toggleCategoryVisibility = async (catId) => {
+        const cat = categories.find(c => c.id === catId);
+        if (cat) {
+            const newVal = !cat.is_visible;
+            setCategories(prev => prev.map(c => c.id === catId ? { ...c, is_visible: newVal } : c));
+            const { error } = await supabase.from('categories').update({ is_visible: newVal }).eq('id', catId);
+            if (error) fetchMenu();
+        }
     };
 
-    // Reorder whole menu
     const reorderMenu = (newOrderArray) => {
         setMenuData(newOrderArray);
     };
 
-    // Add entirely new item
-    const addItem = (item) => {
-        setMenuData(prev => [...prev, item]);
+    const addItem = async (item) => {
+        // Map to DB schema
+        const dbItem = {
+            id: item.id, category: item.category, name: item.name, price: item.price,
+            is_sold_out: item.is_sold_out || false, image: item.image, icon: item.icon,
+            is_popular: item.is_popular || false, calories: item.calories, version: item.version,
+            description: item.description, ingredients: item.ingredients,
+            nutrition: item.nutrition, prep_time: item.prep_time
+        };
+        // Optimistic
+        setMenuData(prev => [...prev, dbItem]);
+        const { error } = await supabase.from('menu_items').insert([dbItem]);
+        if (error) fetchMenu();
     };
 
-    // Update full item
-    const updateItem = (updatedItem) => {
-        setMenuData(prev => prev.map(item =>
-            item.id === updatedItem.id ? updatedItem : item
-        ));
+    const updateItem = async (updatedItem) => {
+        // Optimistic
+        setMenuData(prev => prev.map(i => i.id === updatedItem.id ? updatedItem : i));
+        const dbItem = {
+            category: updatedItem.category, name: updatedItem.name, price: updatedItem.price,
+            is_sold_out: updatedItem.is_sold_out, image: updatedItem.image, icon: updatedItem.icon,
+            is_popular: updatedItem.is_popular, calories: updatedItem.calories, version: updatedItem.version,
+            description: updatedItem.description, ingredients: updatedItem.ingredients,
+            nutrition: updatedItem.nutrition, prep_time: updatedItem.prep_time
+        };
+        const { error } = await supabase.from('menu_items').update(dbItem).eq('id', updatedItem.id);
+        if (error) fetchMenu();
     };
 
-    // Toggle Sold Out status
-    const toggleSoldOut = (itemId) => {
-        setMenuData(prev => prev.map(item =>
-            item.id === itemId ? { ...item, isSoldOut: !item.isSoldOut } : item
-        ));
+    const toggleSoldOut = async (itemId) => {
+        const item = menuData.find(i => i.id === itemId);
+        if (item) {
+            const newState = !item.is_sold_out;
+            // Optimistic update
+            setMenuData(prev => prev.map(i => i.id === itemId ? { ...i, is_sold_out: newState } : i));
+            
+            const { error } = await supabase.from('menu_items')
+                .update({ is_sold_out: newState })
+                .eq('id', itemId);
+                
+            if (error) {
+                console.error('DB Update Failed:', error);
+                fetchMenu(); // Revert
+            }
+        }
     };
 
-    // Keep this around for backwards compatibility with earlier components
-    const updatePrice = (itemId, newPrice) => {
-        setMenuData(prev => prev.map(item =>
-            item.id === itemId ? { ...item, price: Number(newPrice) } : item
-        ));
+    const updatePrice = async (itemId, newPrice) => {
+        setMenuData(prev => prev.map(i => i.id === itemId ? { ...i, price: Number(newPrice) } : i));
+        const { error } = await supabase.from('menu_items').update({ price: Number(newPrice) }).eq('id', itemId);
+        if (error) fetchMenu();
     };
 
     return (
         <MenuContext.Provider value={{
             menuData, updatePrice, toggleSoldOut, updateItem, addItem, reorderMenu,
-            categories, addCategory, updateCategory, deleteCategory, reorderCategories, toggleCategoryVisibility
+            categories, addCategory, updateCategory, deleteCategory, reorderCategories, toggleCategoryVisibility,
+            loading
         }}>
             {children}
         </MenuContext.Provider>
