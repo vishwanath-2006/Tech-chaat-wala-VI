@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { useMenu } from '../context/MenuContext';
 import { useOrders } from '../context/OrderContext';
 import StaffOrderVisualizer from '../components/ui/StaffOrderVisualizer';
-import { LogOut, ArrowLeft, ShieldAlert, Edit3, CheckCircle2, XCircle, ChefHat, PackageCheck, Play, BellRing, Clock, History, GripVertical, Plus, Search, Eye, EyeOff, Trash2 } from 'lucide-react';
+import { LogOut, ArrowLeft, ShieldAlert, Edit3, CheckCircle2, XCircle, ChefHat, Package, PackageCheck, Play, BellRing, Clock, History, GripVertical, Plus, Search, Eye, EyeOff, Trash2 } from 'lucide-react';
 
 const playAlertSound = () => {
     try {
