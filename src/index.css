@@ -475,3 +475,37 @@
   animation: robot-celebrate-dance 0.6s ease-in-out infinite;
   transform-origin: bottom center;
 }
+
+@keyframes fly-across {
+  0% {
+    left: -20vw;
+    bottom: -20vh;
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  20% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  80% {
+    opacity: 0.6;
+    transform: scale(1.5);
+  }
+  100% {
+    left: 120vw;
+    bottom: 120vh;
+    opacity: 0;
+    transform: scale(2);
+  }
+}
+
+.shadow-flyer {
+  position: fixed;
+  width: 250px;
+  height: 250px;
+  background: radial-gradient(circle, rgba(255, 122, 26, 0.15) 0%, rgba(0,0,0,0.1) 40%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9999;
+  animation: fly-across 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}

@@ -17,6 +17,7 @@ const Menu = ({ cart, updateCart, triggerRobot }) => {
     const [showCombo, setShowCombo] = useState(false);
     const [cartPulse, setCartPulse] = useState(false);
     const [selectedItem, setSelectedItem] = useState(null);
+    const [flyingShadows, setFlyingShadows] = useState([]);
     const cartCount = Object.values(cart).reduce((a, b) => a + b, 0);
     const prevCartCount = useRef(cartCount);
 
@@ -27,6 +28,13 @@ const Menu = ({ cart, updateCart, triggerRobot }) => {
             setAssistantMsg("Nice choice! That's a fan favorite.");
             setCartPulse(true);
             setShowCombo(true);
+
+            // Trigger flying shadow
+            const shadowId = Date.now();
+            setFlyingShadows(prev => [...prev, shadowId]);
+            setTimeout(() => {
+                setFlyingShadows(prev => prev.filter(id => id !== shadowId));
+            }, 1000);
 
             setTimeout(() => setCartPulse(false), 600);
             setTimeout(() => setShowCombo(false), 4000); // Hide combo toast after 4s
@@ -243,6 +251,11 @@ const Menu = ({ cart, updateCart, triggerRobot }) => {
                 onAdd={(id) => updateCart(id, 1)}
                 onRemove={(id) => updateCart(id, -1)}
             />
+
+            {/* Flying Shadows Layer */}
+            {flyingShadows.map(id => (
+                <div key={id} className="shadow-flyer" />
+            ))}
         </div>
     );
 };

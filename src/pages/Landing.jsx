@@ -18,13 +18,7 @@ const Landing = () => {
         "System Ready."
     ];
 
-    // Auto-redirect if already logged in
-    useEffect(() => {
-        if (!loading && user) {
-            if (user.role === 'staff') navigate('/admin');
-            else if (user.role === 'customer') navigate('/menu');
-        }
-    }, [user, loading, navigate]);
+
 
     const handleInitialize = () => {
         setIsBooting(true);
@@ -43,8 +37,16 @@ const Landing = () => {
         }, 600); // 600ms per boot step
     };
 
-    if (loading) return null; // Let App.jsx handle the main loading state
-
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-background flex items-center justify-center">
+                <div className="flex flex-col items-center gap-4">
+                    <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+                    <p className="text-slate-500 font-bold animate-pulse">Initializing System...</p>
+                </div>
+            </div>
+        );
+    }
     return (
         <div className="relative min-h-screen flex flex-col items-center justify-center p-6 bg-background overflow-hidden">
             {/* Absolute Top Action Ribbon */}
@@ -141,22 +143,39 @@ const Landing = () => {
 
             {/* Smart Boot Overlay */}
             {isBooting && (
-                <div className="absolute inset-0 z-50 bg-background/95 backdrop-blur-sm flex flex-col items-center justify-center p-6 animate-fade-in">
-                    <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center text-primary mb-6 animate-bounce">
-                        <Terminal size={32} />
+                <div className="absolute inset-0 z-50 bg-background/95 backdrop-blur-sm flex flex-col items-center justify-center p-6 animate-fade-in overflow-hidden">
+                    {/* Background Tech Rings */}
+                    <div className="absolute inset-0 flex items-center justify-center opacity-[0.03]">
+                        <div className="w-96 h-96 border-8 border-primary rounded-full animate-[spin_4s_linear_infinite] border-t-transparent border-b-transparent" />
+                        <div className="absolute w-64 h-64 border-4 border-secondary rounded-full animate-[spin_3s_linear_infinite_reverse] border-l-transparent border-r-transparent" />
                     </div>
-                    <div className="surface-card p-6 w-full max-w-sm border-primary/20 shadow-neon-blue">
+
+                    <div className="w-20 h-20 rounded-3xl bg-primary/10 flex items-center justify-center text-primary mb-8 animate-bounce relative z-10 shadow-[0_0_30px_rgba(255,122,26,0.3)]">
+                        <Terminal size={40} />
+                        <div className="absolute inset-0 rounded-3xl border-2 border-primary animate-ping opacity-20" />
+                    </div>
+                    
+                    <div className="surface-card p-6 w-full max-w-sm border-primary/20 shadow-neon-blue relative overflow-hidden z-10">
+                        {/* Laser Scan Animation */}
+                        <div className="absolute left-0 right-0 h-[2px] bg-primary animate-laser-scan blur-[1px] opacity-70 z-20" />
+                        
                         <div className="flex items-center gap-3 mb-4 border-b border-primary/10 pb-3">
                             <div className="flex gap-1.5">
-                                <div className="w-2.5 h-2.5 rounded-full bg-red-400" />
-                                <div className="w-2.5 h-2.5 rounded-full bg-yellow-400" />
-                                <div className="w-2.5 h-2.5 rounded-full bg-green-400" />
+                                <div className="w-2.5 h-2.5 rounded-full bg-red-400 animate-pulse" />
+                                <div className="w-2.5 h-2.5 rounded-full bg-yellow-400 animate-pulse delay-75" />
+                                <div className="w-2.5 h-2.5 rounded-full bg-green-400 animate-pulse delay-150" />
                             </div>
-                            <span className="text-xs font-mono text-textLight uppercase tracking-wider">Terminal</span>
+                            <span className="text-xs font-mono text-textLight uppercase tracking-wider">Terminal / System Boot</span>
                         </div>
-                        <div className="font-mono text-sm text-secondary min-h-[20px]">
-                            <span className="text-primary mr-2">&gt;</span> {bootText}
-                            <span className="inline-block w-2 h-4 bg-primary ml-1 animate-pulse" />
+                        <div className="font-mono text-sm text-secondary min-h-[40px] flex items-center">
+                            <span className="text-primary mr-2">&gt;</span> 
+                            <span className="animate-pulse">{bootText}</span>
+                            <span className="inline-block w-2 h-4 bg-primary ml-1 animate-ping" />
+                        </div>
+                        
+                        {/* Progress Bar */}
+                        <div className="mt-6 h-1 w-full bg-slate-100 rounded-full overflow-hidden">
+                            <div className="h-full bg-primary" style={{width: `${((BOOT_SEQUENCE.indexOf(bootText) + 1) / BOOT_SEQUENCE.length) * 100}%`, transition: 'width 0.6s ease-out'}} />
                         </div>
                     </div>
                 </div>

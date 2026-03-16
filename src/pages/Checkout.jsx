@@ -97,20 +97,6 @@ const Checkout = ({ cart, updateCart }) => {
             name: "Tech Chaat Wala",
             description: "Order Transaction",
             image: "/images/hero_robot.png",
-            config: {
-                display: {
-                    hide: [
-                        { method: 'paylater' },
-                        { method: 'emi' },
-                        { method: 'card' },
-                        { method: 'netbanking' },
-                        { method: 'wallet' }
-                    ],
-                    preferences: {
-                        show_default_blocks: true
-                    }
-                }
-            },
             prefill: {
                 name: guestName || "Guest User",
                 contact: "8888888888",
