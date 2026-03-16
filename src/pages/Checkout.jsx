@@ -97,34 +97,20 @@ const Checkout = ({ cart, updateCart }) => {
             name: "Tech Chaat Wala",
             description: "Order Transaction",
             image: "/images/hero_robot.png",
-            config: {
-                display: {
-                    hide: [
-                        { method: 'paylater' },
-                        { method: 'emi' },
-                        { method: 'card' },
-                        { method: 'netbanking' },
-                        { method: 'wallet' }
-                    ],
-                    preferences: {
-                        show_default_blocks: true
-                    }
-                }
-            },
-            handler: function (response) {
-                setCheckoutStep('confirming');
-                setProcessingMsg("Payment Verified! Synchronizing...");
-                handleConfirmPayment('Razorpay-UPI', 'Paid', response.razorpay_payment_id);
-            },
             prefill: {
                 name: guestName || "Guest User",
-                contact: "9999999999",
-                email: "customer@techchaatwala.com"
+                contact: "8888888888",
+                email: "order@techchaatwala.com"
             },
             readonly: {
                 contact: true,
                 name: true,
                 email: true
+            },
+            handler: function (response) {
+                setCheckoutStep('confirming');
+                setProcessingMsg("Payment Verified! Synchronizing...");
+                handleConfirmPayment('Razorpay-UPI', 'Paid', response.razorpay_payment_id);
             },
             theme: {
                 color: "#10b981"
