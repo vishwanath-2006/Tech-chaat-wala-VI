@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Zap, Leaf, ScanLine, Terminal } from 'lucide-react';
+import { Zap, Leaf, ScanLine, Terminal, ArrowRight } from 'lucide-react';
 import AssistantPanel from '../components/ui/AssistantPanel';
 import ProfileDropdown from '../components/ui/ProfileDropdown';
 import { useAuth } from '../context/AuthContext';
@@ -117,24 +117,34 @@ const Landing = () => {
                         <div className="absolute inset-0 bg-gradient-to-r from-primaryHover to-primary opacity-0 group-hover:opacity-100 transition-opacity" />
                     </button>
 
-                    <div className="flex gap-4">
-                        {/* Customer Login */}
+                    {user ? (
                         <button
-                            onClick={() => navigate('/login')}
-                            className="flex-1 bg-white border-2 border-slate-100 py-4 rounded-2xl flex items-center justify-center gap-2 text-secondary font-black text-sm hover:border-primary hover:text-primary transition-all shadow-sm active:scale-95"
+                            onClick={() => navigate('/menu')}
+                            className="bg-secondary text-white w-full py-5 rounded-2xl flex items-center justify-center gap-3 font-black text-lg hover:bg-secondary/90 transition-all shadow-soft active:scale-95 group"
                         >
-                            <Terminal size={18} />
-                            Log In
+                            Continue to System
+                            <ArrowRight size={22} className="group-hover:translate-x-1 transition-transform" />
                         </button>
-                        
-                        {/* Fast Signup */}
-                        <button
-                            onClick={() => navigate('/signup')}
-                            className="flex-1 bg-secondary text-white py-4 rounded-2xl flex items-center justify-center gap-2 font-black text-sm hover:bg-secondary/90 transition-all shadow-soft active:scale-95"
-                        >
-                            Sign Up
-                        </button>
-                    </div>
+                    ) : (
+                        <div className="flex gap-4">
+                            {/* Customer Login */}
+                            <button
+                                onClick={() => navigate('/login')}
+                                className="flex-1 bg-white border-2 border-slate-100 py-4 rounded-2xl flex items-center justify-center gap-2 text-secondary font-black text-sm hover:border-primary hover:text-primary transition-all shadow-sm active:scale-95"
+                            >
+                                <Terminal size={18} />
+                                Log In
+                            </button>
+                            
+                            {/* Fast Signup */}
+                            <button
+                                onClick={() => navigate('/signup')}
+                                className="flex-1 bg-secondary text-white py-4 rounded-2xl flex items-center justify-center gap-2 font-black text-sm hover:bg-secondary/90 transition-all shadow-soft active:scale-95"
+                            >
+                                Sign Up
+                            </button>
+                        </div>
+                    )}
                 </div>
 
                 {/* Assistant Panel */}

@@ -104,10 +104,17 @@ const Processing = () => {
             <div className="z-10 w-full max-w-sm flex flex-col items-center text-center animate-fade-in">
                 
                 {/* Status Icon */}
-                <div className="relative w-36 h-36 mb-10">
+                <div className="relative w-40 h-40 mb-10 flex items-center justify-center">
+                    {/* Rotating Data Rings */}
+                    <div className="absolute inset-0 border-2 border-primary/20 rounded-full animate-[spin_10s_linear_infinite] border-t-transparent border-b-transparent scale-110" />
+                    <div className="absolute inset-0 border border-secondary/20 rounded-full animate-[spin_15s_linear_infinite_reverse] border-l-transparent border-r-transparent scale-125" />
+                    
                     <div className="absolute inset-0 bg-primary/20 rounded-full blur-2xl animate-pulse opacity-40"></div>
-                    <div className="w-full h-full glass-card rounded-[2.5rem] shadow-2xl border-white/40 flex items-center justify-center relative z-10 overflow-hidden glowing-border active">
-                        <div className="text-primary transform scale-[2] drop-shadow-lg">
+                    <div className="w-36 h-36 glass-card rounded-[2.5rem] shadow-2xl border-white/40 flex items-center justify-center relative z-10 overflow-hidden glowing-border active group">
+                        {/* Internal Scanning Laser */}
+                        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-primary/10 to-transparent h-1/2 w-full animate-scan-fast z-20 pointer-events-none" />
+                        
+                        <div className="text-primary transform scale-[2] drop-shadow-lg z-10">
                             {config.icon}
                         </div>
                     </div>

@@ -233,14 +233,15 @@ const Checkout = ({ cart, updateCart }) => {
                 
                 <main className="p-6 max-w-md mx-auto w-full z-10 flex flex-col items-center">
                     {/* Robot Assistant */}
-                    <div className="relative mb-6 group cursor-pointer animate-robot-intro">
-                        {/* Speech Bubble */}
-                        <div className="absolute bottom-[100%] mb-4 left-1/2 -translate-x-1/2 w-max max-w-[200px] glass-card px-4 py-2 text-xs font-bold text-secondary text-center shadow-lg animate-bounce-in">
+                    <div className="relative mb-12 group cursor-pointer animate-robot-intro z-30">
+                        {/* Speech Bubble - Moved up and increased z-index */}
+                        <div className="absolute bottom-[110%] mb-2 left-1/2 -translate-x-1/2 w-max max-w-[220px] glass-card px-5 py-3 text-xs font-black text-secondary text-center shadow-xl animate-bounce-in z-40 border-2 border-white/50">
                             Choose your payment method.
-                            <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-white/60 border-b border-r border-white/30 rotate-45 transform"></div>
+                            <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-white/80 border-b-2 border-r-2 border-white/40 rotate-45 transform"></div>
                         </div>
-                        <div className="w-16 h-16 bg-white/40 backdrop-blur-md rounded-2xl flex items-center justify-center border border-white/30 shadow-inner group-hover:scale-110 group-hover:rotate-3 transition-all">
-                            <img src="/images/hero_robot.png" alt="Robot" className="w-12 h-12 object-contain animate-robot-idle group-hover:animate-robot-hover" />
+                        <div className="w-20 h-20 bg-white/50 backdrop-blur-md rounded-3xl flex items-center justify-center border-2 border-white/40 shadow-card group-hover:scale-110 group-hover:rotate-3 transition-all relative">
+                            <img src="/images/hero_robot.png" alt="Robot" className="w-16 h-16 object-contain animate-robot-idle group-hover:animate-robot-hover" />
+                            <div className="absolute inset-0 rounded-3xl shadow-[inset_0_0_15px_rgba(255,122,26,0.1)]"></div>
                         </div>
                     </div>
 

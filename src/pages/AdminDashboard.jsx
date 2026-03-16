@@ -1003,9 +1003,14 @@ const HistoryTab = ({ orders }) => {
                                 </div>
                             </div>
 
-                            <div className="bg-slate-900 rounded-2xl p-5 border border-slate-800">
+                            <div className="bg-slate-900 rounded-2xl p-5 border border-slate-800 relative overflow-hidden">
+                                <div className="absolute top-2 right-2 opacity-10 rotate-12 transform scale-150">
+                                    <div className="border-4 border-primary text-primary font-black px-4 py-1 rounded-lg text-2xl uppercase tracking-tighter">
+                                        {selectedOrder.status === 'completed' ? 'READY' : 'PAID'}
+                                    </div>
+                                </div>
                                 <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-4">Module Breakdown</h3>
-                                <div className="space-y-3">
+                                <div className="space-y-3 relative z-10">
                                     {selectedOrder.items.map((item, idx) => (
                                         <div key={idx} className="flex justify-between items-center">
                                             <div className="flex items-center gap-3">
@@ -1018,9 +1023,24 @@ const HistoryTab = ({ orders }) => {
                                         </div>
                                     ))}
                                 </div>
-                                <div className="mt-6 pt-5 border-t border-slate-800 flex justify-between items-center">
-                                    <span className="text-xs font-black text-slate-500 uppercase italic">Final Payload</span>
-                                    <span className="text-2xl font-black text-primary italic">₹{selectedOrder.total}</span>
+
+                                <div className="mt-6 pt-5 border-t border-slate-800/50 space-y-2 relative z-10">
+                                    <div className="flex justify-between items-center text-[10px] font-bold text-slate-500 uppercase">
+                                        <span>Subtotal</span>
+                                        <span className="font-mono">₹{selectedOrder.items.reduce((acc, i) => acc + (i.price * i.qty), 0) || selectedOrder.total - 15 - Math.round(selectedOrder.total * 0.05)}</span>
+                                    </div>
+                                    <div className="flex justify-between items-center text-[10px] font-bold text-slate-500 uppercase">
+                                        <span>Platform Fee</span>
+                                        <span className="font-mono">₹15</span>
+                                    </div>
+                                    <div className="flex justify-between items-center text-[10px] font-bold text-slate-500 uppercase">
+                                        <span>Cloud Tax (5%)</span>
+                                        <span className="font-mono">₹{Math.round((selectedOrder.total - 15) * 0.05)}</span>
+                                    </div>
+                                    <div className="mt-4 pt-4 border-t border-slate-800 flex justify-between items-center">
+                                        <span className="text-xs font-black text-white uppercase italic tracking-widest">Final Payload</span>
+                                        <span className="text-2xl font-black text-primary italic">₹{selectedOrder.total}</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
