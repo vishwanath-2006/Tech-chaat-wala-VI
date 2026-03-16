@@ -262,23 +262,23 @@ export const INITIAL_CATEGORIES = [
 
 const MenuContext = createContext();
 
+// Helper to transform DB records to UI state
+const transformItemFromDB = (dbItem) => ({
+    ...dbItem,
+    isSoldOut: dbItem.is_sold_out,
+    isPopular: dbItem.is_popular,
+    prepTime: dbItem.prep_time
+});
+
+const transformCategoryFromDB = (dbCat) => ({
+    ...dbCat,
+    isVisible: dbCat.is_visible
+});
+
 export const MenuProvider = ({ children }) => {
     const [menuData, setMenuData] = useState([]);
     const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(true);
-
-    // Helper to transform DB records to UI state
-    const transformItemFromDB = (dbItem) => ({
-        ...dbItem,
-        isSoldOut: dbItem.is_sold_out,
-        isPopular: dbItem.is_popular,
-        prepTime: dbItem.prep_time
-    });
-
-    const transformCategoryFromDB = (dbCat) => ({
-        ...dbCat,
-        isVisible: dbCat.is_visible
-    });
 
     const fetchMenu = useCallback(async () => {
         try {
@@ -322,7 +322,7 @@ export const MenuProvider = ({ children }) => {
         } finally {
             setLoading(false);
         }
-    }, [transformItemFromDB, transformCategoryFromDB]);
+    }, []);
 
     // 1. Initial Fetch
     useEffect(() => {
