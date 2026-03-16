@@ -155,7 +155,7 @@ const Landing = () => {
 
             {/* Smart Boot Overlay */}
             {isBooting && (
-                <div className="absolute inset-0 z-50 bg-background/95 backdrop-blur-sm flex flex-col items-center justify-center p-6 animate-fade-in overflow-hidden">
+                <div className="fixed inset-0 z-50 bg-black flex flex-col items-center justify-center p-6 animate-fade-in overflow-hidden">
                     {/* Background Tech Rings */}
                     <div className="absolute inset-0 flex items-center justify-center opacity-[0.03]">
                         <div className="w-96 h-96 border-8 border-primary rounded-full animate-[spin_4s_linear_infinite] border-t-transparent border-b-transparent" />
@@ -169,20 +169,20 @@ const Landing = () => {
 
                     {/* Immersive Background Robot Assistant - Scales with progress */}
                     <div 
-                        className="absolute inset-0 pointer-events-none z-0 flex items-center justify-center overflow-hidden transition-all duration-1000 ease-out"
+                        className="fixed inset-0 pointer-events-none z-0 flex items-center justify-center overflow-hidden transition-all duration-1000 ease-out bg-black"
                         style={{
                             opacity: 0.1 + (bootProgress / 100) * 0.9,
-                            transform: `scale(${0.5 + (bootProgress / 100) * 1.5})`,
-                            filter: `blur(${(100 - bootProgress) / 10}px)`
+                            transform: `scale(${0.9 + (bootProgress / 100) * 1.5})`,
                         }}
                     >
                         <img 
                             src="/images/hero_robot_background.png" 
                             alt="Background Assistant" 
-                            className="w-full h-full object-cover opacity-80"
+                            className="w-full h-full object-cover"
                         />
                         {/* Dramatic vignette for depth */}
-                        <div className="absolute inset-0 shadow-[inset_0_0_150px_rgba(0,0,0,0.8)]" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black opacity-60" />
+                        <div className="absolute inset-0 shadow-[inset_0_0_150px_rgba(0,0,0,1)]" />
                     </div>
 
                     <div className="surface-card p-6 w-full max-w-sm border-primary/20 shadow-neon-blue relative overflow-hidden z-10">
