@@ -446,8 +446,8 @@ export const MenuProvider = ({ children }) => {
     const toggleCategoryVisibility = async (catId) => {
         const cat = categories.find(c => c.id === catId);
         if (cat) {
-            const newVal = !cat.is_visible;
-            setCategories(prev => prev.map(c => c.id === catId ? { ...c, is_visible: newVal } : c));
+            const newVal = !cat.isVisible;
+            setCategories(prev => prev.map(c => c.id === catId ? { ...c, isVisible: newVal } : c));
             const { error } = await supabase.from('categories').update({ is_visible: newVal }).eq('id', catId);
             if (error) fetchMenu();
         }

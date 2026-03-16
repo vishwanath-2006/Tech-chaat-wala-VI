@@ -318,13 +318,14 @@ const AdminDashboard = () => {
                                             className={`whitespace-nowrap px-5 py-2 text-sm font-bold transition-all flex items-center gap-2 ${activeTab === category.name
                                                 ? 'bg-secondary text-white shadow-md border-secondary/50'
                                                 : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
-                                                } ${activeTab === 'All' && category.name !== 'All' ? 'rounded-none border-l-0' : category.name !== 'All' ? 'rounded-l-full border-r-0' : 'rounded-full'}`}
+                                                } ${activeTab === 'All' && category.name !== 'All' ? 'rounded-none border-l-0' : category.name !== 'All' ? 'rounded-l-full border-r-0' : 'rounded-full'} ${!category.isVisible && category.name !== 'All' ? 'opacity-40 grayscale-[0.5] italic' : ''}`}
                                         >
                                             {category.name}
+                                            {!category.isVisible && category.name !== 'All' && <EyeOff size={12} className="opacity-50" />}
                                         </button>
                                         {category.name !== 'All' && (
-                                            <div className={`flex items-center px-1 border py-1 rounded-r-full transition-all ${activeTab === category.name ? 'border-secondary/50 bg-secondary' : 'bg-white border-slate-200 border-l-0 border-r border-t border-b hover:bg-slate-50'}`}>
-                                                <button onClick={() => toggleCategoryVisibility(category.id)} className={`p-1.5 rounded-full transition-colors ${activeTab === category.name ? (category.isVisible ? 'text-green-300 hover:text-green-400' : 'text-slate-400 hover:text-slate-300') : (category.isVisible ? 'text-green-600 hover:bg-green-50' : 'text-slate-400 hover:bg-slate-100')}`} title={category.isVisible ? 'Visible' : 'Hidden'}>
+                                            <div className={`flex items-center px-1 border py-1 rounded-r-full transition-all ${activeTab === category.name ? 'border-secondary/50 bg-secondary' : 'bg-white border-slate-200 border-l-0 border-r border-t border-b hover:bg-slate-50'} ${!category.isVisible ? 'opacity-60' : ''}`}>
+                                                <button onClick={() => toggleCategoryVisibility(category.id)} className={`p-1.5 rounded-full transition-colors ${activeTab === category.name ? (category.isVisible ? 'text-green-300 hover:text-green-400' : 'text-slate-400 hover:text-slate-300') : (category.isVisible ? 'text-green-600 hover:bg-green-50' : 'text-red-500 hover:bg-red-50')}`} title={category.isVisible ? 'Visible' : 'Hidden'}>
                                                     {category.isVisible ? <Eye size={14} /> : <EyeOff size={14} />}
                                                 </button>
                                                 <button onClick={() => setEditingCategory(category)} className={`p-1.5 rounded-full transition-colors ${activeTab === category.name ? 'text-slate-300 hover:text-white' : 'text-slate-400 hover:text-primary hover:bg-slate-50'}`} title="Edit Category">
