@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { ArrowLeft, UserPlus, Eye, EyeOff, CheckCircle } from 'lucide-react';
+import { ArrowLeft, UserPlus, Eye, EyeOff, CheckCircle2 } from 'lucide-react';
 
 const Signup = () => {
     const navigate = useNavigate();
@@ -50,7 +50,7 @@ const Signup = () => {
             <div className="min-h-screen bg-background flex items-center justify-center p-6">
                 <div className="max-w-md w-full surface-card p-10 rounded-[40px] bg-white border border-slate-100 shadow-2xl text-center space-y-6">
                     <div className="w-20 h-20 bg-green-50 rounded-3xl mx-auto flex items-center justify-center border border-green-100">
-                        <CheckCircle size={40} className="text-green-500" />
+                        <CheckCircle2 size={40} className="text-green-500" />
                     </div>
                     <div>
                         <h1 className="text-3xl font-black text-secondary mb-2">Check Email</h1>

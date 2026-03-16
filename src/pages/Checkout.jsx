@@ -15,6 +15,7 @@ const Checkout = ({ cart, updateCart }) => {
     const [isProcessing, setIsProcessing] = useState(false);
     const [processingMsg, setProcessingMsg] = useState('');
     const [guestName, setGuestName] = useState('');
+    const [guestPhone, setGuestPhone] = useState('');
 
     const cartItems = Object.entries(cart).map(([id, qty]) => {
         const item = menuData.find(i => i.id === id);
@@ -106,13 +107,13 @@ const Checkout = ({ cart, updateCart }) => {
             image: "/images/hero_robot.png",
             prefill: {
                 name: guestName || "Guest User",
-                contact: "8888888888",
+                contact: guestPhone || "",
                 email: "order@techchaatwala.com"
             },
             readonly: {
-                contact: true,
                 name: true,
-                email: true
+                email: true,
+                contact: false
             },
             handler: function (response) {
                 setCheckoutStep('confirming');
@@ -190,7 +191,7 @@ const Checkout = ({ cart, updateCart }) => {
     if (checkoutStep === 'collect-name') {
         const handleNameSubmit = (e) => {
             e.preventDefault();
-            if (guestName.trim()) {
+            if (guestName.trim() && guestPhone.trim()) {
                 setCheckoutStep('payment-choice');
             }
         };
@@ -224,6 +225,18 @@ const Checkout = ({ cart, updateCart }) => {
                                 autoFocus
                             />
                         </div>
+                        <div className="glass-card p-6 border-2 border-white/30">
+                            <label className="text-xs font-black text-slate-400 uppercase tracking-widest mb-2 block">Phone Number</label>
+                            <input 
+                                required 
+                                type="tel" 
+                                value={guestPhone} 
+                                onChange={(e) => setGuestPhone(e.target.value)}
+                                placeholder="Enter 10-digit mobile"
+                                pattern="[0-9]{10}"
+                                className="w-full bg-white/50 border border-slate-200 rounded-2xl p-4 text-secondary font-bold focus:border-primary outline-none transition-all placeholder:text-slate-300"
+                            />
+                        </div>
                         <button type="submit" className="btn-primary w-full py-5 text-sm uppercase tracking-widest font-black flex items-center justify-center gap-3">
                             Continue to Payment <ArrowRight size={20} />
                         </button>
@@ -248,11 +261,11 @@ const Checkout = ({ cart, updateCart }) => {
                 
                 <main className="p-6 max-w-md mx-auto w-full z-10 flex flex-col items-center">
                     {/* Robot Assistant */}
-                    <div className="relative mb-12 group cursor-pointer animate-robot-intro z-30">
-                        {/* Speech Bubble - Moved up and increased z-index */}
-                        <div className="absolute bottom-[110%] mb-2 left-1/2 -translate-x-1/2 w-max max-w-[220px] glass-card px-5 py-3 text-xs font-black text-secondary text-center shadow-xl animate-bounce-in z-40 border-2 border-white/50">
+                    <div className="relative mb-16 group cursor-pointer animate-robot-intro z-30 flex justify-center">
+                        {/* Speech Bubble - Moved up higher and centered */}
+                        <div className="absolute bottom-[115%] left-1/2 -translate-x-1/2 w-max max-w-[200px] glass-card px-4 py-2 text-[10px] font-black text-secondary text-center shadow-xl animate-bounce-in z-40 border-2 border-white/50">
                             Choose your payment method.
-                            <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-white/80 border-b-2 border-r-2 border-white/40 rotate-45 transform"></div>
+                            <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-3 h-3 bg-white/80 border-b-2 border-r-2 border-white/40 rotate-45 transform"></div>
                         </div>
                         <div className="w-20 h-20 bg-white/50 backdrop-blur-md rounded-3xl flex items-center justify-center border-2 border-white/40 shadow-card group-hover:scale-110 group-hover:rotate-3 transition-all relative">
                             <img src="/images/hero_robot.png" alt="Robot" className="w-16 h-16 object-contain animate-robot-idle group-hover:animate-robot-hover" />
@@ -278,7 +291,7 @@ const Checkout = ({ cart, updateCart }) => {
                                 ripple.style.top = `${y}px`;
                                 e.currentTarget.appendChild(ripple);
                                 setTimeout(() => ripple.remove(), 600);
-                                setTimeout(() => setCheckoutStep('upi-apps'), 200);
+                                setTimeout(() => handleRazorpayPayment(), 200);
                             }}
                             className="w-full glass-card p-6 flex flex-col items-start gap-4 hover:border-primary/50 group transition-all active:scale-[0.98] border-2 border-white/30 relative overflow-hidden"
                         >

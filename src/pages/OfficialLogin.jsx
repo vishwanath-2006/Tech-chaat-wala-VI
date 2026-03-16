@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { ShieldCheck, ArrowRight, ArrowLeft, UserPlus, Lock, User, Eye, EyeOff, CheckCircle } from 'lucide-react';
+import { ShieldCheck, ArrowRight, ArrowLeft, UserPlus, Lock, User, Eye, EyeOff, CheckCircle2 } from 'lucide-react';
 
 const OfficialLogin = () => {
     // Steps: 0: Selection, 1: Login, 2: Admin Verify, 3: Signup, 4: Success
@@ -311,7 +311,7 @@ const OfficialLogin = () => {
                     {step === 4 && (
                         <div className="text-center animate-in zoom-in-95 duration-500">
                             <div className="w-20 h-20 bg-green-50 rounded-3xl mx-auto flex items-center justify-center border border-green-100 mb-6">
-                                <CheckCircle size={40} className="text-green-500" />
+                                <CheckCircle2 size={40} className="text-green-500" />
                             </div>
                             <h2 className="text-3xl font-black text-secondary leading-tight mb-2">Check Email</h2>
                             <p className="text-slate-500 font-medium mb-8">
