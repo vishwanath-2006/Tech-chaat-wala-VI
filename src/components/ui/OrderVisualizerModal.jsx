@@ -29,8 +29,8 @@ const OrderVisualizerModal = ({ orderId, isOpen, onClose }) => {
 
         // Progress calc
         const calculateProgress = () => {
-             const orderTime = new Date(order.timestamp).getTime();
-             const elapsedMs = Date.now() - (isNaN(orderTime) ? order.timestamp : orderTime);
+             const ts = order.timestamp;
+             const elapsedMs = Date.now() - ts;
              const totalPrepMs = (order.prepTime || 3) * 60 * 1000;
              let rawProgress = (elapsedMs / totalPrepMs) * 100;
              
@@ -121,9 +121,14 @@ const OrderVisualizerModal = ({ orderId, isOpen, onClose }) => {
                         </div>
                     </div>
                     <div className="flex justify-between items-center px-1">
-                        <span className="font-mono font-black text-secondary text-sm">{progressStats.progress}%</span>
-                        <span className="font-mono font-bold text-slate-400 text-sm">
-                            {progressStats.progress >= 90 && order.status !== 'ready' ? 'Finalizing...' : `~${formatTime(progressStats.timeRemaining)}`}
+                        <div className="flex items-center gap-2">
+                             <span className="font-mono font-black text-secondary text-sm">{progressStats.progress}%</span>
+                             {progressStats.progress >= 90 && order.status !== 'ready' && (
+                                 <span className="text-[10px] font-black text-primary uppercase tracking-widest animate-pulse">Finalizing...</span>
+                             )}
+                        </div>
+                        <span className="font-mono font-black text-primary text-sm bg-primary/5 px-2 py-1 rounded-lg">
+                            {formatTime(progressStats.timeRemaining)}
                         </span>
                     </div>
                 </div>

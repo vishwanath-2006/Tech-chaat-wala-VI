@@ -19,12 +19,12 @@ const OngoingOrderWidget = ({ onClick }) => {
     const isPreparing = activeOrder.status === 'preparing';
 
     return (
-        <div className="fixed bottom-24 w-full left-0 z-40 flex justify-center items-center pointer-events-none animate-bounce-in">
+        <div className="fixed bottom-24 inset-x-0 z-[100] pointer-events-none flex justify-center animate-bounce-in px-4">
             <div 
                 onClick={() => onClick(activeOrder.id)}
                 className="pointer-events-auto cursor-pointer group"
             >
-                <div className={`glass-card rounded-[2.5rem] py-3 pl-4 pr-5 border shadow-2xl flex items-center gap-4 transition-all hover:scale-105 active:scale-95 ${isPreparing ? 'border-primary/80 shadow-primary/30 bg-white/95' : 'border-slate-300 bg-white/90'}`}>
+                <div className={`glass-card rounded-[2.5rem] py-3 pl-4 pr-5 border shadow-2xl flex items-center gap-4 transition-all hover:scale-105 active:scale-95 ${isPreparing ? 'border-primary shadow-primary/40 bg-white/95' : 'border-slate-300 bg-white/90 shadow-xl'}`}>
                 {/* Left Icon Area */}
                 <div className={`w-10 h-10 rounded-full flex items-center justify-center shadow-inner ${isPreparing ? 'bg-primary text-white animate-pulse' : 'bg-secondary text-white'}`}>
                     {activeOrder.status === 'pending' || activeOrder.status === 'accepted' ? <Bot size={20} /> : <Package size={20} />}

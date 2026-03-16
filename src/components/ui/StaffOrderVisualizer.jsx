@@ -10,8 +10,7 @@ const StaffOrderVisualizer = ({ orderId }) => {
     useEffect(() => {
         if (!order) return;
         const calculateProgress = () => {
-            const orderTime = new Date(order.timestamp).getTime();
-            const elapsedMs = Date.now() - (isNaN(orderTime) ? order.timestamp : orderTime);
+            const elapsedMs = Date.now() - order.timestamp;
             const totalPrepMs = (order.prepTime || 3) * 60 * 1000;
             let rawProgress = (elapsedMs / totalPrepMs) * 100;
             

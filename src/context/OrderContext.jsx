@@ -63,18 +63,26 @@ export const OrderProvider = ({ children }) => {
     }, []);
 
     // Helper to transform DB record to UI state
-    const transformOrderFromDB = (dbOrder) => ({
-        id: dbOrder.id,
-        userId: dbOrder.user_id,
-        customerName: dbOrder.customer_name || 'Anonymous',
-        items: dbOrder.items,
-        total: parseFloat(dbOrder.total_price),
-        status: dbOrder.order_status, // normalized to lowercase like 'pending'
-        paymentStatus: dbOrder.payment_status,
-        paymentMethod: dbOrder.payment_mode,
-        timestamp: new Date(dbOrder.created_at).getTime(),
-        prepTime: dbOrder.prep_time || 5, // Default if missing
-    });
+    const transformOrderFromDB = (dbOrder) => {
+        // Ensure timestamp is parsed as UTC from ISO string
+        let createdAt = dbOrder.created_at;
+        if (typeof createdAt === 'string' && !createdAt.includes('Z') && !createdAt.includes('+')) {
+            createdAt += 'Z';
+        }
+        
+        return {
+            id: dbOrder.id,
+            userId: dbOrder.user_id,
+            customerName: dbOrder.customer_name || 'Anonymous',
+            items: dbOrder.items,
+            total: parseFloat(dbOrder.total_price),
+            status: dbOrder.order_status, // normalized to lowercase like 'pending'
+            paymentStatus: dbOrder.payment_status,
+            paymentMethod: dbOrder.payment_mode,
+            timestamp: new Date(createdAt).getTime(),
+            prepTime: dbOrder.prep_time || 5, // Default if missing
+        };
+    };
 
     // Helper to transform UI state to DB record
     const transformOrderToDB = (orderData) => ({
