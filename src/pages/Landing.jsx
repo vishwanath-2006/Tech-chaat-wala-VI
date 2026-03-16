@@ -155,7 +155,24 @@ const Landing = () => {
 
             {/* Smart Boot Overlay */}
             {isBooting && (
-                <div className="fixed inset-0 z-50 bg-black flex flex-col items-center justify-center p-6 animate-fade-in overflow-hidden">
+                <div className="fixed inset-0 z-50 flex flex-col items-center justify-center p-6 animate-fade-in overflow-hidden">
+                    {/* Immersive Background Robot Assistant - Scales with progress */}
+                    <div 
+                        className="fixed inset-0 pointer-events-none z-0 flex items-center justify-center overflow-hidden transition-all duration-1000 ease-out"
+                        style={{
+                            opacity: 0.7 + (bootProgress / 100) * 0.3, // Brighter from the start
+                            transform: `scale(${1.0 + (bootProgress / 100) * 0.8})`, // Subtle growth that stays immersive
+                        }}
+                    >
+                        <img 
+                            src="/images/hero_robot_background.png" 
+                            alt="Background Assistant" 
+                            className="w-full h-full object-cover"
+                        />
+                        {/* Dramatic tech-vignette for depth without hiding the background */}
+                        <div className="absolute inset-0 bg-black/20" /> 
+                    </div>
+
                     {/* Background Tech Rings */}
                     <div className="absolute inset-0 flex items-center justify-center opacity-[0.03]">
                         <div className="w-96 h-96 border-8 border-primary rounded-full animate-[spin_4s_linear_infinite] border-t-transparent border-b-transparent" />
@@ -165,24 +182,6 @@ const Landing = () => {
                     <div className="w-20 h-20 rounded-3xl bg-primary/10 flex items-center justify-center text-primary mb-8 animate-bounce relative z-10 shadow-[0_0_30px_rgba(255,122,26,0.3)]">
                         <Terminal size={40} />
                         <div className="absolute inset-0 rounded-3xl border-2 border-primary animate-ping opacity-20" />
-                    </div>
-
-                    {/* Immersive Background Robot Assistant - Scales with progress */}
-                    <div 
-                        className="fixed inset-0 pointer-events-none z-0 flex items-center justify-center overflow-hidden transition-all duration-1000 ease-out bg-black"
-                        style={{
-                            opacity: 0.1 + (bootProgress / 100) * 0.9,
-                            transform: `scale(${0.9 + (bootProgress / 100) * 1.5})`,
-                        }}
-                    >
-                        <img 
-                            src="/images/hero_robot_background.png" 
-                            alt="Background Assistant" 
-                            className="w-full h-full object-cover"
-                        />
-                        {/* Dramatic vignette for depth */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black opacity-60" />
-                        <div className="absolute inset-0 shadow-[inset_0_0_150px_rgba(0,0,0,1)]" />
                     </div>
 
                     <div className="surface-card p-6 w-full max-w-sm border-primary/20 shadow-neon-blue relative overflow-hidden z-10">
