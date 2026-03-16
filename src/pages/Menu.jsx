@@ -175,7 +175,7 @@ const Menu = ({ cart, updateCart, triggerRobot }) => {
 
             {/* Smart Combo Suggestions Overlay */}
             {showCombo && (
-                <div className="fixed top-24 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-sm z-[100] animate-bounce-in">
+                <div className="fixed top-24 inset-x-4 max-w-sm mx-auto z-[100] animate-bounce-in">
                     <div className="surface-card bg-surface shadow-2xl p-4 border-2 border-secondary relative overflow-hidden">
                         <p className="text-xs font-black uppercase text-secondary tracking-wider mb-2 flex items-center gap-2">
                             <Sparkles size={14} className="text-primary animate-pulse" /> Perfect Pairings
