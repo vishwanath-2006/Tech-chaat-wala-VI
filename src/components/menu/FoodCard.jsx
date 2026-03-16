@@ -7,6 +7,7 @@ const FoodCard = ({ item, count, onAdd, onRemove, onClick, triggerRobot }) => {
     const [isPulsing, setIsPulsing] = useState(false);
     const [popKey, setPopKey] = useState(0);
     const [imgError, setImgError] = useState(false);
+    const [isScanning, setIsScanning] = useState(false);
 
     const isSaved = user?.savedItems?.includes(item.id);
 
@@ -35,11 +36,28 @@ const FoodCard = ({ item, count, onAdd, onRemove, onClick, triggerRobot }) => {
         onRemove(item.id);
     };
 
+    const handleCardClick = (e) => {
+        if (item.isSoldOut) {
+            if (triggerRobot) triggerRobot('sold_out');
+            return;
+        }
+        
+        // Trigger laser scan animation
+        setIsScanning(true);
+        setTimeout(() => setIsScanning(false), 800);
+        
+        if (onClick) onClick(e);
+    };
+
     return (
         <div
-            onClick={item.isSoldOut ? () => { if (triggerRobot) triggerRobot('sold_out') } : onClick}
-            className={`surface-card card-lift overflow-visible flex flex-col group relative mt-8 ${item.isSoldOut ? 'opacity-60 grayscale cursor-not-allowed' : 'cursor-pointer'} ${isPulsing ? 'animate-pulse' : ''}`}
+            onClick={handleCardClick}
+            className={`surface-card card-lift overflow-hidden flex flex-col group relative mt-8 ${item.isSoldOut ? 'opacity-60 grayscale cursor-not-allowed' : 'cursor-pointer'} ${isPulsing ? 'animate-pulse' : ''}`}
         >
+            {/* Local Laser Scan Animation */}
+            {isScanning && (
+                <div className="absolute inset-x-0 h-1 bg-gradient-to-r from-transparent via-primary to-transparent animate-card-laser z-50 blur-[1px]" />
+            )}
             {/* Image Placeholder */}
             <div className="flex items-center justify-center -mt-8 mb-2 relative px-4">
                 <div className="w-24 h-24 rounded-full shadow-lg border-4 border-white overflow-hidden relative z-10 bg-slate-100 group-hover:-translate-y-1 group-hover:shadow-xl transition-all duration-300">

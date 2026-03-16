@@ -164,6 +164,16 @@ const Landing = () => {
                         <Terminal size={40} />
                         <div className="absolute inset-0 rounded-3xl border-2 border-primary animate-ping opacity-20" />
                     </div>
+
+                    {/* 3D Zooming Robot Assistant */}
+                    <div className="relative mb-8 animate-robot-zoom-in">
+                        <div className="w-40 h-40 bg-white/10 rounded-full blur-3xl absolute inset-0 animate-pulse" />
+                        <img 
+                            src="/images/hero_robot.png" 
+                            alt="Robot assistant" 
+                            className="w-32 h-32 object-contain relative z-10 drop-shadow-[0_0_15px_rgba(255,122,26,0.3)]"
+                        />
+                    </div>
                     
                     <div className="surface-card p-6 w-full max-w-sm border-primary/20 shadow-neon-blue relative overflow-hidden z-10">
                         {/* Laser Scan Animation */}
