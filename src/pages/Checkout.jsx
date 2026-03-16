@@ -119,11 +119,12 @@ const Checkout = ({ cart, updateCart }) => {
             prefill: {
                 name: guestName || "Guest User",
                 contact: "9999999999",
-                method: "upi"
+                email: "customer@techchaatwala.com"
             },
             readonly: {
                 contact: true,
-                name: true
+                name: true,
+                email: true
             },
             theme: {
                 color: "#10b981"
