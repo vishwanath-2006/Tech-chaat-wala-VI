@@ -23,20 +23,26 @@ const Orders = () => {
         return null;
     }
 
-    const billRef = React.useRef(null);
     const downloadBill = async () => {
         if (billRef.current && selectedOrder) {
-            billRef.current.style.display = 'block';
             try {
-                const canvas = await html2canvas(billRef.current, { scale: 2 });
-                const link = document.createElement('a');
-                link.download = `TCW_Bill_${selectedOrder.id.slice(0, 8)}.png`;
-                link.href = canvas.toDataURL('image/png');
-                link.click();
+                const canvas = await html2canvas(billRef.current, { scale: 2, useCORS: true, logging: false });
+                canvas.toBlob((blob) => {
+                    if (!blob) return;
+                    const url = window.URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.style.display = 'none';
+                    link.href = url;
+                    link.download = `TCW_Bill_${selectedOrder.id.slice(0, 8)}.png`;
+                    document.body.appendChild(link);
+                    link.click();
+                    setTimeout(() => {
+                        window.URL.revokeObjectURL(url);
+                        document.body.removeChild(link);
+                    }, 100);
+                }, 'image/png');
             } catch (err) {
                 console.error("Bill gen failed:", err);
-            } finally {
-                billRef.current.style.display = 'none';
             }
         }
     };
@@ -199,7 +205,7 @@ const Orders = () => {
                                 Recompile Order
                             </button>
                         </div>
-                        <div style={{ display: 'none' }}>
+                        <div style={{ position: 'absolute', top: '-9999px', left: '-9999px', zIndex: -100 }}>
                             <BillReceipt ref={billRef} order={selectedOrder} />
                         </div>
                     </div>

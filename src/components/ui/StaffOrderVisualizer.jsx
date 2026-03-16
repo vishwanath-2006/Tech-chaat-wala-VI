@@ -10,7 +10,8 @@ const StaffOrderVisualizer = ({ orderId }) => {
     useEffect(() => {
         if (!order) return;
         const calculateProgress = () => {
-            const elapsedMs = Date.now() - order.timestamp;
+            const orderTime = new Date(order.timestamp).getTime();
+            const elapsedMs = Date.now() - (isNaN(orderTime) ? order.timestamp : orderTime);
             const totalPrepMs = (order.prepTime || 3) * 60 * 1000;
             let rawProgress = (elapsedMs / totalPrepMs) * 100;
             
@@ -29,7 +30,11 @@ const StaffOrderVisualizer = ({ orderId }) => {
     if (!order) return null;
 
     const formatTime = (seconds) => {
-        if (seconds < 0) return `+${Math.abs(seconds)}s Overdue`;
+        if (seconds < 0) {
+            const m = Math.floor(Math.abs(seconds) / 60);
+            const s = Math.abs(seconds) % 60;
+            return `+${m}m ${s}s Overdue`;
+        }
         const m = Math.floor(seconds / 60);
         const s = seconds % 60;
         return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')} Left`;
