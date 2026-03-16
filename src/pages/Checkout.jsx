@@ -122,7 +122,7 @@ const Checkout = ({ cart, updateCart }) => {
             }
         };
 
-        console.log("Razorpay Options:", options);
+        console.log("Razorpay Options (JSON):", JSON.stringify(options));
         const rzp = new window.Razorpay(options);
         rzp.on('payment.failed', function (response) {
             alert("Payment Failed: " + response.error.description);
