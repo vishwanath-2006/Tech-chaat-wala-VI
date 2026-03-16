@@ -121,6 +121,10 @@ const Checkout = ({ cart, updateCart }) => {
                 contact: "9999999999",
                 method: "upi"
             },
+            readonly: {
+                contact: true,
+                name: true
+            },
             theme: {
                 color: "#10b981"
             },
