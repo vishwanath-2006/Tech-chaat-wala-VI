@@ -2,7 +2,9 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useOrders } from '../context/OrderContext';
-import { ArrowLeft, CheckCircle2, Package, Clock, X, Info } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Package, Clock, X, Info, Download } from 'lucide-react';
+import html2canvas from 'html2canvas';
+import BillReceipt from '../components/ui/BillReceipt';
 
 const Orders = () => {
     const { user } = useAuth();
@@ -20,6 +22,24 @@ const Orders = () => {
         navigate('/login');
         return null;
     }
+
+    const billRef = React.useRef(null);
+    const downloadBill = async () => {
+        if (billRef.current && selectedOrder) {
+            billRef.current.style.display = 'block';
+            try {
+                const canvas = await html2canvas(billRef.current, { scale: 2 });
+                const link = document.createElement('a');
+                link.download = `TCW_Bill_${selectedOrder.id.slice(0, 8)}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            } catch (err) {
+                console.error("Bill gen failed:", err);
+            } finally {
+                billRef.current.style.display = 'none';
+            }
+        }
+    };
 
     const formatLongDate = (timestamp) => {
         return new Date(timestamp).toLocaleString('en-IN', {
@@ -164,13 +184,23 @@ const Orders = () => {
                                 <span className="text-3xl font-black text-primary italic">₹{selectedOrder.total}</span>
                             </div>
                         </div>
-                        <div className="p-8 pt-0">
+                        <div className="p-8 pt-0 flex gap-4">
+                            <button 
+                                onClick={downloadBill}
+                                className="w-1/3 py-4 rounded-2xl bg-slate-100 text-slate-500 hover:text-secondary font-black uppercase tracking-widest transition-all shadow-sm active:scale-95 flex items-center justify-center gap-2 border border-slate-200 hover:border-slate-300"
+                            >
+                                <Download size={18} />
+                                <span className="text-[10px]">Get Bill</span>
+                            </button>
                             <button 
                                 onClick={() => navigate('/menu')}
-                                className="w-full py-4 rounded-2xl bg-secondary text-white font-black uppercase tracking-widest hover:bg-black transition-all shadow-lg active:scale-95"
+                                className="w-2/3 py-4 rounded-2xl bg-secondary text-white font-black uppercase tracking-widest hover:bg-black transition-all shadow-lg active:scale-95 text-xs flex justify-center items-center"
                             >
-                                Recompile Order (Reorder)
+                                Recompile Order
                             </button>
+                        </div>
+                        <div style={{ display: 'none' }}>
+                            <BillReceipt ref={billRef} order={selectedOrder} />
                         </div>
                     </div>
                 </div>

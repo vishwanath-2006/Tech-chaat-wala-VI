@@ -1,8 +1,10 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Bot, CheckCircle2, QrCode } from 'lucide-react';
+import { Bot, CheckCircle2, QrCode, Download } from 'lucide-react';
 import QRCode from 'react-qr-code';
+import html2canvas from 'html2canvas';
 import AssistantPanel from '../components/ui/AssistantPanel';
+import BillReceipt from '../components/ui/BillReceipt';
 import { useOrders } from '../context/OrderContext';
 
 const Success = ({ onReset }) => {
@@ -18,6 +20,7 @@ const Success = ({ onReset }) => {
     const [timeLeft, setTimeLeft] = useState(0);
     const [queueData, setQueueData] = useState({ ordersAhead: 0, position: 0 });
     const timerInterval = useRef(null);
+    const billRef = useRef(null);
 
     const defaultMessage = 'Your order has been processed successfully.';
     const [robotMessage, setRobotMessage] = useState(defaultMessage);
@@ -141,6 +144,23 @@ const Success = ({ onReset }) => {
     const handleBackHome = () => {
         if (onReset) onReset();
         navigate('/');
+    };
+
+    const downloadBill = async () => {
+        if (billRef.current) {
+            billRef.current.style.display = 'block';
+            try {
+                const canvas = await html2canvas(billRef.current, { scale: 2 });
+                const link = document.createElement('a');
+                link.download = `TCW_Bill_${activeOrderId.slice(0, 8)}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            } catch (err) {
+                console.error("Bill generation failed:", err);
+            } finally {
+                billRef.current.style.display = 'none';
+            }
+        }
     };
 
     return (
@@ -305,14 +325,27 @@ const Success = ({ onReset }) => {
                         <div className="absolute left-0 w-full h-[4px] bg-primary shadow-[0_0_20px_4px_rgba(255,122,26,0.8)] animate-[scanning-line_2s_infinite_ease-in-out] z-20 pointer-events-none"></div>
                     </div>
 
-                    <button 
-                        onClick={handleBackHome}
-                        className="w-full btn-primary py-5 rounded-2xl flex items-center justify-center gap-4 group transition-all relative overflow-hidden shadow-[0_15px_30px_rgba(255,122,26,0.3)]"
-                    >
-                         <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
-                        <CheckCircle2 size={24} className="relative z-10" />
-                        <span className="relative z-10 uppercase font-black tracking-[0.2em] italic">Reinitialize Terminal</span>
-                    </button>
+                    <div className="flex gap-4">
+                        <button 
+                            onClick={downloadBill}
+                            className="w-1/3 btn-secondary py-5 rounded-2xl flex flex-col items-center justify-center gap-1 group transition-all relative overflow-hidden shadow-md bg-white border-2 border-slate-200 text-slate-500 hover:text-secondary hover:border-slate-300"
+                        >
+                            <Download size={20} />
+                            <span className="text-[10px] uppercase font-black tracking-widest">Get Bill</span>
+                        </button>
+                        <button 
+                            onClick={handleBackHome}
+                            className="w-2/3 btn-primary py-5 rounded-2xl flex items-center justify-center gap-4 group transition-all relative overflow-hidden shadow-[0_15px_30px_rgba(255,122,26,0.3)]"
+                        >
+                             <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+                            <CheckCircle2 size={24} className="relative z-10" />
+                            <span className="relative z-10 uppercase font-black tracking-[0.2em] italic text-xs">Reinitialize Terminal</span>
+                        </button>
+                    </div>
+
+                    <div style={{ display: 'none' }}>
+                        <BillReceipt ref={billRef} order={getOrder(activeOrderId)} />
+                    </div>
                 </div>
 
             </div>

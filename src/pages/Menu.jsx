@@ -5,6 +5,8 @@ import FoodCard from '../components/menu/FoodCard';
 import ItemDetailModal from '../components/menu/ItemDetailModal';
 import AssistantPanel from '../components/ui/AssistantPanel';
 import ProfileDropdown from '../components/ui/ProfileDropdown';
+import OngoingOrderWidget from '../components/ui/OngoingOrderWidget';
+import OrderVisualizerModal from '../components/ui/OrderVisualizerModal';
 import { useMenu } from '../context/MenuContext';
 
 const Menu = ({ cart, updateCart, triggerRobot }) => {
@@ -18,6 +20,7 @@ const Menu = ({ cart, updateCart, triggerRobot }) => {
     const [cartPulse, setCartPulse] = useState(false);
     const [selectedItem, setSelectedItem] = useState(null);
     const [flyingShadows, setFlyingShadows] = useState([]);
+    const [activeOrderModalId, setActiveOrderModalId] = useState(null);
     const cartCount = Object.values(cart).reduce((a, b) => a + b, 0);
     const prevCartCount = useRef(cartCount);
 
@@ -256,6 +259,14 @@ const Menu = ({ cart, updateCart, triggerRobot }) => {
             {flyingShadows.map(id => (
                 <div key={id} className="shadow-flyer" />
             ))}
+
+            {/* Live Order Tracking Widget & Modal */}
+            <OngoingOrderWidget onClick={(id) => setActiveOrderModalId(id)} />
+            <OrderVisualizerModal 
+                orderId={activeOrderModalId} 
+                isOpen={!!activeOrderModalId} 
+                onClose={() => setActiveOrderModalId(null)} 
+            />
         </div>
     );
 };

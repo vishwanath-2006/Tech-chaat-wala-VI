@@ -73,9 +73,9 @@ const Checkout = ({ cart, updateCart }) => {
             // Clear customer cart
             updateCart('ALL_CLEAR', 0);
 
-            // Navigate to processing (live status tracker)
+            // Navigate to main menu to show active progress widget
             setTimeout(() => {
-                navigate('/processing', { state: { orderId } });
+                navigate('/menu', { state: { orderId } });
             }, 1000);
         } catch (error) {
             console.error("Checkout error:", error);

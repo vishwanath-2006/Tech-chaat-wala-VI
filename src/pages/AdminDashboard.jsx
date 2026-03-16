@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useMenu } from '../context/MenuContext';
 import { useOrders } from '../context/OrderContext';
+import StaffOrderVisualizer from '../components/ui/StaffOrderVisualizer';
 import { LogOut, ArrowLeft, ShieldAlert, Edit3, CheckCircle2, XCircle, ChefHat, PackageCheck, Play, BellRing, Clock, History, GripVertical, Plus, Search, Eye, EyeOff, Trash2 } from 'lucide-react';
 
 const playAlertSound = () => {
@@ -550,16 +551,20 @@ const AdminDashboard = () => {
                                                 </ul>
                                             </div>
 
-                                            {/* Prep Time Modification */}
+                                            {/* Prep Time Modification & Live Visualizer */}
                                             {order.status !== 'ready' && (
-                                                <div className="mb-4 bg-slate-50/50 rounded-xl p-3 flex justify-between items-center border border-slate-100/50 group-hover:bg-slate-50 transition-colors">
-                                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1.5"><Clock size={12} /> Cycle Time</span>
-                                                    <div className="flex items-center gap-3">
-                                                        <button onClick={() => handleAdjustTime(order.id, order.prepTime, -1)} className="w-6 h-6 rounded-lg bg-white shadow-sm hover:shadow-md border border-slate-200 flex items-center justify-center text-slate-600 font-black active:scale-90 transition-all">-</button>
-                                                        <span className="text-sm font-mono font-black w-8 text-center text-secondary">{order.prepTime}m</span>
-                                                        <button onClick={() => handleAdjustTime(order.id, order.prepTime, 1)} className="w-6 h-6 rounded-lg bg-white shadow-sm hover:shadow-md border border-slate-200 flex items-center justify-center text-slate-600 font-black active:scale-90 transition-all">+</button>
+                                                <>
+                                                    <StaffOrderVisualizer orderId={order.id} />
+                                                    <div className="mb-4 bg-slate-50/50 rounded-xl p-3 flex justify-between items-center border border-slate-100/50 group-hover:bg-slate-50 transition-colors mt-2">
+                                                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1.5"><Clock size={12} /> Base Time</span>
+                                                        <div className="flex items-center gap-2">
+                                                            <button onClick={() => handleAdjustTime(order.id, order.prepTime, -1)} className="w-6 h-6 rounded-lg bg-white shadow-sm hover:shadow-md border border-slate-200 flex items-center justify-center text-slate-600 font-black active:scale-90 transition-all">-</button>
+                                                            <span className="text-sm font-mono font-black w-8 text-center text-secondary">{order.prepTime}m</span>
+                                                            <button onClick={() => handleAdjustTime(order.id, order.prepTime, 1)} className="w-6 h-6 rounded-lg bg-white shadow-sm hover:shadow-md border border-slate-200 flex items-center justify-center text-slate-600 font-black active:scale-90 transition-all">+</button>
+                                                            <button onClick={() => handleAdjustTime(order.id, order.prepTime, 5)} className="px-2 h-6 rounded-lg bg-amber-50 shadow-sm hover:bg-amber-100 border border-amber-200 text-amber-600 text-[10px] font-black uppercase tracking-wider active:scale-90 transition-all ml-1">+5 Min</button>
+                                                        </div>
                                                     </div>
-                                                </div>
+                                                </>
                                             )}
 
                                             <div className="mt-auto grid grid-cols-2 gap-3 pt-4 border-t border-slate-100 italic font-black uppercase tracking-widest">
