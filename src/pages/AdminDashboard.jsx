@@ -1003,6 +1003,13 @@ const HistoryTab = ({ orders }) => {
                                 </div>
                             </div>
 
+                            {selectedOrder.paymentId && (
+                                <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Transaction ID / Reference</p>
+                                    <p className="font-mono font-bold text-secondary text-[10px] break-all">{selectedOrder.paymentId}</p>
+                                </div>
+                            )}
+
                             <div className="bg-slate-900 rounded-2xl p-5 border border-slate-800 relative overflow-hidden">
                                 <div className="absolute top-2 right-2 opacity-10 rotate-12 transform scale-150">
                                     <div className="border-4 border-primary text-primary font-black px-4 py-1 rounded-lg text-2xl uppercase tracking-tighter">

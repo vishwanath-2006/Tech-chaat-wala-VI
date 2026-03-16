@@ -81,6 +81,7 @@ export const OrderProvider = ({ children }) => {
             paymentMethod: dbOrder.payment_mode,
             timestamp: new Date(createdAt).getTime(),
             prepTime: dbOrder.prep_time || 5, // Default if missing
+            paymentId: dbOrder.razorpay_payment_id
         };
     };
 
