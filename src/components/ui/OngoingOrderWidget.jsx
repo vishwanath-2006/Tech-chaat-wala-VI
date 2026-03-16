@@ -7,10 +7,22 @@ const OngoingOrderWidget = ({ onClick }) => {
     const [activeOrder, setActiveOrder] = useState(null);
 
     useEffect(() => {
-        // Find latest non-completed order that belongs to current session/user
-        // For local kiosk simplicity, picking the last unresolved order.
-        const active = orders.filter(o => o.status !== 'completed' && o.status !== 'ready').pop();
-        setActiveOrder(active);
+        // Find latest non-completed order that belongs to this specific device
+        const localOrderId = localStorage.getItem('my_active_order_id');
+        
+        if (localOrderId) {
+            const myOrder = orders.find(o => o.id === localOrderId);
+            // Only show if not completed
+            if (myOrder && myOrder.status !== 'completed') {
+                setActiveOrder(myOrder);
+                return;
+            } else if (myOrder && myOrder.status === 'completed') {
+                // Clear from storage if finished
+                localStorage.removeItem('my_active_order_id');
+            }
+        }
+        
+        setActiveOrder(null);
     }, [orders]);
 
     if (!activeOrder) return null;

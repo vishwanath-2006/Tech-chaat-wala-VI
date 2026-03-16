@@ -50,7 +50,11 @@ const Checkout = ({ cart, updateCart }) => {
                     {
                         user_id: user?.id,
                         customer_name: customerName,
-                        items: cartItems.map(i => ({ name: i.name, qty: i.qty })),
+                        items: cartItems.map(i => ({ 
+                            name: i.name, 
+                            qty: i.qty,
+                            price: i.price // Added price for detailed history
+                        })),
                         total_price: Number(grandTotal),
                         payment_mode: method || "cash",
                         payment_status: status.toLowerCase() || "pending",
@@ -69,6 +73,9 @@ const Checkout = ({ cart, updateCart }) => {
 
             const orderId = data[0].id;
             console.log("Order confirmed with ID:", orderId);
+
+            // Isolated Tracking: Save orderId to localStorage to prevent multi-device interference
+            localStorage.setItem('my_active_order_id', orderId);
 
             // Clear customer cart
             updateCart('ALL_CLEAR', 0);
@@ -111,6 +118,14 @@ const Checkout = ({ cart, updateCart }) => {
                 setCheckoutStep('confirming');
                 setProcessingMsg("Payment Verified! Synchronizing...");
                 handleConfirmPayment('Razorpay-UPI', 'Paid', response.razorpay_payment_id);
+            },
+            method: {
+                netbanking: false,
+                card: true,
+                upi: true,
+                wallet: false,
+                emi: false,
+                paylater: false
             },
             theme: {
                 color: "#10b981"

@@ -461,13 +461,21 @@ const AdminDashboard = () => {
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div className="text-sm text-slate-600 mb-4 font-medium border-t border-slate-50 pt-2">
-                                                {order.items.map(i => (
-                                                    <div key={i.name} className="flex justify-between">
-                                                        <span>{i.name}</span>
-                                                        <span className="font-bold">x{i.qty}</span>
-                                                    </div>
-                                                ))}
+                                            <div className="mb-4 pt-2">
+                                                <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-1">
+                                                    <Package size={10} /> Consumables
+                                                </div>
+                                                <div className="space-y-1.5">
+                                                    {order.items.map(i => (
+                                                        <div key={i.name} className="flex justify-between bg-slate-50/50 p-2 rounded-lg border border-slate-100">
+                                                            <div className="flex items-center gap-2">
+                                                                <span className="w-5 h-5 bg-secondary text-white text-[10px] font-black rounded flex items-center justify-center">{i.qty}x</span>
+                                                                <span className="text-sm font-bold text-secondary line-clamp-1">{i.name}</span>
+                                                            </div>
+                                                            <span className="text-[10px] font-mono font-bold text-slate-400">₹{i.price ? i.price * i.qty : '--'}</span>
+                                                        </div>
+                                                    ))}
+                                                </div>
                                             </div>
                                             <div className="grid grid-cols-2 gap-2 mt-2">
                                                 {order.paymentStatus === 'pending' ? (

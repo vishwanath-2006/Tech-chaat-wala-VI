@@ -133,6 +133,28 @@ const OrderVisualizerModal = ({ orderId, isOpen, onClose }) => {
                     </div>
                 </div>
 
+                {/* Module Breakdown Section */}
+                <div className="mb-8 text-left glass-card p-4 border-white/20">
+                    <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2">
+                        <Terminal size={12} /> Module Breakdown
+                    </h3>
+                    <div className="space-y-2 max-h-32 overflow-y-auto pr-2 custom-scrollbar">
+                        {order.items.map((item, idx) => (
+                            <div key={idx} className="flex justify-between items-center bg-white/40 p-2 rounded-xl border border-white/30">
+                                <div className="flex items-center gap-2">
+                                    <span className="w-5 h-5 bg-primary text-white text-[10px] font-black rounded-lg flex items-center justify-center">
+                                        {item.qty}
+                                    </span>
+                                    <span className="text-xs font-bold text-secondary">{item.name}</span>
+                                </div>
+                                <span className="text-[10px] font-mono font-bold text-primary">
+                                    ₹{item.price ? item.price * item.qty : '--'}
+                                </span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
                 <button onClick={onClose} className="w-full btn-secondary py-4 text-sm font-black uppercase tracking-widest active:scale-95 transition-transform">
                     Hide to Background
                 </button>
