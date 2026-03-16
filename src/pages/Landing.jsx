@@ -10,6 +10,7 @@ const Landing = () => {
     const navigate = useNavigate();
     const [isBooting, setIsBooting] = useState(false);
     const [bootText, setBootText] = useState('');
+    const [bootProgress, setBootProgress] = useState(0);
 
     const BOOT_SEQUENCE = [
         "Initializing Kitchen AI...",
@@ -26,6 +27,7 @@ const Landing = () => {
 
         const interval = setInterval(() => {
             setBootText(BOOT_SEQUENCE[step]);
+            setBootProgress(((step + 1) / BOOT_SEQUENCE.length) * 100);
             step++;
 
             if (step >= BOOT_SEQUENCE.length) {
@@ -165,16 +167,24 @@ const Landing = () => {
                         <div className="absolute inset-0 rounded-3xl border-2 border-primary animate-ping opacity-20" />
                     </div>
 
-                    {/* 3D Zooming Robot Assistant */}
-                    <div className="relative mb-8 animate-robot-zoom-in">
-                        <div className="w-40 h-40 bg-white/10 rounded-full blur-3xl absolute inset-0 animate-pulse" />
+                    {/* Immersive Background Robot Assistant - Scales with progress */}
+                    <div 
+                        className="absolute inset-0 pointer-events-none z-0 flex items-center justify-center overflow-hidden transition-all duration-1000 ease-out"
+                        style={{
+                            opacity: 0.1 + (bootProgress / 100) * 0.9,
+                            transform: `scale(${0.5 + (bootProgress / 100) * 1.5})`,
+                            filter: `blur(${(100 - bootProgress) / 10}px)`
+                        }}
+                    >
                         <img 
-                            src="/images/hero_robot.png" 
-                            alt="Robot assistant" 
-                            className="w-32 h-32 object-contain relative z-10 drop-shadow-[0_0_15px_rgba(255,122,26,0.3)]"
+                            src="/images/hero_robot_background.png" 
+                            alt="Background Assistant" 
+                            className="w-full h-full object-cover opacity-80"
                         />
+                        {/* Dramatic vignette for depth */}
+                        <div className="absolute inset-0 shadow-[inset_0_0_150px_rgba(0,0,0,0.8)]" />
                     </div>
-                    
+
                     <div className="surface-card p-6 w-full max-w-sm border-primary/20 shadow-neon-blue relative overflow-hidden z-10">
                         {/* Laser Scan Animation */}
                         <div className="absolute left-0 right-0 h-[2px] bg-primary animate-laser-scan blur-[1px] opacity-70 z-20" />
@@ -195,7 +205,7 @@ const Landing = () => {
                         
                         {/* Progress Bar */}
                         <div className="mt-6 h-1 w-full bg-slate-100 rounded-full overflow-hidden">
-                            <div className="h-full bg-primary" style={{width: `${((BOOT_SEQUENCE.indexOf(bootText) + 1) / BOOT_SEQUENCE.length) * 100}%`, transition: 'width 0.6s ease-out'}} />
+                            <div className="h-full bg-primary" style={{width: `${bootProgress}%`, transition: 'width 0.6s ease-out'}} />
                         </div>
                     </div>
                 </div>
