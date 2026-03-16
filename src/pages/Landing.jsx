@@ -160,8 +160,8 @@ const Landing = () => {
                     <div 
                         className="fixed inset-0 pointer-events-none z-0 flex items-center justify-center overflow-hidden transition-all duration-1000 ease-out"
                         style={{
-                            opacity: 0.7 + (bootProgress / 100) * 0.3, // Brighter from the start
-                            transform: `scale(${1.0 + (bootProgress / 100) * 0.8})`, // Subtle growth that stays immersive
+                            opacity: 0.9, // Higher visibility as requested
+                            transform: `scale(${1.0 + (bootProgress / 100) * 0.5})`, // Smoother growth
                         }}
                     >
                         <img 
@@ -169,8 +169,6 @@ const Landing = () => {
                             alt="Background Assistant" 
                             className="w-full h-full object-cover"
                         />
-                        {/* Dramatic tech-vignette for depth without hiding the background */}
-                        <div className="absolute inset-0 bg-black/20" /> 
                     </div>
 
                     {/* Background Tech Rings */}

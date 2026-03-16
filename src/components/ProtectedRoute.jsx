@@ -38,8 +38,8 @@ const ProtectedRoute = ({ children, requiredRole }) => {
         );
     }
 
-    if (!session) {
-        // Redirect to login if a valid Supabase session does not exist
+    if (!session && !isGuest) {
+        // Redirect to login if a valid Supabase session does not exist and NOT a guest
         return <Navigate to="/login" state={{ from: location }} replace />;
     }
 

@@ -5,12 +5,17 @@ import { ArrowLeft, ArrowRight, Eye, EyeOff } from 'lucide-react';
 
 const Login = () => {
     const navigate = useNavigate();
-    const { login } = useAuth();
+    const { login, continueAsGuest } = useAuth();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
+
+    const handleGuestControl = () => {
+        continueAsGuest();
+        navigate('/menu');
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -53,6 +58,11 @@ const Login = () => {
                     <p className="text-slate-500 font-medium leading-relaxed">
                         Access your saved configurations, view processing logs, and optimize your ordering timeline.
                     </p>
+                    <div className="mt-8 p-4 bg-primary/5 rounded-2xl border border-primary/10 animate-pulse">
+                        <p className="text-xs font-bold text-primary uppercase tracking-widest">
+                            ✨ Recommended: Login for better experience
+                        </p>
+                    </div>
                 </div>
             </div>
 
@@ -134,7 +144,24 @@ const Login = () => {
                         </button>
                     </form>
 
-                    <p className="mt-10 text-center font-medium text-slate-500">
+                    <div className="relative my-10">
+                        <div className="absolute inset-0 flex items-center">
+                            <div className="w-full border-t border-slate-100"></div>
+                        </div>
+                        <div className="relative flex justify-center text-xs uppercase">
+                            <span className="bg-background px-4 text-slate-400 font-bold tracking-widest">Or</span>
+                        </div>
+                    </div>
+
+                    <button
+                        onClick={handleGuestControl}
+                        className="w-full py-4 rounded-2xl border-2 border-slate-100 text-secondary font-bold hover:bg-slate-50 hover:border-slate-200 transition-all flex items-center justify-center gap-2"
+                    >
+                        Continue as Guest
+                        <ArrowRight size={18} className="opacity-50" />
+                    </button>
+
+                    <p className="mt-8 text-center font-medium text-slate-500">
                         New entity?{' '}
                         <button onClick={() => navigate('/signup')} className="font-bold text-primary hover:underline">
                             Initialize account

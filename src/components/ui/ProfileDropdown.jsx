@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
 const ProfileDropdown = () => {
-    const { user, logout } = useAuth();
+    const { user, isGuest, logout } = useAuth();
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef(null);
     const navigate = useNavigate();
@@ -56,10 +56,15 @@ const ProfileDropdown = () => {
                                 <p className="text-sm font-black text-secondary truncate">{user.name}</p>
                                 <p className="text-xs text-textLight font-mono truncate">{user.email}</p>
                             </>
+                        ) : isGuest ? (
+                            <>
+                                <p className="text-sm font-black text-secondary">Guest Protocol</p>
+                                <p className="text-[10px] text-primary uppercase tracking-widest mt-0.5">Anonymous Access</p>
+                            </>
                         ) : (
                             <>
-                                <p className="text-sm font-black text-secondary">Guest User</p>
-                                <p className="text-[10px] text-textLight uppercase tracking-widest mt-0.5">Not logged in</p>
+                                <p className="text-sm font-black text-secondary">Not Identified</p>
+                                <p className="text-[10px] text-textLight uppercase tracking-widest mt-0.5">Please Establish Session</p>
                             </>
                         )}
                     </div>

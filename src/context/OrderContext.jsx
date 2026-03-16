@@ -87,7 +87,7 @@ export const OrderProvider = ({ children }) => {
 
     // Helper to transform UI state to DB record
     const transformOrderToDB = (orderData) => ({
-        user_id: orderData.userId,
+        user_id: orderData.userId || null,
         customer_name: orderData.customerName,
         items: orderData.items,
         total_price: orderData.total,
@@ -105,7 +105,7 @@ export const OrderProvider = ({ children }) => {
             const basePrepTime = maxItemPrepTime + 1;
 
             const dbOrder = {
-                user_id: orderData.userId,
+                user_id: orderData.userId || null,
                 customer_name: orderData.customerName,
                 items: orderData.items,
                 total_price: orderData.total,

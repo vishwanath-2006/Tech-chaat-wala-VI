@@ -5,6 +5,10 @@ const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
+    const [isGuest, setIsGuest] = useState(() => {
+        // Persistent guest state
+        return localStorage.getItem('isGuest') === 'true';
+    });
     const [loading, setLoading] = useState(true);
 
     // Initial session check and persistence
@@ -59,6 +63,8 @@ export const AuthProvider = ({ children }) => {
                 setUser(userData);
             } else {
                 setUser(null);
+                // If we get an explicit logout/null session, we don't auto-clear guest 
+                // but we check if we should
             }
             setLoading(false);
         });
@@ -93,6 +99,14 @@ export const AuthProvider = ({ children }) => {
     const logout = async () => {
         await supabase.auth.signOut();
         setUser(null);
+        setIsGuest(false);
+        localStorage.removeItem('isGuest');
+    };
+
+    const continueAsGuest = () => {
+        setIsGuest(true);
+        localStorage.setItem('isGuest', 'true');
+        setUser(null);
     };
 
     const updateProfile = async (updates) => {
@@ -115,7 +129,17 @@ export const AuthProvider = ({ children }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ user, loading, signup, login, logout, updateProfile, toggleSavedItem }}>
+        <AuthContext.Provider value={{ 
+            user, 
+            isGuest, 
+            loading, 
+            signup, 
+            login, 
+            logout, 
+            continueAsGuest, 
+            updateProfile, 
+            toggleSavedItem 
+        }}>
             {children}
         </AuthContext.Provider>
     );
