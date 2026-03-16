@@ -318,70 +318,57 @@ export const MenuProvider = ({ children }) => {
 
     // 2. Realtime Management
     useEffect(() => {
-        let channel;
+        console.log('🔄 Initializing Supabase Realtime...');
         
-        const setupSubscription = () => {
-            console.log('🔄 Initializing Supabase Realtime...');
-            
-            channel = supabase
-                .channel('menu-sync')
-                .on('postgres_changes', 
-                    { event: '*', schema: 'public', table: 'menu_items' }, 
-                    (payload) => {
-                        console.log('📡 REALTIME_EVENT [menu_items]:', payload.eventType, payload.new?.id, 'newState:', payload.new?.is_sold_out);
-                        
-                        if (payload.eventType === 'DELETE') {
-                            setMenuData(prev => prev.filter(item => item.id !== payload.old.id));
-                            return;
-                        }
-
-                        if (!payload.new) return;
-
-                        const mappedItem = {
-                            ...payload.new,
-                            isSoldOut: payload.new.is_sold_out,
-                            prepTime: payload.new.prep_time,
-                            isPopular: payload.new.is_popular
-                        };
-
-                        if (payload.eventType === 'INSERT') {
-                            setMenuData(prev => [...prev, mappedItem]);
-                        } else if (payload.eventType === 'UPDATE') {
-                            setMenuData(prev => prev.map(item => item.id === payload.new.id ? mappedItem : item));
-                        }
-                    }
-                )
-                .on('postgres_changes', 
-                    { event: '*', schema: 'public', table: 'categories' }, 
-                    (payload) => {
-                        console.log('📡 REALTIME_EVENT [categories]:', payload.eventType, payload.new?.name);
-                        if (payload.eventType === 'INSERT') {
-                            setCategories(prev => [...prev, payload.new].sort((a,b) => a.order - b.order));
-                        } else if (payload.eventType === 'UPDATE') {
-                            setCategories(prev => prev.map(c => c.id === payload.new.id ? payload.new : c).sort((a,b) => a.order - b.order));
-                        } else if (payload.eventType === 'DELETE') {
-                            setCategories(prev => prev.filter(c => c.id !== payload.old.id));
-                        }
-                    }
-                )
-                .subscribe((status, err) => {
-                    console.log('📡 Sync Status:', status);
-                    if (err) console.error('❌ Sync Error:', err);
+        const channel = supabase
+            .channel('menu-sync')
+            .on('postgres_changes', 
+                { event: '*', schema: 'public', table: 'menu_items' }, 
+                (payload) => {
+                    console.log('📡 REALTIME_EVENT [menu_items]:', payload.eventType, payload.new?.id, 'newState:', payload.new?.is_sold_out);
                     
-                    if (status === 'CHANNEL_ERROR') {
-                        console.warn('⚠️ Connection failed. Retrying in 5s...');
-                        setTimeout(setupSubscription, 5000);
+                    if (payload.eventType === 'DELETE') {
+                        setMenuData(prev => prev.filter(item => item.id !== payload.old.id));
+                        return;
                     }
-                });
-        };
 
-        setupSubscription();
+                    if (!payload.new) return;
+
+                    const mappedItem = {
+                        ...payload.new,
+                        isSoldOut: payload.new.is_sold_out,
+                        prepTime: payload.new.prep_time,
+                        isPopular: payload.new.is_popular
+                    };
+
+                    if (payload.eventType === 'INSERT') {
+                        setMenuData(prev => [...prev, mappedItem]);
+                    } else if (payload.eventType === 'UPDATE') {
+                        setMenuData(prev => prev.map(item => item.id === payload.new.id ? mappedItem : item));
+                    }
+                }
+            )
+            .on('postgres_changes', 
+                { event: '*', schema: 'public', table: 'categories' }, 
+                (payload) => {
+                    console.log('📡 REALTIME_EVENT [categories]:', payload.eventType, payload.new?.name);
+                    if (payload.eventType === 'INSERT') {
+                        setCategories(prev => [...prev, payload.new].sort((a,b) => a.order - b.order));
+                    } else if (payload.eventType === 'UPDATE') {
+                        setCategories(prev => prev.map(c => c.id === payload.new.id ? payload.new : c).sort((a,b) => a.order - b.order));
+                    } else if (payload.eventType === 'DELETE') {
+                        setCategories(prev => prev.filter(c => c.id !== payload.old.id));
+                    }
+                }
+            )
+            .subscribe((status, err) => {
+                console.log('📡 Sync Status:', status);
+                if (err) console.error('❌ Sync Error:', err);
+            });
 
         return () => {
-            if (channel) {
-                console.log('🔌 Cleaning up Realtime channel');
-                supabase.removeChannel(channel);
-            }
+            console.log('🔌 Cleaning up Realtime channel');
+            supabase.removeChannel(channel);
         };
     }, []); // Empty dependency array means it only runs once per app lifecycle
 
