@@ -330,21 +330,24 @@ export const MenuProvider = ({ children }) => {
                     (payload) => {
                         console.log('📡 REALTIME_EVENT [menu_items]:', payload.eventType, payload.new?.id, 'newState:', payload.new?.is_sold_out);
                         
-                        // Map incoming snake_case from DB to camelCase if necessary (though app is mostly snake_case now)
+                        if (payload.eventType === 'DELETE') {
+                            setMenuData(prev => prev.filter(item => item.id !== payload.old.id));
+                            return;
+                        }
+
+                        if (!payload.new) return;
+
                         const mappedItem = {
                             ...payload.new,
-                            // Ensure both properties are present just in case
-                            isSoldOut: payload.new?.is_sold_out,
-                            prepTime: payload.new?.prep_time,
-                            isPopular: payload.new?.is_popular
+                            isSoldOut: payload.new.is_sold_out,
+                            prepTime: payload.new.prep_time,
+                            isPopular: payload.new.is_popular
                         };
 
                         if (payload.eventType === 'INSERT') {
                             setMenuData(prev => [...prev, mappedItem]);
                         } else if (payload.eventType === 'UPDATE') {
                             setMenuData(prev => prev.map(item => item.id === payload.new.id ? mappedItem : item));
-                        } else if (payload.eventType === 'DELETE') {
-                            setMenuData(prev => prev.filter(item => item.id !== payload.old.id));
                         }
                     }
                 )
