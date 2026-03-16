@@ -61,7 +61,7 @@ const ItemDetailModal = ({ item, isOpen, onClose, count, onAdd, onRemove }) => {
                 </button>
 
                 {/* Hero Image Section */}
-                <div className={`relative w-full h-64 bg-slate-100 flex items-center justify-center shrink-0 ${item.is_sold_out ? 'grayscale opacity-80' : ''}`}>
+                <div className={`relative w-full h-64 bg-slate-100 flex items-center justify-center shrink-0 ${item.isSoldOut ? 'grayscale opacity-80' : ''}`}>
                     {item.image ? (
                         <img
                             src={item.image}
@@ -75,11 +75,11 @@ const ItemDetailModal = ({ item, isOpen, onClose, count, onAdd, onRemove }) => {
 
                     {/* Badges */}
                     <div className="absolute bottom-4 left-6 flex gap-2 z-10">
-                        {item.is_sold_out ? (
+                        {item.isSoldOut ? (
                             <span className="bg-red-500 text-white text-[10px] font-bold px-3 py-1.5 rounded-full shadow-md uppercase tracking-widest border border-white/20">
                                 🚫 SOLD OUT
                             </span>
-                        ) : item.is_popular ? (
+                        ) : item.isPopular ? (
                             <span className="bg-primary text-white text-[10px] font-bold px-3 py-1.5 rounded-full shadow-[0_2px_8px_rgba(255,122,26,0.5)] uppercase tracking-widest border border-white/20 flex items-center gap-1">
                                 🔥 Popular
                             </span>
@@ -152,7 +152,7 @@ const ItemDetailModal = ({ item, isOpen, onClose, count, onAdd, onRemove }) => {
 
                 {/* Sticky Action Footer */}
                 <div className="bg-surface border-t border-slate-100 p-4 shrink-0 flex items-center justify-between shadow-[0_-10px_30px_rgba(27,37,90,0.03)] pb-safe">
-                    {item.is_sold_out ? (
+                    {item.isSoldOut ? (
                         <button
                             disabled
                             className="w-full bg-slate-200 text-slate-400 font-black text-lg py-4 rounded-[20px] cursor-not-allowed flex items-center justify-center gap-2"

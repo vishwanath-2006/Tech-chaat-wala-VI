@@ -37,8 +37,8 @@ const FoodCard = ({ item, count, onAdd, onRemove, onClick, triggerRobot }) => {
 
     return (
         <div
-            onClick={item.is_sold_out ? () => { if (triggerRobot) triggerRobot('sold_out') } : onClick}
-            className={`surface-card card-lift overflow-visible flex flex-col group relative mt-8 ${item.is_sold_out ? 'opacity-60 grayscale cursor-not-allowed' : 'cursor-pointer'} ${isPulsing ? 'animate-pulse' : ''}`}
+            onClick={item.isSoldOut ? () => { if (triggerRobot) triggerRobot('sold_out') } : onClick}
+            className={`surface-card card-lift overflow-visible flex flex-col group relative mt-8 ${item.isSoldOut ? 'opacity-60 grayscale cursor-not-allowed' : 'cursor-pointer'} ${isPulsing ? 'animate-pulse' : ''}`}
         >
             {/* Image Placeholder */}
             <div className="flex items-center justify-center -mt-8 mb-2 relative px-4">
@@ -58,11 +58,11 @@ const FoodCard = ({ item, count, onAdd, onRemove, onClick, triggerRobot }) => {
                 </div>
 
                 {/* Gamified Badges */}
-                {item.is_sold_out ? (
+                {item.isSoldOut ? (
                     <div className="absolute top-8 right-2 bg-red-500 text-white text-[9px] font-bold px-2 py-1 rounded-full shadow-md z-20 uppercase tracking-widest border border-white/20 flex items-center gap-1">
                         SOLD OUT
                     </div>
-                ) : item.is_popular ? (
+                ) : item.isPopular ? (
                     <div className="absolute top-8 right-2 bg-primary text-white text-[9px] font-bold px-2 py-1 rounded-full shadow-[0_2px_8px_rgba(255,122,26,0.5)] z-20 uppercase tracking-widest border border-white/20 flex items-center gap-1">
                         🔥 Popular
                     </div>
@@ -97,13 +97,13 @@ const FoodCard = ({ item, count, onAdd, onRemove, onClick, triggerRobot }) => {
                     </span>
                 </div>
 
-                <div className="mt-auto flex items-center justify-between">
+                <div className="mt-auto flex items-center justify-between w-full">
                     <div className="font-black text-secondary">
                         <span className="text-sm">₹</span>{item.price}
                     </div>
 
                     {/* Add / Stepper Logic */}
-                    {item.is_sold_out ? (
+                    {item.isSoldOut ? (
                         <div className="w-8 h-8 rounded-[12px] bg-slate-200 text-slate-400 flex items-center justify-center border border-slate-300">
                             <Minus size={14} strokeWidth={3} />
                         </div>

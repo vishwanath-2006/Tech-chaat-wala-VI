@@ -267,6 +267,19 @@ export const MenuProvider = ({ children }) => {
     const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(true);
 
+    // Helper to transform DB records to UI state
+    const transformItemFromDB = (dbItem) => ({
+        ...dbItem,
+        isSoldOut: dbItem.is_sold_out,
+        isPopular: dbItem.is_popular,
+        prepTime: dbItem.prep_time
+    });
+
+    const transformCategoryFromDB = (dbCat) => ({
+        ...dbCat,
+        isVisible: dbCat.is_visible
+    });
+
     const fetchMenu = useCallback(async () => {
         try {
             setLoading(true);
@@ -284,7 +297,7 @@ export const MenuProvider = ({ children }) => {
             if (catError) throw catError;
 
             // If empty, seed initial data (only on first-ever run)
-            if (menuItems.length === 0 && catData.length === 0) {
+            if ((!menuItems || menuItems.length === 0) && (!catData || catData.length === 0)) {
                 console.log('Database empty, seeding initial data...');
                 await supabase.from('categories').upsert(INITIAL_CATEGORIES);
                 const itemsToSeed = INITIAL_MENU_DATA.map(item => ({
@@ -298,18 +311,18 @@ export const MenuProvider = ({ children }) => {
                 // Re-fetch after seeding
                 const { data: seededMenu } = await supabase.from('menu_items').select('*').order('name');
                 const { data: seededCats } = await supabase.from('categories').select('*').order('order');
-                setMenuData(seededMenu);
-                setCategories(seededCats);
+                setMenuData((seededMenu || []).map(transformItemFromDB));
+                setCategories((seededCats || []).map(transformCategoryFromDB));
             } else {
-                setMenuData(menuItems);
-                setCategories(catData);
+                setMenuData((menuItems || []).map(transformItemFromDB));
+                setCategories((catData || []).map(transformCategoryFromDB));
             }
         } catch (error) {
             console.error('Error fetching menu:', error);
         } finally {
             setLoading(false);
         }
-    }, []);
+    }, [transformItemFromDB, transformCategoryFromDB]);
 
     // 1. Initial Fetch
     useEffect(() => {
@@ -353,9 +366,9 @@ export const MenuProvider = ({ children }) => {
                 (payload) => {
                     console.log('📡 REALTIME_EVENT [categories]:', payload.eventType, payload.new?.name);
                     if (payload.eventType === 'INSERT') {
-                        setCategories(prev => [...prev, payload.new].sort((a,b) => a.order - b.order));
+                        setCategories(prev => [...prev, transformCategoryFromDB(payload.new)].sort((a,b) => a.order - b.order));
                     } else if (payload.eventType === 'UPDATE') {
-                        setCategories(prev => prev.map(c => c.id === payload.new.id ? payload.new : c).sort((a,b) => a.order - b.order));
+                        setCategories(prev => prev.map(c => c.id === payload.new.id ? transformCategoryFromDB(payload.new) : c).sort((a,b) => a.order - b.order));
                     } else if (payload.eventType === 'DELETE') {
                         setCategories(prev => prev.filter(c => c.id !== payload.old.id));
                     }
