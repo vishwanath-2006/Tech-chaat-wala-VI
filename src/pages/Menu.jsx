@@ -10,35 +10,14 @@ import { useMenu } from '../context/MenuContext';
 const Menu = ({ cart, updateCart, triggerRobot }) => {
     const navigate = useNavigate();
     const { menuData, categories, loading } = useMenu();
+    // AI & Micro-interaction States
     const [activeTab, setActiveTab] = useState('All');
     const [searchQuery, setSearchQuery] = useState('');
-
-    if (loading) {
-        return (
-            <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6">
-                <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4" />
-                <p className="text-slate-500 font-bold animate-pulse">Syncing Menu Data...</p>
-            </div>
-        );
-    }
-
-    const filteredData = menuData.filter(item => {
-        const matchesCategory = activeTab === 'All' || item.category === activeTab;
-        const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase());
-        return matchesCategory && matchesSearch;
-    });
-
-    const cartCount = Object.values(cart).reduce((a, b) => a + b, 0);
-    const cartTotal = Object.entries(cart).reduce((total, [id, qty]) => {
-        const item = menuData.find(i => i.id === id);
-        return total + (item ? item.price * qty : 0);
-    }, 0);
-
-    // AI & Micro-interaction States
     const [assistantMsg, setAssistantMsg] = useState("Ready to build your smart snack?");
     const [showCombo, setShowCombo] = useState(false);
     const [cartPulse, setCartPulse] = useState(false);
     const [selectedItem, setSelectedItem] = useState(null);
+    const cartCount = Object.values(cart).reduce((a, b) => a + b, 0);
     const prevCartCount = useRef(cartCount);
 
     // Watch cart changes to trigger interactions
@@ -65,6 +44,26 @@ const Menu = ({ cart, updateCart, triggerRobot }) => {
             setAssistantMsg("Ready to build your smart snack?");
         }
     }, [selectedItem, cartCount]);
+
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6">
+                <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4" />
+                <p className="text-slate-500 font-bold animate-pulse">Syncing Menu Data...</p>
+            </div>
+        );
+    }
+
+    const filteredData = menuData.filter(item => {
+        const matchesCategory = activeTab === 'All' || item.category === activeTab;
+        const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase());
+        return matchesCategory && matchesSearch;
+    });
+
+    const cartTotal = Object.entries(cart).reduce((total, [id, qty]) => {
+        const item = menuData.find(i => i.id === id);
+        return total + (item ? item.price * qty : 0);
+    }, 0);
 
     // Recommended items (grab top 3 popular)
     const recommendedItems = menuData.filter(i => i.isPopular && !cart[i.id]).slice(0, 3);
