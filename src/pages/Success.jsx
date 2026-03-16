@@ -66,14 +66,18 @@ const Success = ({ onReset }) => {
         // Define order ID logic
         if (passedOrderId) {
             setOrderId(passedOrderId);
-        } else if (orders && orders.length > 0) {
-            // Check if there's a recent order in the context we can use as fallback
-            const latestOrder = orders[orders.length - 1];
-            if (Date.now() - latestOrder.timestamp < 1000 * 60 * 60) { // within 1 hour
-                setOrderId(latestOrder.id);
+            localStorage.setItem('my_active_order_id', passedOrderId);
+        } else {
+            const localId = localStorage.getItem('my_active_order_id');
+            if (localId) {
+                setOrderId(localId);
+            } else {
+                // If no ID is passed and none in local storage, we shouldn't be here
+                console.warn("No active order found for this device. Redirecting...");
+                navigate('/');
             }
         }
-    }, [passedOrderId, orders]);
+    }, [passedOrderId, navigate]);
 
     const activeOrderId = passedOrderId || orderId;
 

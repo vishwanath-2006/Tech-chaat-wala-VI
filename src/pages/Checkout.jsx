@@ -32,6 +32,8 @@ const Checkout = ({ cart, updateCart }) => {
     const RAZORPAY_KEY = import.meta.env.VITE_RAZORPAY_KEY_ID;
 
     const handleConfirmPayment = async (method, status = 'paid', razorpayPaymentId = null) => {
+        // Clear old order ID before starting a new one
+        localStorage.removeItem('my_active_order_id');
         setIsProcessing(true)
         setProcessingMsg(method === 'Counter' ? "Registering order..." : "Finalizing transaction...");
 

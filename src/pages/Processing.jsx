@@ -7,9 +7,17 @@ const Processing = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const { getOrder } = useOrders();
-    const orderId = location.state?.orderId;
-
+    const locationOrderId = location.state?.orderId;
+    const [orderId, setOrderId] = useState(locationOrderId || localStorage.getItem('my_active_order_id'));
     const [order, setOrder] = useState(null);
+
+    useEffect(() => {
+        // Update orderId if location state changes
+        if (locationOrderId) {
+            setOrderId(locationOrderId);
+            localStorage.setItem('my_active_order_id', locationOrderId);
+        }
+    }, [locationOrderId]);
 
     useEffect(() => {
         const checkStatus = () => {
