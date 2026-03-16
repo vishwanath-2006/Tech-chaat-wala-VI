@@ -12,6 +12,8 @@ const Login = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
 
+    console.log("Login: Component rendering...");
+
     const handleGuestControl = () => {
         continueAsGuest();
         navigate('/menu');

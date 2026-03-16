@@ -8,6 +8,7 @@ import { useAuth } from '../context/AuthContext';
 const Landing = () => {
     const { user, loading } = useAuth();
     const navigate = useNavigate();
+    console.log("Landing: Initializing with user:", !!user, "loading:", loading);
     const [isBooting, setIsBooting] = useState(false);
     const [bootText, setBootText] = useState('');
     const [bootProgress, setBootProgress] = useState(0);
@@ -33,7 +34,8 @@ const Landing = () => {
             if (step >= BOOT_SEQUENCE.length) {
                 clearInterval(interval);
                 setTimeout(() => {
-                    navigate('/menu');
+                    console.log("Landing: Navigating to /login");
+                    navigate('/login');
                 }, 500); // Small pause before actual navigation
             }
         }, 600); // 600ms per boot step

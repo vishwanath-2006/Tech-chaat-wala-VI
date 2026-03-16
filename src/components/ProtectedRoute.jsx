@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabaseClient';
 
 const ProtectedRoute = ({ children, requiredRole }) => {
-    const { user } = useAuth();
+    const { user, isGuest } = useAuth();
     const [loading, setLoading] = useState(true);
     const [session, setSession] = useState(null);
     const location = useLocation();
